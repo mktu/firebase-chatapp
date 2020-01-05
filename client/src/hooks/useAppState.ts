@@ -1,4 +1,4 @@
-import { useReducer,useEffect } from 'react';
+import { useReducer,useEffect,useMemo } from 'react';
 import { initialState as authInitialState } from '../contexts/AuthContext';
 import { initialState as profileInitialState } from '../contexts/ProfileContext';
 import authActionCreater from '../actions/createAuthActions';
@@ -11,19 +11,21 @@ import profileReducer from '../reducers/profileReducer';
 export default function () {
     const [userState, dispatchUser] = useReducer(authReducer, authInitialState);
     const [profileState, dispatchProfile] = useReducer(profileReducer, profileInitialState);
-    const userActions = authActionCreater(dispatchUser);
-    const profileActions = profileActionCreater(dispatchProfile);
+    const userActions = useMemo(()=>authActionCreater(dispatchUser),[dispatchUser]);
+    const profileActions = useMemo(()=>profileActionCreater(dispatchProfile),[dispatchProfile]);
     const { user } = userState;
     useEffect(() => {
-        return listenAuthState(dispatchUser);
-    }, []);
+        return listenAuthState(userActions.login!, userActions.logout!);
+    }, [userActions]);
     useEffect(() => {
+        console.log('loading')
         if (user) {
-            profileActions.set && getProfile(user, profileActions.set, (error)=>{
+            getProfile(user, profileActions.set, (error)=>{
                 console.log(error); // Do not treat as error
             });
+            profileActions.loading();
         }
-    }, [user,profileActions.set]);
+    }, [user,profileActions]);
     return {
         userState,
         profileState,

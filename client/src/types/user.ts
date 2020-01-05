@@ -26,3 +26,5 @@ export type ContextType = {
 }
 
 export type Dispatch = (action : Action) => void;
+
+export type Transfer = (user : User) => void;

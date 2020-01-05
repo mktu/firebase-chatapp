@@ -1,5 +1,5 @@
 import firebase from './firebase';
-import { User, Dispatch } from '../types/user';
+import { User, Transfer } from '../types/user';
 import { consoleError, consoleLogger, ErrorHandler } from '../utils';
 
 type OnSucceeded = (user: User) => void;
@@ -13,23 +13,16 @@ const convertUser = (user: firebase.User): User => {
     }
 }
 
-export const listenAuthState = (dispatch: Dispatch) => {
+export const listenAuthState = (onLogin : Transfer, onLogout : ()=>void ) => {
     return firebase.auth().onAuthStateChanged(function (user) {
         if (user) {
-            dispatch({
-                type: 'login',
-                payload: {
-                    user: {
-                        uid: user.uid,
-                        isAnonymous: user.isAnonymous,
-                        name: user.displayName
-                    }
-                }
-            });
+            onLogin({
+                uid: user.uid,
+                isAnonymous: user.isAnonymous,
+                name: user.displayName
+            })
         } else {
-            dispatch({
-                type: 'logout',
-            });
+            onLogout();
         }
     });
 }

@@ -11,12 +11,14 @@ export type Action = {
     }
 }
 export type Actions = {
-    set? : (profile : Profile) => void,
-    unset? : () => void
+    set : (profile : Profile) => void,
+    unset : () => void,
+    loading : () => void
 };
 
 export type State = {
     profile : Profile | null,
+    loading : boolean,
     error : Error | null
 }
 

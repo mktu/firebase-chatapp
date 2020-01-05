@@ -14,6 +14,9 @@ const MainPage = () => {
     if (!userState.user) {
         return <VisitorPage />;
     }
+    if(profileState.loading){
+        return (<div>Loading...</div>)
+    }
     if (!profileState.profile) {
         return <ProfilePage />
     }
