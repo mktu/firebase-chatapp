@@ -4,7 +4,7 @@ import PaperBase from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import {useRegisterProfileState} from '../../hooks/useProfileState';
+import {useRegisterProfileState, useUpdateProfileState} from '../../hooks/useProfileState';
 
 type Props = {
     isUpdate? : Boolean 
@@ -32,19 +32,40 @@ const ButtonWrapper = styled.div`
     justify-content : flex-end;
 `;
 
-export default ({ isUpdate = false }: Props) => {
-    const { onChangeNickname, nickname, registerProfile, updateProfile,registrable } = useRegisterProfileState();
+export const RegisterProfilePage = () =>{
+    const { onChangeNickname, nickname, registerProfile,registrable } = useRegisterProfileState();
     return (
         <Wrapper>
             <Paper>
-                <Typography variant='subtitle1'>{isUpdate ? 'Update your profile' : 'Register your profile'}</Typography>
+                <Typography variant='subtitle1'>Register your profile</Typography>
                 <TextInputWrapper>
                     <TextField onChange={onChangeNickname} value={nickname} required fullWidth label="Nick Name" />
                 </TextInputWrapper>
                 <ButtonWrapper>
-                    <Button disabled={!registrable} onClick={isUpdate ? updateProfile : registerProfile} variant='contained' color='secondary'>SUBMIT</Button>
+                    <Button disabled={!registrable} onClick={registerProfile} variant='contained' color='secondary'>SUBMIT</Button>
                 </ButtonWrapper>
             </Paper>
         </Wrapper>
     )
+}
+
+export const UpdateProfilePage = () =>{
+    const { onChangeNickname, nickname, updateProfile,updatable } = useUpdateProfileState();
+    return (
+        <Wrapper>
+            <Paper>
+                <Typography variant='subtitle1'>Update your profile</Typography>
+                <TextInputWrapper>
+                    <TextField onChange={onChangeNickname} value={nickname} required fullWidth label="Nick Name" />
+                </TextInputWrapper>
+                <ButtonWrapper>
+                    <Button disabled={!updatable} onClick={updateProfile} variant='contained' color='secondary'>SUBMIT</Button>
+                </ButtonWrapper>
+            </Paper>
+        </Wrapper>
+    )
+}
+
+export default ({ isUpdate = false }: Props) => {
+    return isUpdate ? <UpdateProfilePage /> : <RegisterProfilePage />;
 };

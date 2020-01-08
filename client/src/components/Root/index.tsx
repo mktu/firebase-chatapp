@@ -3,7 +3,7 @@ import { BrowserRouter as Router, useLocation, useRouteMatch, Redirect, Switch, 
 import AuthContext from '../../contexts/AuthContext';
 import ProfileContext from '../../contexts/ProfileContext';
 import VisitorPage from '../VisitorPage';
-import ProfilePage from '../ProfilePage';
+import {RegisterProfilePage,UpdateProfilePage} from '../ProfilePage';
 import LoadingPage from '../LoadingPage';
 import Header from '../Header';
 
@@ -33,7 +33,7 @@ const AppRouter = ()=>{
           }} />;
     }
     if(matchCreateProfile){
-        return <ProfilePage />;
+        return <RegisterProfilePage />;
     }
 
     if(loadingProfile){
@@ -46,7 +46,12 @@ const AppRouter = ()=>{
             state: { from: location }
           }} />;
     }
-    return <Dummy />;
+    return (
+        <Switch>
+            <Route exact path='/' component={Dummy}/>
+            <Route path='/profile/update' component={UpdateProfilePage} />
+        </Switch>
+    )
 }
 const MainPage = () => {
     return (

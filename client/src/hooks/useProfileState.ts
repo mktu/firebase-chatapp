@@ -17,15 +17,23 @@ const useCommonState = () => {
             actions.set!(profile);
         });
     };
+    const requesting = () =>{
+        actions.loading();
+    }
+    const onChangeNickname = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNickname(e.target.value);
+    }
     return {
         nickname,
         setNickname,
+        onChangeNickname,
         setError,
         error,
         hasError,
         user,
         profile,
-        updateLocalProfile
+        updateLocalProfile,
+        requesting
     }
 }
 
@@ -38,13 +46,13 @@ export function useRegisterProfileState() {
         hasError,
         user,
         profile,
+        onChangeNickname,
         updateLocalProfile,
     } = useCommonState();
     const location = useLocation();
     const history = useHistory();
 
     const registrable = nickname !== '' && user;
-    const updatable = registrable && profile;
 
     useEffect(() => {
         if (user) {
@@ -65,22 +73,9 @@ export function useRegisterProfileState() {
         }
     }, [profile,history,location])
 
-
-    const onChangeNickname = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNickname(e.target.value);
-    }
     const registerProfile = () => {
         if (registrable) {
             addProfile(nickname, user!, updateLocalProfile, setError);
-        }
-    }
-
-    const updateProfile = () => {
-        if (updatable) {
-            modifyProfile({
-                ...profile!,
-                nickname
-            }, updateLocalProfile, setError);
         }
     }
 
@@ -91,6 +86,46 @@ export function useRegisterProfileState() {
         error,
         hasError,
         registrable,
+    };
+}
+
+export function useUpdateProfileState() {
+    const {
+        nickname,
+        setNickname,
+        setError,
+        error,
+        hasError,
+        profile,
+        onChangeNickname,
+        updateLocalProfile,
+        requesting
+    } = useCommonState();
+
+    const updatable = nickname !== '' && profile;
+
+    useEffect(() => {
+        if (profile) {
+            setNickname(profile.nickname || '');
+        }
+    }, [profile]);
+
+    const updateProfile = () => {
+        if (updatable) {
+            modifyProfile({
+                ...profile!,
+                nickname
+            }, updateLocalProfile, setError);
+            requesting();
+        }
+    }
+
+    return {
+        onChangeNickname,
+        nickname,
+        error,
+        hasError,
+        updatable,
         updateProfile
     };
 }

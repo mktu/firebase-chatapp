@@ -21,10 +21,9 @@ const LoginMenu = styled.div`
     align-items : center;
 `;
 
-const Nickname = styled(Typography)`
+const ProfileButton = styled(Button)`
     display : flex;
     align-items : center;
-    margin-right : ${({ theme }) => `${theme.spacing(2)}px`};
 `;
 
 const PersonIcon = styled(Person)`
@@ -32,7 +31,7 @@ const PersonIcon = styled(Person)`
 `;
 
 export default () => {
-    const { profile, handleLogout } = useHeaderState();
+    const { profile, handleLogout, jumpToProfile } = useHeaderState();
     return (
         <Wrapper>
             <AppBar position="static">
@@ -41,9 +40,10 @@ export default () => {
                     <div>
                         {profile && (
                             <LoginMenu>
-                                <Nickname>
+                                <ProfileButton color='inherit' onClick={jumpToProfile}>
                                     <PersonIcon />
-                                    {profile.nickname}</Nickname>
+                                    {profile.nickname}
+                                </ProfileButton>
                                 <Button color='inherit' onClick={handleLogout}>LOG OUT</Button>
                             </LoginMenu>
                         )}
