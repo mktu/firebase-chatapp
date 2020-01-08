@@ -1,30 +1,56 @@
 import React, { useContext } from 'react';
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, useLocation, useRouteMatch, Redirect, Switch, Route } from "react-router-dom";
 import AuthContext from '../../contexts/AuthContext';
 import ProfileContext from '../../contexts/ProfileContext';
 import VisitorPage from '../VisitorPage';
 import ProfilePage from '../ProfilePage';
+import LoadingPage from '../LoadingPage';
 
 const Dummy = () => {
     return <div>TBD</div>
 }
-const MainPage = () => {
+const AppRouter = ()=>{
     const { userState } = useContext(AuthContext);
     const { profileState } = useContext(ProfileContext);
-    if (!userState.user) {
+    const matchSignin = useRouteMatch("/signin");
+    const matchCreateProfile = useRouteMatch('/profile/create')
+    const location = useLocation();
+    const {loggingIn} = userState;
+    const {user} = userState;
+    const {loading : loadingProfile, profile} = profileState;
+    
+    if(loggingIn){
+        return <LoadingPage />;
+    }
+    if(matchSignin){
         return <VisitorPage />;
     }
-    if(profileState.loading){
-        return (<div>Loading...</div>)
+    if (!user) {
+        return <Redirect to={{
+            pathname: "/signin",
+            state: { from: location }
+          }} />;
     }
-    if (!profileState.profile) {
-        return <ProfilePage />
+    if(matchCreateProfile){
+        return <ProfilePage />;
     }
+
+    if(loadingProfile){
+        return <LoadingPage />;
+    }
+    
+    if (!profile) {
+        return <Redirect to={{
+            pathname: "/profile/create",
+            state: { from: location }
+          }} />;
+    }
+    return <Dummy />;
+}
+const MainPage = () => {
     return (
         <Router>
-            <Switch>
-                <Route path='/' exact component={Dummy} />
-            </Switch>
+            <AppRouter/>
         </Router>
     )
 }

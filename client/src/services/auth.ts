@@ -13,7 +13,7 @@ const convertUser = (user: firebase.User): User => {
     }
 }
 
-export const listenAuthState = (onLogin : Transfer, onLogout : ()=>void ) => {
+export const listenAuthState = (onLogin: Transfer, onLogout: () => void) => {
     return firebase.auth().onAuthStateChanged(function (user) {
         if (user) {
             onLogin({
@@ -29,7 +29,7 @@ export const listenAuthState = (onLogin : Transfer, onLogout : ()=>void ) => {
 
 export const loginByGoogle = (
     onSucceeded: OnSucceeded = consoleLogger,
-    onFailed : OnError = consoleError
+    onFailed: OnError = consoleError
 ) => {
     var provider = new firebase.auth.GoogleAuthProvider();
     firebase.auth().signInWithPopup(provider).then((usercred) => {
@@ -39,7 +39,7 @@ export const loginByGoogle = (
 
 export const linkWithGoogle = (
     onSucceeded: OnSucceeded,
-    onFailed : OnError = consoleError
+    onFailed: OnError = consoleError
 ) => {
     const provider = new firebase.auth.GoogleAuthProvider();
     const curUser = firebase.auth().currentUser;
@@ -56,7 +56,7 @@ export const linkWithGoogle = (
 
 export const loginWithAnonymous = (
     onSucceeded: OnSucceeded = consoleLogger,
-    onFailed : OnError = consoleError
+    onFailed: OnError = consoleError
 ) => {
     firebase.auth().signInAnonymously().then((usercred) => {
         usercred.user && onSucceeded(convertUser(usercred.user))
@@ -66,7 +66,7 @@ export const loginWithAnonymous = (
 
 export const logout = (
     onSucceeded = consoleLogger,
-    onFailed : OnError = consoleError
+    onFailed: OnError = consoleError
 ) => {
     firebase.auth().signOut().then(onSucceeded).catch(onFailed);
 }

@@ -4,7 +4,7 @@ import PaperBase from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import useProfileState from '../../hooks/useProfileState';
+import {useRegisterProfileState} from '../../hooks/useProfileState';
 
 type Props = {
     isUpdate? : Boolean 
@@ -33,7 +33,7 @@ const ButtonWrapper = styled.div`
 `;
 
 export default ({ isUpdate = false }: Props) => {
-    const { onChangeNickname, nickname, registerProfile, updateProfile,registrable } = useProfileState();
+    const { onChangeNickname, nickname, registerProfile, updateProfile,registrable } = useRegisterProfileState();
     return (
         <Wrapper>
             <Paper>

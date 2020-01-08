@@ -15,13 +15,14 @@ export default function () {
     const profileActions = useMemo(()=>profileActionCreater(dispatchProfile),[dispatchProfile]);
     const { user } = userState;
     useEffect(() => {
+        userActions.loggingIn();
         return listenAuthState(userActions.login!, userActions.logout!);
     }, [userActions]);
     useEffect(() => {
-        console.log('loading')
         if (user) {
             getProfile(user, profileActions.set, (error)=>{
                 console.log(error); // Do not treat as error
+                profileActions.unset();
             });
             profileActions.loading();
         }

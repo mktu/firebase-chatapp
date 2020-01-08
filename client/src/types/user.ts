@@ -12,12 +12,14 @@ export type Action = {
 }
 export type Actions = {
     login? : (user : User) => void,
-    logout? : () => void
+    logout? : () => void,
+    loggingIn : () => void
 };
 
 export type State = {
     user : User | null,
-    error : Error | null
+    error : Error | null,
+    loggingIn : boolean
 }
 
 export type ContextType = {
