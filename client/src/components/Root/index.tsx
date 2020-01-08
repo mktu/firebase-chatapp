@@ -5,6 +5,7 @@ import ProfileContext from '../../contexts/ProfileContext';
 import VisitorPage from '../VisitorPage';
 import ProfilePage from '../ProfilePage';
 import LoadingPage from '../LoadingPage';
+import Header from '../Header';
 
 const Dummy = () => {
     return <div>TBD</div>
@@ -18,7 +19,7 @@ const AppRouter = ()=>{
     const {loggingIn} = userState;
     const {user} = userState;
     const {loading : loadingProfile, profile} = profileState;
-    
+
     if(loggingIn){
         return <LoadingPage />;
     }
@@ -50,6 +51,7 @@ const AppRouter = ()=>{
 const MainPage = () => {
     return (
         <Router>
+            <Header />
             <AppRouter/>
         </Router>
     )

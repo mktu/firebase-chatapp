@@ -6,14 +6,14 @@ import { consoleError, ErrorHandler } from '../utils';
 const db = firebase.firestore();
 
 export function addProfile(
-    nickName: string,
+    nickname: string,
     user: User,
     onSucceeded : ()=>void | undefined,
     onFailed: ErrorHandler = consoleError
 ) {
     db.collection('profiles').add({
         uid: user.uid,
-        nickName,
+        nickname,
         lastUpdate: Date.now()
     })
         .then(onSucceeded)

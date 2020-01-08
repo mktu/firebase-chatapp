@@ -23,7 +23,7 @@ export default function () {
                 history.push('/');
             }
         }
-    },[user])
+    },[user,history,location])
 
     const onSucceeded = ()=>{
         history.replace(location.state.from);

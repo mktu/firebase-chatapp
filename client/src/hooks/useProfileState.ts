@@ -50,7 +50,7 @@ export function useRegisterProfileState() {
         if (user) {
             setNickname(user.name || '');
         }
-    }, [user]);
+    }, [user,setNickname]);
 
     useEffect(() => {
         if (profile) {
@@ -63,7 +63,7 @@ export function useRegisterProfileState() {
                 history.push('/');
             }
         }
-    }, [profile])
+    }, [profile,history,location])
 
 
     const onChangeNickname = (e: React.ChangeEvent<HTMLInputElement>) => {
