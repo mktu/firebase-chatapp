@@ -13,7 +13,7 @@ export default function () {
     const history = useHistory();
     
     useEffect(()=>{
-        if(user){
+        if(user && location.state){
             const { from } = location.state;
             const { pathname } = location;
             if(from && from.pathname !== pathname){

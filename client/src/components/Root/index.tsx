@@ -5,11 +5,9 @@ import ProfileContext from '../../contexts/ProfileContext';
 import VisitorPage from '../VisitorPage';
 import {RegisterProfilePage,UpdateProfilePage} from '../ProfilePage';
 import LoadingPage from '../LoadingPage';
+import RoomPage from '../RoomPage';
 import Header from '../Header';
 
-const Dummy = () => {
-    return <div>TBD</div>
-}
 const AppRouter = ()=>{
     const { userState } = useContext(AuthContext);
     const { profileState } = useContext(ProfileContext);
@@ -48,7 +46,7 @@ const AppRouter = ()=>{
     }
     return (
         <Switch>
-            <Route exact path='/' component={Dummy}/>
+            <Route exact path='/' component={RoomPage}/>
             <Route path='/profile/update' component={UpdateProfilePage} />
         </Switch>
     )

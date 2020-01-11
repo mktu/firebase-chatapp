@@ -61,7 +61,7 @@ export function useRegisterProfileState() {
     }, [user,setNickname]);
 
     useEffect(() => {
-        if (profile) {
+        if (profile && location.state) {
             const { from } = location.state;
             const { pathname } = location;
             if (from && from.pathname !== pathname) {
@@ -108,7 +108,7 @@ export function useUpdateProfileState() {
         if (profile) {
             setNickname(profile.nickname || '');
         }
-    }, [profile]);
+    }, [profile,setNickname]);
 
     const updateProfile = () => {
         if (updatable) {
