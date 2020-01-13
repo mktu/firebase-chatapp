@@ -1,50 +1,71 @@
 import { useState, useContext, useEffect } from 'react';
+import { useHistory } from "react-router-dom";
 import RoomContext from '../contexts/RoomContext';
 import ProfileContext from '../contexts/ProfileContext';
 import { createRoom, registListener } from '../services/room';
+import { Room } from '../types/room';
 
 
 export default function () {
     const [showNewRoom, setShowNewRoom] = useState<boolean>(false);
-    const { roomState, actions : roomActions } = useContext(RoomContext);
+    const [newRoomName, setNewRoomName] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(true);
+    const { roomState, actions: roomActions } = useContext(RoomContext);
     const { profileState } = useContext(ProfileContext);
     const { profile } = profileState;
-    const { id : profileId } = profile || {};
+    const { id: profileId } = profile || {};
+    const history = useHistory();
 
-    useEffect(()=>{
-        let unsubscribe : ReturnType<typeof registListener> = ()=>{};
-        if(profileId){
-            unsubscribe = registListener((rooms)=>{
+    useEffect(() => {
+        let unsubscribe: ReturnType<typeof registListener> = () => { };
+        if (profileId) {
+            unsubscribe = registListener((rooms) => {
                 roomActions.add(rooms);
-            }, (rooms)=>{
+                setLoading(false);
+            }, (rooms) => {
                 roomActions.modify(rooms);
-            }, (rooms)=>{
+            }, (rooms) => {
                 roomActions.delete(rooms);
-            },profileId);
+            }, profileId);
         }
-        return unsubscribe;
-    },[profileId,roomActions])
+        return () => {
+            unsubscribe();
+        };
+    }, [profileId, roomActions])
 
-    const hideDialog = ()=>{
+    const hideDialog = () => {
         setShowNewRoom(false);
     }
-    const showDialog = ()=>{
+    const showDialog = () => {
         setShowNewRoom(true);
     }
-    const handleSubmit = (roomName : string) => {
-        profileId && createRoom(
-            roomName,
-            profileId,
-            ()=>{
-                console.log(`Created ${roomName} room.`);
-            }
-        );
+    const handleEditNewRoomName = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNewRoomName(e.target.value);
+    }
+    const handleCreateNewRoom = () => {
+        if (profileId) {
+            createRoom(
+                newRoomName,
+                profileId,
+                () => {
+                    console.log(`Created ${newRoomName} room.`);
+                }
+            );
+            hideDialog();
+        }
+    }
+    const handleSelectRoom = (room: Room) => {
+        history.push(`/rooms/${room.id}`);
     }
     return {
-        showNewRoom, 
+        showNewRoom,
         hideDialog,
         showDialog,
-        handleSubmit,
-        roomState
+        roomState,
+        handleSelectRoom,
+        handleEditNewRoomName,
+        newRoomName,
+        handleCreateNewRoom,
+        loading
     }
 }

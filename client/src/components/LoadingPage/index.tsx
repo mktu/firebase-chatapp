@@ -10,11 +10,20 @@ const Wrapper = styled.div`
     padding : 2rem;
 `;
 
+type Props = {
+    message?: string
+}
 
-export default () => {
+const LoadingPage: React.FC<Props> = ({ message }) => {
     return (
         <Wrapper>
-            <CircularProgress />
+            <div>
+                <CircularProgress />
+                {message && message}
+            </div>
+
         </Wrapper>
     )
 };
+
+export default LoadingPage;

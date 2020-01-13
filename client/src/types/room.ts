@@ -1,6 +1,23 @@
+import { CollectionTransfer, DocumentTransfer } from './core';
+
 export type Room = {
     roomName : string,
     ownerId : string,
+    users : string[],
+    id : string
+};
+
+export const RequestStatus = {
+    Requesting : 'requesting',
+    Accepted : 'accepted',
+    Rejected : 'rejected'
+}
+
+export type JoinRequest = {
+    status : string,
+    profileId : string,
+    nickName : string,
+    date : number,
     id : string
 };
 
@@ -31,4 +48,6 @@ export type ContextType = {
 
 export type Dispatch = (action : Action) => void;
 
-export type Transfer = (rooms : Room[]) => void;
+export type RoomsTransfer = CollectionTransfer<Room>;
+export type RoomTransfer = DocumentTransfer<Room>;
+export type JoinRequestTransfer = CollectionTransfer<JoinRequest>;

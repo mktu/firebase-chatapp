@@ -3,50 +3,55 @@ import { BrowserRouter as Router, useLocation, useRouteMatch, Redirect, Switch, 
 import AuthContext from '../../contexts/AuthContext';
 import ProfileContext from '../../contexts/ProfileContext';
 import VisitorPage from '../VisitorPage';
-import {RegisterProfilePage,UpdateProfilePage} from '../ProfilePage';
+import { RegisterProfilePage, UpdateProfilePage } from '../ProfilePage';
 import LoadingPage from '../LoadingPage';
 import RoomPage from '../RoomPage';
 import Header from '../Header';
 
-const AppRouter = ()=>{
+const AppRouter = () => {
     const { userState } = useContext(AuthContext);
     const { profileState } = useContext(ProfileContext);
     const matchSignin = useRouteMatch("/signin");
     const matchCreateProfile = useRouteMatch('/profile/create')
     const location = useLocation();
-    const {loggingIn} = userState;
-    const {user} = userState;
-    const {loading : loadingProfile, profile} = profileState;
+    const { loggingIn } = userState;
+    const { user } = userState;
+    const { loading: loadingProfile, profile } = profileState;
 
-    if(loggingIn){
+    if (loggingIn) {
         return <LoadingPage />;
     }
-    if(matchSignin){
+    if (matchSignin) {
         return <VisitorPage />;
     }
     if (!user) {
         return <Redirect to={{
             pathname: "/signin",
             state: { from: location }
-          }} />;
+        }} />;
     }
-    if(matchCreateProfile){
+    if (matchCreateProfile) {
         return <RegisterProfilePage />;
     }
 
-    if(loadingProfile){
+    if (loadingProfile) {
         return <LoadingPage />;
     }
-    
+
     if (!profile) {
         return <Redirect to={{
             pathname: "/profile/create",
             state: { from: location }
-          }} />;
+        }} />;
     }
     return (
         <Switch>
-            <Route exact path='/' component={RoomPage}/>
+            <Route exact path='/'>
+                <Redirect to={{
+                    pathname: '/rooms'
+                }} />
+            </Route>
+            <Route path='/rooms' component={RoomPage} />
             <Route path='/profile/update' component={UpdateProfilePage} />
         </Switch>
     )
@@ -55,7 +60,7 @@ const MainPage = () => {
     return (
         <Router>
             <Header />
-            <AppRouter/>
+            <AppRouter />
         </Router>
     )
 }

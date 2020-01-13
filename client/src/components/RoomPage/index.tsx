@@ -1,16 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import PaperBase from '@material-ui/core/Paper';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import IconButton from '@material-ui/core/IconButton';
-import RoomDialog from '../RoomDialog';
-import { Add } from '@material-ui/icons';
-import useRoomPageState from '../../hooks/useRoomPageState';
-import Typography from '@material-ui/core/Typography';
+import { Switch, Route } from "react-router-dom";
 import LoadingPage from '../LoadingPage';
+import RoomDialog from '../RoomDialog';
+import RoomLoader from '../RoomLoader';
+import useRoomPageState from '../../hooks/useRoomPageState';
+import RoomMenu from '../RoomMenu';
+import ChatRoomBase, { JoinRequest } from '../ChatRoom';
 
 const Wrapper = styled.div`
     display : flex;
@@ -19,41 +15,71 @@ const Wrapper = styled.div`
     padding : 2rem;
 `;
 
-const Paper = styled(PaperBase)`
-    width : 60%;
-    padding : 1rem;
-`
+const ChatRoom = styled(ChatRoomBase)`
 
-const MenuWrapper = styled.div`
-    margin-top : 1rem;
-    display : flex;
 `;
 
 export default () => {
-    const {showNewRoom, showDialog, hideDialog, handleSubmit, roomState} = useRoomPageState();
-    const {rooms} = roomState;
+    const {
+        showNewRoom,
+        showDialog,
+        hideDialog,
+        roomState,
+        handleSelectRoom,
+        loading,
+        newRoomName,
+        handleCreateNewRoom,
+        handleEditNewRoomName,
+    } = useRoomPageState();
+    if (loading) {
+        return <LoadingPage message='loading rooms' />;
+    }
     return (
         <Wrapper>
-            <Paper>
-                <Typography>Your chat rooms</Typography>
-                <MenuWrapper>
-                    <IconButton onClick={showDialog}>
-                        <Add />
-                    </IconButton>
-                </MenuWrapper>
-                <List>
-                    {rooms.map(room=>{
-                        return (
-                            <ListItem>
-                                <ListItemText>
-                                    {room.roomName}
-                                </ListItemText>
-                            </ListItem>
+            <Switch>
+                <Route exact path='/rooms'>
+                    <RoomMenu
+                        showDialog={showDialog}
+                        handleSelectRoom={handleSelectRoom}
+                        roomState={roomState}
+                    />
+                </Route>
+                <Route path='/rooms/requests/:roomId'>
+                    {
+                        ({ match }) => (
+                            <JoinRequest roomId={match?.params.roomId} />
                         )
-                    })}
-                </List>
-            </Paper>
-            <RoomDialog show={showNewRoom} onClose={hideDialog} onSave={handleSubmit}/>
+                    }
+                </Route>
+                <Route path='/rooms/:roomId'>
+                    {({ match }) => {
+                        return (
+                            <RoomLoader roomId={match?.params.roomId}>
+                                {
+                                    (room) => (
+                                        <React.Fragment>
+                                            <RoomMenu
+                                                showDialog={showDialog}
+                                                handleSelectRoom={handleSelectRoom}
+                                                roomState={roomState}
+                                            />
+                                            <ChatRoom
+                                                room={room}
+                                            />
+                                        </React.Fragment>
+                                    )
+                                }
+                            </RoomLoader>
+                        )
+                    }}
+                </Route>
+            </Switch>
+            <RoomDialog
+                show={showNewRoom}
+                onClose={hideDialog}
+                handleChangeRoomName={handleEditNewRoomName}
+                roomName={newRoomName}
+                onSave={handleCreateNewRoom} />
         </Wrapper>
     )
 };

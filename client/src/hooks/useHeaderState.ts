@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { useLocation, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import ProfileContext from '../contexts/ProfileContext';
 import { logout } from '../services/auth';
 

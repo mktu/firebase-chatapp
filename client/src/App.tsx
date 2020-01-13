@@ -1,9 +1,7 @@
 import React from 'react';
 import deepPurple from '@material-ui/core/colors/deepPurple';
 import { ThemeProvider, createMuiTheme, StylesProvider } from '@material-ui/core/styles';
-import styled, {
-  ThemeProvider as StyledThemeProvider
-} from "styled-components";
+import { ThemeProvider as StyledThemeProvider } from "styled-components";
 import AuthContext from './contexts/AuthContext';
 import ProfileContext from './contexts/ProfileContext';
 import RoomContext from './contexts/RoomContext';
