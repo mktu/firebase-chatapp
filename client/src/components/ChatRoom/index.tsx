@@ -2,9 +2,14 @@ import React from 'react';
 import styled from 'styled-components';
 import PaperBase from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import { Room } from '../../types/room';
-import useChatRoomState from '../../hooks/useChatRoomState';
-import JoinRequest from './JoinRequest';
+import useRoomOwnerState from '../../hooks/useRoomOwnerState';
+import RequestRoom from '../RequestRoom';
 
 type Props = {
     room: Room,
@@ -22,31 +27,49 @@ const MenuWrapper = styled.div`
     justify-content : flex-end;
 `;
 
-const MessageBox = styled.div`
+const RequestsWrapper = styled(List)`
 
+`;
+
+const Request = styled(ListItem)`
 `;
 
 const InputBox = styled.div`
 
 `;
-export {JoinRequest};
+export { RequestRoom as JoinRequest };
 export default ({ className, room }: Props) => {
     const hasRoom = Boolean(room);
     const {
         requests,
         handleAcceptRequest,
-        handleRejectRequest} = useChatRoomState({room});
+        handleRejectRequest } = useRoomOwnerState({ room });
     return (
-        <Paper  className={className} >
+        <Paper className={className} >
             {hasRoom && (
                 <React.Fragment>
                     <Typography>{room!.roomName}</Typography>
+
                     <MenuWrapper>
 
                     </MenuWrapper>
-                    <MessageBox>
-
-                    </MessageBox>
+                    <RequestsWrapper>
+                        {requests.map(req => {
+                            return (
+                                <ListItem id={req.id} >
+                                    <ListItemText>{req.nickName}</ListItemText>
+                                    <ListItemSecondaryAction>
+                                        <Button color='secondary' onClick={() => {
+                                            handleAcceptRequest(req);
+                                        }}>ACCEPT</Button>
+                                        <Button color='secondary' onClick={() => {
+                                            handleRejectRequest(req);
+                                        }}>REFUSE</Button>
+                                    </ListItemSecondaryAction>
+                                </ListItem>
+                            )
+                        })}
+                    </RequestsWrapper>
                     <InputBox>
 
                     </InputBox>

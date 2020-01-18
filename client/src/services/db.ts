@@ -1,4 +1,4 @@
-import {CollectionTransfer} from '../types/core';
+import {CollectionTransfer,DocumentTransfer} from '../types/core';
 export function getCollectionListener<T>(
     onAdded: CollectionTransfer<T>,
     onModified: CollectionTransfer<T>,
@@ -37,5 +37,19 @@ export function getCollectionListener<T>(
             return;
         }
         onAdded(added);
+    }
+}
+
+export function getDocumentListener<T>(
+    onModified: DocumentTransfer<T>
+){
+    return function (doc: firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>) {
+        if(doc.exists){
+            const data = doc.data() as T;
+            onModified({
+                id : doc.id,
+                ...data
+            });
+        }
     }
 }

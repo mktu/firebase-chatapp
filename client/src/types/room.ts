@@ -50,4 +50,5 @@ export type Dispatch = (action : Action) => void;
 
 export type RoomsTransfer = CollectionTransfer<Room>;
 export type RoomTransfer = DocumentTransfer<Room>;
-export type JoinRequestTransfer = CollectionTransfer<JoinRequest>;
+export type JoinRequestsTransfer = CollectionTransfer<JoinRequest>;
+export type JoinRequestTransfer = DocumentTransfer<JoinRequest>;

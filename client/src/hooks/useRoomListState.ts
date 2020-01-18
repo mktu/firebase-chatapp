@@ -2,7 +2,7 @@ import { useState, useContext, useEffect } from 'react';
 import { useHistory } from "react-router-dom";
 import RoomContext from '../contexts/RoomContext';
 import ProfileContext from '../contexts/ProfileContext';
-import { createRoom, registListener } from '../services/room';
+import { createRoom, registRoomsListener } from '../services/room';
 import { Room } from '../types/room';
 
 
@@ -17,9 +17,9 @@ export default function () {
     const history = useHistory();
 
     useEffect(() => {
-        let unsubscribe: ReturnType<typeof registListener> = () => { };
+        let unsubscribe: ReturnType<typeof registRoomsListener> = () => { };
         if (profileId) {
-            unsubscribe = registListener((rooms) => {
+            unsubscribe = registRoomsListener((rooms) => {
                 roomActions.add(rooms);
                 setLoading(false);
             }, (rooms) => {
@@ -29,6 +29,7 @@ export default function () {
             }, profileId);
         }
         return () => {
+            roomActions.init();
             unsubscribe();
         };
     }, [profileId, roomActions])

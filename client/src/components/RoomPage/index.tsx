@@ -1,22 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, Redirect } from "react-router-dom";
 import LoadingPage from '../LoadingPage';
 import RoomDialog from '../RoomDialog';
 import RoomLoader from '../RoomLoader';
-import useRoomPageState from '../../hooks/useRoomPageState';
-import RoomMenu from '../RoomMenu';
-import ChatRoomBase, { JoinRequest } from '../ChatRoom';
+import useRoomPageState from '../../hooks/useRoomListState';
+import RoomList from '../RoomList';
+import ChatRoom, { JoinRequest } from '../ChatRoom';
 
 const Wrapper = styled.div`
     display : flex;
     align-items : center;
     justify-content : center;
     padding : 2rem;
-`;
-
-const ChatRoom = styled(ChatRoomBase)`
-
 `;
 
 export default () => {
@@ -38,7 +34,7 @@ export default () => {
         <Wrapper>
             <Switch>
                 <Route exact path='/rooms'>
-                    <RoomMenu
+                    <RoomList
                         showDialog={showDialog}
                         handleSelectRoom={handleSelectRoom}
                         roomState={roomState}
@@ -47,18 +43,42 @@ export default () => {
                 <Route path='/rooms/requests/:roomId'>
                     {
                         ({ match }) => (
-                            <JoinRequest roomId={match?.params.roomId} />
+                            <RoomLoader
+                                roomId={match?.params.roomId}
+                                fallback={() => {
+                                    return <Redirect
+                                        to={{
+                                            pathname: `/rooms`
+                                        }}
+                                    />;
+                                }}
+                                useDb
+                            >
+                                {(room) => (
+                                    <JoinRequest room={room} />
+                                )}
+                            </RoomLoader>
+
                         )
                     }
                 </Route>
                 <Route path='/rooms/:roomId'>
                     {({ match }) => {
                         return (
-                            <RoomLoader roomId={match?.params.roomId}>
+                            <RoomLoader
+                                roomId={match?.params.roomId}
+                                fallback={(roomId) => {
+                                    return <Redirect
+                                        to={{
+                                            pathname: `/rooms/requests/${roomId}`
+                                        }}
+                                    />;
+                                }}
+                            >
                                 {
                                     (room) => (
                                         <React.Fragment>
-                                            <RoomMenu
+                                            <RoomList
                                                 showDialog={showDialog}
                                                 handleSelectRoom={handleSelectRoom}
                                                 roomState={roomState}

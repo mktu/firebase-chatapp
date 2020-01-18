@@ -1,29 +1,58 @@
 import { useState, useContext, useEffect } from 'react';
-import { useHistory } from "react-router-dom";
 import RoomContext from '../contexts/RoomContext';
+import { getRoom, registRoomListener } from '../services/room';
+import { LoadingStatus } from '../constants';
 import { Room } from '../types/room';
 
 type Props = {
     roomId: string,
 }
 
-export default function ({ roomId }: Props) {
+export const useRoomStateFromCache = ({ roomId }: Props) => {
     const [room, setRoom] = useState<Room>();
+    const [status, setStatus] = useState<string>(LoadingStatus.Loading);
     const { roomState } = useContext(RoomContext);
     const { rooms } = roomState;
-    const history = useHistory();
 
     useEffect(() => {
         const selectedRoom = rooms.find(r => r.id === roomId)
         if (!selectedRoom) {
-            history.replace(`/rooms/requests/${roomId}`);
+            setStatus(LoadingStatus.Failed);
         }
         else{
             setRoom(selectedRoom);
+            setStatus(LoadingStatus.Succeeded)
         }
-    }, [rooms,history,roomId])
+    }, [rooms,roomId,setStatus])
 
     return {
-        room
+        room,
+        status
+    }
+}
+
+export const useRoomStateFromDb = ({ roomId }: Props) => {
+    const [room, setRoom] = useState<Room>();
+    const [status, setStatus] = useState<string>(LoadingStatus.Loading);
+
+    useEffect(() => {
+        let unsubscribe: ReturnType<typeof registRoomListener> = () => { }; 
+        getRoom(roomId, (room) => {
+            setRoom(room);
+            setStatus(LoadingStatus.Succeeded);
+            unsubscribe = registRoomListener(roomId, (modified)=>{
+                setRoom(modified);
+            })
+        }, ()=>{
+            setStatus(LoadingStatus.Failed);
+        })
+        return ()=>{
+            unsubscribe();
+        }
+    }, [roomId,setStatus])
+
+    return {
+        room,
+        status
     }
 }

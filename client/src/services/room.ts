@@ -5,13 +5,14 @@ import {
     JoinRequest, 
     RoomsTransfer, 
     RoomTransfer, 
-    JoinRequestTransfer } from '../types/room';
+    JoinRequestTransfer,
+    JoinRequestsTransfer } from '../types/room';
 import { consoleError, ErrorHandler, Notifier } from '../utils';
-import { getCollectionListener } from './db';
+import { getCollectionListener, getDocumentListener } from './db';
 
 const db = firebase.firestore();
 
-export function registListener(
+export function registRoomsListener(
     onAdded: RoomsTransfer,
     onModified: RoomsTransfer,
     onDeleted: RoomsTransfer,
@@ -26,11 +27,20 @@ export function registListener(
         ))
 }
 
+export function registRoomListener(
+    roomId: string,
+    onModified: RoomTransfer
+): Notifier {
+    return db.collection('rooms')
+        .doc(roomId)
+        .onSnapshot(getDocumentListener<Room>(onModified))
+}
+
 export function listenJoinRequests(
     roomId: string,
-    onAdded: JoinRequestTransfer,
-    onModified: JoinRequestTransfer,
-    onDeleted: JoinRequestTransfer
+    onAdded: JoinRequestsTransfer,
+    onModified: JoinRequestsTransfer,
+    onDeleted: JoinRequestsTransfer
 ) {
     return db.collection('rooms')
         .doc(roomId)
@@ -41,6 +51,37 @@ export function listenJoinRequests(
             onDeleted,
         ));
 }
+
+export function listenJoinRequestsByUser(
+    roomId: string,
+    profileId : string,
+    onAdded: JoinRequestsTransfer,
+    onModified: JoinRequestsTransfer,
+    onDeleted: JoinRequestsTransfer
+) {
+    return db.collection('rooms')
+        .doc(roomId)
+        .collection('requests')
+        .where('profileId', '==', profileId)
+        .onSnapshot(getCollectionListener<JoinRequest>(
+            onAdded,
+            onModified,
+            onDeleted,
+        ));
+}
+
+export function listenJoinRequest(
+    roomId: string,
+    requestId : string,
+    onModified: JoinRequestTransfer,
+) {
+    return db.collection('rooms')
+        .doc(roomId)
+        .collection('requests')
+        .doc(requestId)
+        .onSnapshot(getDocumentListener<JoinRequest>(onModified));
+}
+
 
 export function createRoom(
     roomName: string,
@@ -80,7 +121,7 @@ export function getRoom(
 
 export function createRequest(
     roomId: string,
-    userName: string,
+    nickName: string,
     profileId: string,
     onSucceeded: Notifier,
     onFailed: ErrorHandler = consoleError
@@ -89,7 +130,7 @@ export function createRequest(
         .doc(roomId)
         .collection('requests')
         .add({
-            userName,
+            nickName,
             profileId,
             status: RequestStatus.Requesting,
             date: Date.now()
@@ -98,10 +139,23 @@ export function createRequest(
         .catch(onFailed);
 }
 
+export function deleteRequest(
+    roomId: string,
+    requestId: string,
+    onFailed: ErrorHandler = consoleError
+) {
+    db.collection('rooms')
+        .doc(roomId)
+        .collection('requests')
+        .doc(requestId)
+        .delete()
+        .catch(onFailed);
+}
+
 export function getRequests(
     roomId: string,
     profileId: string,
-    onSucceeded: JoinRequestTransfer,
+    onSucceeded: JoinRequestsTransfer,
     onFailed: ErrorHandler = consoleError
 ) {
     db.collection('rooms')
@@ -143,9 +197,9 @@ export function updateRequest(
         .catch(onFailed);
 }
 
-export function modifyProfile(
+export function modifyRoom(
     room: Room,
-    onSucceeded: () => void | undefined,
+    onSucceeded ?: () => void,
     onFailed: ErrorHandler = consoleError
 ) {
     const { id, ...data } = room;
@@ -154,14 +208,5 @@ export function modifyProfile(
         lastUpdate: Date.now()
     }, { merge: true })
         .then(onSucceeded)
-        .catch(onFailed);
-}
-export function deleteProfile(
-    room: Room,
-    onFailed: ErrorHandler = consoleError
-) {
-    db.collection('rooms')
-        .doc(room.id)
-        .delete()
         .catch(onFailed);
 }
