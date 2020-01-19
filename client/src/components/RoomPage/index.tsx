@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Switch, Route, Redirect } from "react-router-dom";
 import LoadingPage from '../LoadingPage';
 import RoomDialog from '../RoomDialog';
-import RoomLoader from '../RoomLoader';
+import RoomLoader from '../Loaders/RoomLoader';
 import useRoomPageState from '../../hooks/useRoomListState';
 import RoomList from '../RoomList';
 import ChatRoom, { JoinRequest } from '../ChatRoom';

@@ -1,7 +1,6 @@
 import { useState, useContext, useEffect } from 'react';
 import AuthContext from '../contexts/AuthContext';
 import ProfileContext from '../contexts/ProfileContext';
-import { useLocation, useHistory } from "react-router-dom";
 import { addProfile, modifyProfile } from '../services/profile';
 import useErrorState from './useErrorState';
 
@@ -35,11 +34,8 @@ export function useRegisterProfileState() {
         error,
         hasError,
         user,
-        profile,
         onChangeNickname,
     } = useCommonState();
-    const location = useLocation();
-    const history = useHistory();
 
     const registrable = nickname !== '' && user;
 
@@ -48,19 +44,6 @@ export function useRegisterProfileState() {
             setNickname(user.name || '');
         }
     }, [user,setNickname]);
-
-    useEffect(() => {
-        if (profile && location.state) {
-            const { from } = location.state;
-            const { pathname } = location;
-            if (from && from.pathname !== pathname) {
-                history.replace(from);
-            }
-            else {
-                history.push('/');
-            }
-        }
-    }, [profile,history,location])
 
     const registerProfile = () => {
         if (registrable) {
