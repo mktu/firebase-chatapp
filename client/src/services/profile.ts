@@ -1,6 +1,7 @@
 import firebase from './firebase';
-import { Transfer, Profile } from '../types/profile';
+import { Transfer, ProfilesTransfer, Profile } from '../types/profile';
 import { User } from '../types/user';
+import { getCollectionListener } from './db';
 import { consoleError, ErrorHandler } from '../utils';
 
 const db = firebase.firestore();
@@ -19,6 +20,22 @@ export function addProfile(
         .then(onSucceeded)
         .catch(onFailed);
 }
+
+export function listenProfile(
+    uid : string,
+    onAdded: ProfilesTransfer,
+    onModified: ProfilesTransfer,
+    onDeleted: ProfilesTransfer
+) {
+    return db.collection('profiles')
+        .where('uid', '==', uid)
+        .onSnapshot(getCollectionListener<Profile>(
+            onAdded,
+            onModified,
+            onDeleted,
+        ));
+}
+
 
 export function getProfile(
     user: User,

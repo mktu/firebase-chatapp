@@ -1,3 +1,5 @@
+import { CollectionTransfer, DocumentTransfer } from './core';
+
 export type Profile = {
     nickname : string,
     uid : string,
@@ -29,4 +31,5 @@ export type ContextType = {
 
 export type Dispatch = (action : Action) => void;
 
-export type Transfer = (profile : Profile) => void;
+export type Transfer = DocumentTransfer<Profile>;
+export type ProfilesTransfer = CollectionTransfer<Profile>;

@@ -2,24 +2,16 @@ import { useState, useContext, useEffect } from 'react';
 import AuthContext from '../contexts/AuthContext';
 import ProfileContext from '../contexts/ProfileContext';
 import { useLocation, useHistory } from "react-router-dom";
-import { addProfile, getProfile, modifyProfile } from '../services/profile';
+import { addProfile, modifyProfile } from '../services/profile';
 import useErrorState from './useErrorState';
 
 const useCommonState = () => {
     const { setError, error, hasError } = useErrorState();
     const { userState } = useContext(AuthContext);
     const { user } = userState;
-    const { actions, profileState } = useContext(ProfileContext);
+    const { profileState } = useContext(ProfileContext);
     const { profile } = profileState;
     const [nickname, setNickname] = useState<string>('');
-    const updateLocalProfile = () => {
-        getProfile(user!, (profile) => {
-            actions.set!(profile);
-        });
-    };
-    const requesting = () =>{
-        actions.loading();
-    }
     const onChangeNickname = (e: React.ChangeEvent<HTMLInputElement>) => {
         setNickname(e.target.value);
     }
@@ -32,8 +24,6 @@ const useCommonState = () => {
         hasError,
         user,
         profile,
-        updateLocalProfile,
-        requesting
     }
 }
 
@@ -47,7 +37,6 @@ export function useRegisterProfileState() {
         user,
         profile,
         onChangeNickname,
-        updateLocalProfile,
     } = useCommonState();
     const location = useLocation();
     const history = useHistory();
@@ -75,7 +64,9 @@ export function useRegisterProfileState() {
 
     const registerProfile = () => {
         if (registrable) {
-            addProfile(nickname, user!, updateLocalProfile, setError);
+            addProfile(nickname, user!, ()=>{
+                console.log(`succeeded register profile "${nickname}"`)
+            }, setError);
         }
     }
 
@@ -98,8 +89,6 @@ export function useUpdateProfileState() {
         hasError,
         profile,
         onChangeNickname,
-        updateLocalProfile,
-        requesting
     } = useCommonState();
 
     const updatable = nickname !== '' && profile;
@@ -115,8 +104,9 @@ export function useUpdateProfileState() {
             modifyProfile({
                 ...profile!,
                 nickname
-            }, updateLocalProfile, setError);
-            requesting();
+            }, ()=>{
+                console.log(`succeeded modify profile "${nickname}"`);
+            }, setError);
         }
     }
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import deepPurple from '@material-ui/core/colors/deepPurple';
+import { BrowserRouter as Router } from "react-router-dom";
 import { ThemeProvider, createMuiTheme, StylesProvider } from '@material-ui/core/styles';
 import { ThemeProvider as StyledThemeProvider } from "styled-components";
 import AuthContext from './contexts/AuthContext';
@@ -19,19 +20,21 @@ const App: React.FC = () => {
 
   const { userState, profileState, userActions, profileActions, roomState, roomActions } = useAppState();
   return (
-    <StylesProvider injectFirst>
-      <ThemeProvider theme={theme}>
-        <StyledThemeProvider theme={theme}>
-          <AuthContext.Provider value={{ userState, actions: userActions }}>
-            <ProfileContext.Provider value={{ profileState, actions: profileActions }}>
-              <RoomContext.Provider value={{roomState, actions : roomActions}}>
-                <Root />
-              </RoomContext.Provider>
-            </ProfileContext.Provider>
-          </AuthContext.Provider>
-        </StyledThemeProvider>
-      </ThemeProvider>
-    </StylesProvider>
+    <Router>
+      <StylesProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <StyledThemeProvider theme={theme}>
+            <AuthContext.Provider value={{ userState, actions: userActions }}>
+              <ProfileContext.Provider value={{ profileState, actions: profileActions }}>
+                <RoomContext.Provider value={{ roomState, actions: roomActions }}>
+                  <Root />
+                </RoomContext.Provider>
+              </ProfileContext.Provider>
+            </AuthContext.Provider>
+          </StyledThemeProvider>
+        </ThemeProvider>
+      </StylesProvider>
+    </Router>
   );
 }
 

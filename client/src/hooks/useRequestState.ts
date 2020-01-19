@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import ProfileContext from '../contexts/ProfileContext';
 import { useHistory } from "react-router-dom";
-import { createRequest, getRoom, deleteRequest, listenJoinRequestsByUser, registRoomListener } from '../services/room';
+import { createRequest, deleteRequest, listenJoinRequestsByUser } from '../services/room';
 import { Room, JoinRequest, RequestStatus } from '../types/room';
 
 export default (room: Room) => {
@@ -18,7 +18,7 @@ export default (room: Room) => {
             }
         }
 
-    }, [request,room,profile,history,roomId])
+    }, [request,room,profile,history,roomId,users])
 
     useEffect(() => {
         let unsubscribe: ReturnType<typeof listenJoinRequestsByUser> = () => { };
