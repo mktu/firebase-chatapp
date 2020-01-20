@@ -1,37 +1,11 @@
 import React from 'react';
 import { useLocation, Redirect, Switch, Route } from "react-router-dom";
-import VisitorPage from '../VisitorPage';
+import SignInPage from '../SignInPage';
 import { RegisterProfilePage, UpdateProfilePage } from '../ProfilePage';
-import RoomPage from '../RoomPage';
-import { UserLoader, ProfileLoader } from '../Loaders';
-import { RedirectWhenProfileRegistered, RedirectWhenUserLoggedIn } from '../ConditionalRedirects';
+import RoomRoot from './RoomRoot';
+import { UserLoader, ProfileLoader, RoomsLoader } from '../Loaders';
 import Header from '../Header';
-
-const redirectWhenConditionSatisfied = (to: string) => {
-    return <Redirect to={{
-        pathname: to,
-    }} />;
-}
-
-const renderRootRequiresProfile = () => (
-    <Switch>
-        <Route path='/rooms' component={RoomPage} />
-        <Route path='/profile/update' component={UpdateProfilePage} />
-    </Switch>
-);
-
-const renderRootRequiresUser = () => (
-    <Switch>
-        <Route path='/profile/create'>
-            <RedirectWhenProfileRegistered onSatisfied={redirectWhenConditionSatisfied}>
-                <RegisterProfilePage />
-            </RedirectWhenProfileRegistered>
-        </Route>
-        <Route path="*">
-            <RequiresProfileRoot />
-        </Route>
-    </Switch>
-);
+import { RedirectBack } from './common';
 
 const RequiresProfileRoot: React.FC<{}> = () => {
     const location = useLocation();
@@ -41,7 +15,14 @@ const RequiresProfileRoot: React.FC<{}> = () => {
             state: { from: location }
         }} />;
     }}>
-        {renderRootRequiresProfile}
+        <Switch>
+            <Route path='/rooms'>
+                <RoomsLoader>
+                    <RoomRoot />
+                </RoomsLoader>
+            </Route>
+            <Route path='/profile/update' component={UpdateProfilePage} />
+        </Switch>
     </ProfileLoader>
 }
 
@@ -53,7 +34,16 @@ const RequiresUserRoot: React.FC<{}> = () => {
             state: { from: location }
         }} />;
     }}>
-        {renderRootRequiresUser}
+        <Switch>
+            <Route path='/profile/create'>
+                <RegisterProfilePage onSucceeded={() => (
+                    <RedirectBack defaultPath='/' />
+                )} />
+            </Route>
+            <Route path="*">
+                <RequiresProfileRoot />
+            </Route>
+        </Switch>
     </UserLoader >
 }
 
@@ -68,9 +58,9 @@ const Root: React.FC<{}> = () => {
                     }} />
                 </Route>
                 <Route exact path='/signin'>
-                    <RedirectWhenUserLoggedIn onSatisfied={redirectWhenConditionSatisfied}>
-                        <VisitorPage />
-                    </RedirectWhenUserLoggedIn>
+                    <SignInPage onSucceeded={() => (
+                        <RedirectBack defaultPath='/' />
+                    )} />
                 </Route>
                 <Route path="*">
                     <RequiresUserRoot />

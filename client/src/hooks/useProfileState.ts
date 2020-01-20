@@ -38,7 +38,7 @@ export function useRegisterProfileState() {
     } = useCommonState();
 
     const registrable = nickname !== '' && user;
-
+    const [succeeded, setSucceeded] = useState<boolean>(false);
     useEffect(() => {
         if (user) {
             setNickname(user.name || '');
@@ -48,7 +48,8 @@ export function useRegisterProfileState() {
     const registerProfile = () => {
         if (registrable) {
             addProfile(nickname, user!, ()=>{
-                console.log(`succeeded register profile "${nickname}"`)
+                console.log(`succeeded register profile "${nickname}"`);
+                setSucceeded(true);
             }, setError);
         }
     }
@@ -60,6 +61,7 @@ export function useRegisterProfileState() {
         error,
         hasError,
         registrable,
+        succeeded
     };
 }
 

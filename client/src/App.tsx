@@ -7,7 +7,7 @@ import AuthContext from './contexts/AuthContext';
 import ProfileContext from './contexts/ProfileContext';
 import RoomContext from './contexts/RoomContext';
 import useAppState from './hooks/useAppState';
-import Root from './components/Root';
+import AppRoot from './components/Routes/AppRoot';
 
 const theme = createMuiTheme({
   palette: {
@@ -27,7 +27,7 @@ const App: React.FC = () => {
             <AuthContext.Provider value={{ userState, actions: userActions }}>
               <ProfileContext.Provider value={{ profileState, actions: profileActions }}>
                 <RoomContext.Provider value={{ roomState, actions: roomActions }}>
-                  <Root />
+                  <AppRoot />
                 </RoomContext.Provider>
               </ProfileContext.Provider>
             </AuthContext.Provider>

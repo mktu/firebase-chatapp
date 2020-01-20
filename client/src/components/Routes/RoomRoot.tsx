@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Switch, Route, Redirect } from "react-router-dom";
-import LoadingPage from '../LoadingPage';
 import RoomDialog from '../RoomDialog';
 import RoomLoader from '../Loaders/RoomLoader';
 import useRoomPageState from '../../hooks/useRoomListState';
@@ -22,14 +21,10 @@ export default () => {
         hideDialog,
         roomState,
         handleSelectRoom,
-        loading,
         newRoomName,
         handleCreateNewRoom,
         handleEditNewRoomName,
     } = useRoomPageState();
-    if (loading) {
-        return <LoadingPage message='loading rooms' />;
-    }
     return (
         <Wrapper>
             <Switch>

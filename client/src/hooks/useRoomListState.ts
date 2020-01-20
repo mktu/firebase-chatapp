@@ -1,38 +1,19 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext } from 'react';
 import { useHistory } from "react-router-dom";
 import RoomContext from '../contexts/RoomContext';
 import ProfileContext from '../contexts/ProfileContext';
-import { createRoom, registRoomsListener } from '../services/room';
+import { createRoom } from '../services/room';
 import { Room } from '../types/room';
 
 
 export default function () {
     const [showNewRoom, setShowNewRoom] = useState<boolean>(false);
     const [newRoomName, setNewRoomName] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(true);
-    const { roomState, actions: roomActions } = useContext(RoomContext);
+    const { roomState } = useContext(RoomContext);
     const { profileState } = useContext(ProfileContext);
     const { profile } = profileState;
     const { id: profileId } = profile || {};
     const history = useHistory();
-
-    useEffect(() => {
-        let unsubscribe: ReturnType<typeof registRoomsListener> = () => { };
-        if (profileId) {
-            unsubscribe = registRoomsListener((rooms) => {
-                roomActions.add(rooms);
-                setLoading(false);
-            }, (rooms) => {
-                roomActions.modify(rooms);
-            }, (rooms) => {
-                roomActions.delete(rooms);
-            }, profileId);
-        }
-        return () => {
-            roomActions.init();
-            unsubscribe();
-        };
-    }, [profileId, roomActions])
 
     const hideDialog = () => {
         setShowNewRoom(false);
@@ -67,6 +48,5 @@ export default function () {
         handleEditNewRoomName,
         newRoomName,
         handleCreateNewRoom,
-        loading
     }
 }

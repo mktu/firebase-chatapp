@@ -3,7 +3,11 @@ import styled from 'styled-components';
 import PaperBase from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import useVisitorState from '../../hooks/useVisitorState';
+import useSignInState from '../../hooks/useSignInState';
+
+type Props = {
+    onSucceeded : ()=>JSX.Element
+};
 
 const Wrapper = styled.div`
     display : flex;
@@ -23,8 +27,13 @@ const ButtonWrapper = styled.div`
     justify-content : space-around;
 `;
 
-export default () => {
-    const {handleAnonymousLogin, handleGoogoleLogin} = useVisitorState();
+const SignInPage : React.FC<Props> = ({
+    onSucceeded
+}) => {
+    const {handleAnonymousLogin, handleGoogoleLogin,succeeded} = useSignInState();
+    if(succeeded){
+        return onSucceeded();
+    }
     return (
         <Wrapper>
             <Paper>
@@ -37,3 +46,5 @@ export default () => {
         </Wrapper>
     )
 };
+
+export default SignInPage;

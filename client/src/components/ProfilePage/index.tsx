@@ -32,8 +32,15 @@ const ButtonWrapper = styled.div`
     justify-content : flex-end;
 `;
 
-export const RegisterProfilePage = () =>{
-    const { onChangeNickname, nickname, registerProfile,registrable } = useRegisterProfileState();
+export const RegisterProfilePage : React.FC<{
+    onSucceeded : ()=> JSX.Element
+}> = ({
+    onSucceeded
+}) =>{
+    const { onChangeNickname, nickname, registerProfile,registrable, succeeded } = useRegisterProfileState();
+    if(succeeded){
+        return onSucceeded();
+    }
     return (
         <Wrapper>
             <Paper>
@@ -65,7 +72,3 @@ export const UpdateProfilePage = () =>{
         </Wrapper>
     )
 }
-
-export default ({ isUpdate = false }: Props) => {
-    return isUpdate ? <UpdateProfilePage /> : <RegisterProfilePage />;
-};

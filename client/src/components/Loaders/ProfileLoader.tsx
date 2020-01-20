@@ -6,7 +6,7 @@ import { listenProfile } from '../../services/profile';
 import { LoadingStatus } from '../../constants';
 
 type Props = {
-    children: () => JSX.Element,
+    children: JSX.Element,
     fallback: () => JSX.Element,
 }
 
@@ -19,12 +19,15 @@ const UserLoader: React.FC<Props> = ({
     const [status, setStatus] = useState<string>(LoadingStatus.Loading);
     const { user } = userState;
     useEffect(() => {
+        let unsubscribe: ReturnType<typeof listenProfile> = () => { };
         if (user) {
-            listenProfile(user.uid, (profiles)=>{
+            unsubscribe = listenProfile(user.uid, (profiles)=>{
                 if(profiles.length > 0){
                     actions.set(profiles[0]);
                     setStatus(LoadingStatus.Succeeded);
-                } 
+                }else{
+                    setStatus(LoadingStatus.Failed);
+                }
             }, (profiles)=>{
                 if(profiles.length > 0){
                     actions.set(profiles[0]);
@@ -35,6 +38,9 @@ const UserLoader: React.FC<Props> = ({
                 }
             })
         }
+        return ()=>{
+            unsubscribe();
+        }
     }, [user,actions]);
     if(status===LoadingStatus.Loading){
         return <LoadingPage message='Loading profile'/>
@@ -42,7 +48,7 @@ const UserLoader: React.FC<Props> = ({
     if(status===LoadingStatus.Failed){
         return fallback();
     }
-    return children();
+    return children;
 
 };
 

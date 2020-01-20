@@ -5,7 +5,7 @@ import { listenAuthState } from '../../services/auth';
 import { LoadingStatus } from '../../constants';
 
 type Props = {
-    children: () => JSX.Element,
+    children: JSX.Element,
     fallback: () => JSX.Element,
 }
 
@@ -30,7 +30,7 @@ const UserLoader: React.FC<Props> = ({
     if(status===LoadingStatus.Failed){
         return fallback();
     }
-    return children();
+    return children;
 
 };
 
