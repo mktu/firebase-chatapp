@@ -1,9 +1,7 @@
 import { useState, useContext } from 'react';
-import { useHistory } from "react-router-dom";
 import RoomContext from '../contexts/RoomContext';
 import ProfileContext from '../contexts/ProfileContext';
 import { createRoom } from '../services/room';
-import { Room } from '../types/room';
 
 
 export default function () {
@@ -13,7 +11,6 @@ export default function () {
     const { profileState } = useContext(ProfileContext);
     const { profile } = profileState;
     const { id: profileId } = profile || {};
-    const history = useHistory();
 
     const hideDialog = () => {
         setShowNewRoom(false);
@@ -36,15 +33,11 @@ export default function () {
             hideDialog();
         }
     }
-    const handleSelectRoom = (room: Room) => {
-        history.push(`/rooms/${room.id}`);
-    }
     return {
         showNewRoom,
         hideDialog,
         showDialog,
         roomState,
-        handleSelectRoom,
         handleEditNewRoomName,
         newRoomName,
         handleCreateNewRoom,

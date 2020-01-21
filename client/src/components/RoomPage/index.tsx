@@ -25,16 +25,16 @@ const RoomPaper = styled(Paper)(({closed}:{closed:boolean})=>`
 
 type Props = {
     children:JSX.Element,
-    closed : boolean
+    closed : boolean,
+    handleLoadRoom : (roomId:string)=>void
 };
 
-const RoomPage: React.FC<Props> = ({ children, closed }) => {
+const RoomPage: React.FC<Props> = ({ children, closed, handleLoadRoom }) => {
     const {
         showNewRoom,
         showDialog,
         hideDialog,
         roomState,
-        handleSelectRoom,
         newRoomName,
         handleCreateNewRoom,
         handleEditNewRoomName,
@@ -44,7 +44,9 @@ const RoomPage: React.FC<Props> = ({ children, closed }) => {
             <ListPaper>
                 <RoomList
                     showDialog={showDialog}
-                    handleSelectRoom={handleSelectRoom}
+                    handleSelectRoom={(room)=>{
+                        handleLoadRoom(room.id);
+                    }}
                     roomState={roomState}
                 />
             </ListPaper>
