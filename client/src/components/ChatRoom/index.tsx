@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import PaperBase from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import List from '@material-ui/core/List';
@@ -16,11 +15,6 @@ type Props = {
     className?: string,
 };
 
-const Paper = styled(PaperBase)`
-    width : 50%;
-    padding : 1rem;
-`
-
 const MenuWrapper = styled.div`
     margin-top : 1rem;
     display : flex;
@@ -29,9 +23,6 @@ const MenuWrapper = styled.div`
 
 const RequestsWrapper = styled(List)`
 
-`;
-
-const Request = styled(ListItem)`
 `;
 
 const InputBox = styled.div`
@@ -45,7 +36,7 @@ export default ({ className, room }: Props) => {
         handleAcceptRequest,
         handleRejectRequest } = useRoomOwnerState({ room });
     return (
-        <Paper className={className} >
+        <div className={className} >
             {hasRoom && (
                 <React.Fragment>
                     <Typography>{room!.roomName}</Typography>
@@ -75,6 +66,6 @@ export default ({ className, room }: Props) => {
                     </InputBox>
                 </React.Fragment>
             )}
-        </Paper>
+        </div>
     )
 };

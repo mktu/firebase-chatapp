@@ -1,100 +1,55 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import { Switch, Route, Redirect } from "react-router-dom";
-import RoomDialog from '../RoomDialog';
-import RoomLoader from '../Loaders/RoomLoader';
-import useRoomPageState from '../../hooks/useRoomListState';
-import RoomList from '../RoomList';
-import ChatRoom, { JoinRequest } from '../ChatRoom';
+import { RoomLoader, RoomsLoader } from '../Loaders';
+import RoomPage from '../RoomPage';
+import ChatRoom from '../ChatRoom';
 
-const Wrapper = styled.div`
-    display : flex;
-    align-items : center;
-    justify-content : center;
-    padding : 2rem;
-`;
+const Empty: React.FC<{ 
+    onMount: (empty : boolean) => void,
+}> = ({ onMount }) => {
+    useEffect(() => {
+        onMount(true);
+        return ()=>{
+            onMount(false);
+        }
+    }, [onMount]);
+    return null;
+}
 
-export default () => {
-    const {
-        showNewRoom,
-        showDialog,
-        hideDialog,
-        roomState,
-        handleSelectRoom,
-        newRoomName,
-        handleCreateNewRoom,
-        handleEditNewRoomName,
-    } = useRoomPageState();
+
+const RoomRoot : React.FC<any> = (props) => {
+    const [empty, setEmpty] = useState<boolean>(false);
     return (
-        <Wrapper>
-            <Switch>
-                <Route exact path='/rooms'>
-                    <RoomList
-                        showDialog={showDialog}
-                        handleSelectRoom={handleSelectRoom}
-                        roomState={roomState}
-                    />
-                </Route>
-                <Route path='/rooms/requests/:roomId'>
-                    {
-                        ({ match }) => (
-                            <RoomLoader
-                                roomId={match?.params.roomId}
-                                fallback={() => {
-                                    return <Redirect
-                                        to={{
-                                            pathname: `/rooms`
+        <Route {...props}>
+            <RoomsLoader>
+                <RoomPage closed={empty}>
+                    <Switch>
+                        <Route exact path='/rooms'>
+                            <Empty onMount={setEmpty} />
+                        </Route>
+                        <Route path='/rooms/:roomId'>
+                            {({ match }) => {
+                                return (
+                                    <RoomLoader
+                                        roomId={match?.params.roomId}
+                                        fallback={(roomId) => {
+                                            return <Redirect
+                                                to={{
+                                                    pathname: `/requests/${roomId}`
+                                                }}
+                                            />;
                                         }}
-                                    />;
-                                }}
-                                useDb
-                            >
-                                {(room) => (
-                                    <JoinRequest room={room} />
-                                )}
-                            </RoomLoader>
-
-                        )
-                    }
-                </Route>
-                <Route path='/rooms/:roomId'>
-                    {({ match }) => {
-                        return (
-                            <RoomLoader
-                                roomId={match?.params.roomId}
-                                fallback={(roomId) => {
-                                    return <Redirect
-                                        to={{
-                                            pathname: `/rooms/requests/${roomId}`
-                                        }}
-                                    />;
-                                }}
-                            >
-                                {
-                                    (room) => (
-                                        <React.Fragment>
-                                            <RoomList
-                                                showDialog={showDialog}
-                                                handleSelectRoom={handleSelectRoom}
-                                                roomState={roomState}
-                                            />
-                                            <ChatRoom
-                                                room={room}
-                                            />
-                                        </React.Fragment>
-                                    )
-                                }
-                            </RoomLoader>
-                        )
-                    }}
-                </Route>
-            </Switch>
-            <RoomDialog
-                show={showNewRoom}
-                onClose={hideDialog}
-                handleChangeRoomName={handleEditNewRoomName}
-                roomName={newRoomName}
-                onSave={handleCreateNewRoom} />
-        </Wrapper>
+                                    >
+                                        {(room) => (<ChatRoom room={room} />)}
+                                    </RoomLoader>
+                                )
+                            }}
+                        </Route>
+                    </Switch>
+                </RoomPage>
+            </RoomsLoader>
+        </Route>
     )
 };
+
+export default RoomRoot;

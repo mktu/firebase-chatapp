@@ -3,7 +3,8 @@ import { useLocation, Redirect, Switch, Route } from "react-router-dom";
 import SignInPage from '../SignInPage';
 import { RegisterProfilePage, UpdateProfilePage } from '../ProfilePage';
 import RoomRoot from './RoomRoot';
-import { UserLoader, ProfileLoader, RoomsLoader } from '../Loaders';
+import RequestRoot from './RequestRoot';
+import { UserLoader, ProfileLoader } from '../Loaders';
 import Header from '../Header';
 import { RedirectBack } from './common';
 
@@ -16,11 +17,8 @@ const RequiresProfileRoot: React.FC<{}> = () => {
         }} />;
     }}>
         <Switch>
-            <Route path='/rooms'>
-                <RoomsLoader>
-                    <RoomRoot />
-                </RoomsLoader>
-            </Route>
+            <RoomRoot path='/rooms'/>
+            <RequestRoot path='/requests/:roomId' />
             <Route path='/profile/update' component={UpdateProfilePage} />
         </Switch>
     </ProfileLoader>
@@ -35,7 +33,7 @@ const RequiresUserRoot: React.FC<{}> = () => {
         }} />;
     }}>
         <Switch>
-            <Route path='/profile/create'>
+            <Route exact path='/profile/create'>
                 <RegisterProfilePage onSucceeded={() => (
                     <RedirectBack defaultPath='/' />
                 )} />

@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import PaperBase from '@material-ui/core/Paper';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -16,11 +15,6 @@ type Props = {
     className? : string
 };
 
-const Paper = styled(PaperBase)`
-    width : 40%;
-    padding : 1rem;
-`
-
 const MenuWrapper = styled.div`
     margin-top : 1rem;
     display : flex;
@@ -30,7 +24,7 @@ const MenuWrapper = styled.div`
 export default ({ className, showDialog, roomState, handleSelectRoom } : Props) => {
     const { rooms } = roomState;
     return (
-        <Paper className={className}>
+        <div className={className}>
             <Typography>Your chat rooms</Typography>
             <MenuWrapper>
                 <Fab color='primary' onClick={showDialog}>
@@ -50,6 +44,6 @@ export default ({ className, showDialog, roomState, handleSelectRoom } : Props) 
                     )
                 })}
             </List>
-        </Paper>
+        </div>
     )
 };
