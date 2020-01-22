@@ -29,7 +29,13 @@ const RequestRoot: React.FC<any> = (props) => {
                             useDb
                         >
                             {(room) => (
-                                <RequestRoom room={room} />
+                                <RequestRoom room={room} accepted={() => {
+                                    return <Redirect
+                                        to={{
+                                            pathname: `/rooms/${room.id}`
+                                        }}
+                                    />;
+                                }} />
                             )}
                         </RoomLoader>
                     </JoinRequestPage>

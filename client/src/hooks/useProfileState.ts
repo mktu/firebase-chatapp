@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import AuthContext from '../contexts/AuthContext';
 import ProfileContext from '../contexts/ProfileContext';
-import { addProfile, modifyProfile } from '../services/profile';
+import { addProfile, getProfile, modifyProfile } from '../services/profile';
 import useErrorState from './useErrorState';
 
 const useCommonState = () => {
@@ -44,6 +44,18 @@ export function useRegisterProfileState() {
             setNickname(user.name || '');
         }
     }, [user,setNickname]);
+
+    useEffect(()=>{
+        if(user){
+            getProfile(user,(prof)=>{
+                if(prof.uid===user.uid){
+                    setSucceeded(true);
+                }
+            },()=>{
+                console.log('Profile is not registered');
+            })
+        }
+    },[user]);
 
     const registerProfile = () => {
         if (registrable) {
