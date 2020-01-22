@@ -6,10 +6,6 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import {useRegisterProfileState, useUpdateProfileState} from '../../hooks/useProfileState';
 
-type Props = {
-    isUpdate? : Boolean 
-}
-
 const Wrapper = styled.div`
     display : flex;
     align-items : center;

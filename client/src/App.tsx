@@ -14,7 +14,7 @@ const theme = createMuiTheme({
     primary: deepPurple,
   },
 });
-
+console.log(theme);
 
 const App: React.FC = () => {
 

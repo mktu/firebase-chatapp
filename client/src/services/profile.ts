@@ -58,6 +58,29 @@ export function getProfile(
         })
         .catch(onFailed);
 }
+
+export function getProfiles(
+    profileIds: string[],
+    onSucceeded: ProfilesTransfer,
+    onFailed: ErrorHandler = consoleError
+) {
+    db.collection('profiles')
+        .where(firebase.firestore.FieldPath.documentId(), 'in', profileIds)
+        .get()
+        .then(function (querySnapshot) {
+            if (querySnapshot.size === 0) {
+                onFailed(Error('Not found a profile of the selected user'))
+                return;
+            }
+            const dataset = querySnapshot.docs.map(doc=>({
+                id:doc.id,
+                ...doc.data()
+            } as Profile));
+            onSucceeded(dataset);
+        })
+        .catch(onFailed);
+}
+
 export function modifyProfile(
     profile: Profile,
     onSucceeded : ()=>void | undefined,

@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Route, Redirect } from "react-router-dom";
 import RoomLoader from '../Loaders/RoomLoader';
-import { JoinRequest } from '../ChatRoom';
+import RequestRoom from '../RequestRoom';
 
 const JoinRequestPage = styled.div`
     display : flex;
@@ -13,10 +13,10 @@ const JoinRequestPage = styled.div`
 
 const RequestRoot: React.FC<any> = (props) => {
     return (
-        <JoinRequestPage>
-            <Route {...props}>
-                {
-                    ({ match }) => (
+        <Route {...props}>
+            {
+                ({ match }) => (
+                    <JoinRequestPage>
                         <RoomLoader
                             roomId={match?.params.roomId}
                             fallback={() => {
@@ -29,13 +29,13 @@ const RequestRoot: React.FC<any> = (props) => {
                             useDb
                         >
                             {(room) => (
-                                <JoinRequest room={room} />
+                                <RequestRoom room={room} />
                             )}
                         </RoomLoader>
-                    )
-                }
-            </Route>
-        </JoinRequestPage>
+                    </JoinRequestPage>
+                )
+            }
+        </Route>
     )
 };
 

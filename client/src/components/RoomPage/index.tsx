@@ -7,18 +7,19 @@ import RoomList from '../RoomList';
 
 const Wrapper = styled.div`
     display : flex;
-    align-items : center;
     justify-content : center;
-    padding : 2rem;
+    padding : 1rem;
 `;
 
 const ListPaper = styled(Paper)`
-    width : 40%;
+    width : 30%;
     padding : 1rem;
+    height : 100%;
+    margin-right : 1rem;
 `
 
 const RoomPaper = styled(Paper)(({closed}:{closed:boolean})=>`
-    width : ${closed? `0` : `50%`};
+    width : ${closed? `0` : `60%`};
     padding :${closed? `0` : `1rem`};
     transition: all 0.3s ease-out;
 `);

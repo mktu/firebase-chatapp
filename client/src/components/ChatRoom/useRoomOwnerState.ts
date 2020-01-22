@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
-import ProfileContext from '../contexts/ProfileContext';
-import { modifyRoom, listenJoinRequests, updateRequest } from '../services/room';
-import { Room, JoinRequest, RequestStatus } from '../types/room';
+import ProfileContext from '../../contexts/ProfileContext';
+import { modifyRoom, listenJoinRequests, updateRequest } from '../../services/room';
+import { Room, JoinRequest, RequestStatus } from '../../types/room';
 
 type Props = {
     room: Room
