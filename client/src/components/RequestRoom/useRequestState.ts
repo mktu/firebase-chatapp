@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import ProfileContext from '../../contexts/ProfileContext';
-import { createRequest, deleteRequest } from '../../services/room';
+import { createRequest, deleteRequest } from '../../services/request';
 import { Room } from '../../types/room';
 
 export default (room: Room) => {
