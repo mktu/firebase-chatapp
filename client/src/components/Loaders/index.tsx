@@ -4,6 +4,7 @@ import RoomLoader from './RoomLoader';
 import RoomsLoader from './RoomsLoader';
 import RequestLoader from './RequestLoader';
 import RequestsLoader from './RequestsLoader';
+import MessagesLoader from './MessagesLoader';
 
 export {
     UserLoader,
@@ -11,5 +12,6 @@ export {
     RoomLoader,
     RoomsLoader,
     RequestLoader,
-    RequestsLoader
+    RequestsLoader,
+    MessagesLoader
 }

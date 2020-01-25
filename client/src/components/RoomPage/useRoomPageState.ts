@@ -1,7 +1,7 @@
 import { useState, useContext } from 'react';
-import RoomContext from '../contexts/RoomContext';
-import ProfileContext from '../contexts/ProfileContext';
-import { createRoom } from '../services/room';
+import RoomContext from '../../contexts/RoomContext';
+import ProfileContext from '../../contexts/ProfileContext';
+import { createRoom } from '../../services/room';
 
 
 export default function () {

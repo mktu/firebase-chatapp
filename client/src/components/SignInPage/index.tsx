@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import PaperBase from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import useSignInState from '../../hooks/useSignInState';
+import useSignInState from './useSignInState';
 
 type Props = {
     onSucceeded : ()=>JSX.Element

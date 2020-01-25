@@ -8,9 +8,9 @@ import { Profile } from '../../types/profile';
 
 
 export const ProfilesLoader: React.FC<{
-    children: (profiles:Profile[])=>JSX.Element,
-    fallback: () => JSX.Element,
-    loading: ()=>JSX.Element,
+    children: (profiles:Profile[])=>React.ReactElement,
+    fallback?: () => React.ReactElement,
+    loading?: ()=>React.ReactElement,
     uids: string[]
 }> = ({
     children,
@@ -30,10 +30,10 @@ export const ProfilesLoader: React.FC<{
         })
     },[uids]);
     if(status===LoadingStatus.Loading){
-        return loading();
+        return loading ? loading() : null;
     }
     if(status===LoadingStatus.Failed){
-        return fallback();
+        return fallback ? fallback() : null;
     }
     return children(profiles);
 }

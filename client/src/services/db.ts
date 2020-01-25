@@ -11,8 +11,8 @@ export function getCollectionListener<T>(
         for (let change of querySnapshot.docChanges()) {
             const data = change.doc.data() as T;
             const room = {
-                ...data,
-                id: change.doc.id
+                id: change.doc.id,
+                ...data
             };
             if (change.type === 'added') { // !! includes initial snapshot
                 added.push(room);

@@ -3,11 +3,10 @@ import styled from 'styled-components';
 import IconButton from '@material-ui/core/IconButton';
 import Avatar from '@material-ui/core/Avatar';
 import Tooltip from '@material-ui/core/Tooltip';
-import { Room } from '../../types/room';
-import { ProfilesLoader } from '../Loaders/ProfileLoader';
+import { Profile } from '../../types/profile';
 
 type Props = {
-    room: Room,
+    profiles: Profile[],
     className?: string,
 };
 
@@ -22,31 +21,19 @@ const UserIcon = styled(IconButton)`
     padding : 1px;
 `;
 
-const Users : React.FC<Props> =({ className, room }) => {
+const Users: React.FC<Props> = ({ className, profiles }) => {
     return (
         <div className={className} >
-            <ProfilesLoader
-                uids={room.users}
-                fallback={() => {
-                    return <div>Failed to retrieve users</div>
-                }}
-                loading={() => {
-                    return <div>Loading users...</div>
-                }}
-            >
-                {(profiles) => {
-                    return <UsersWrapper>
-                        {profiles.map(p => (
-                            <Tooltip title={p.nickname} aria-label="chat-users">
-                                <UserIcon key={p.id}>
-                                    <Avatar>{p.nickname[0]}</Avatar>
-                                </UserIcon>
-                            </Tooltip>
+            <UsersWrapper>
+                {profiles.map(p => (
+                    <Tooltip title={p.nickname} aria-label="chat-users">
+                        <UserIcon key={p.id}>
+                            <Avatar>{p.nickname[0]}</Avatar>
+                        </UserIcon>
+                    </Tooltip>
 
-                        ))}
-                    </UsersWrapper>
-                }}
-            </ProfilesLoader>
+                ))}
+            </UsersWrapper>
         </div>
     )
 };

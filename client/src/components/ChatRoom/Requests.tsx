@@ -14,7 +14,7 @@ type Props = {
     handleRejectRequest: (req: JoinRequest) => void
 };
 
-export default ({
+const Request : React.FC<Props> = ({
     className,
     handleAcceptRequest,
     handleRejectRequest,
@@ -52,3 +52,5 @@ export default ({
         </div>
     )
 };
+
+export default Request;

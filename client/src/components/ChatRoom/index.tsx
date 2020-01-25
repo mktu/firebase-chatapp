@@ -5,23 +5,28 @@ import IconButton from '@material-ui/core/IconButton';
 import { Send } from '@material-ui/icons';
 import TextField from '@material-ui/core/TextField';
 import { Room } from '../../types/room';
-import useRoomOwnerState from './useRoomOwnerState';
+import { ProfilesLoader } from '../Loaders/ProfileLoader';
+import useOwnerState from './useOwnerState';
+import useChatState from './useChatState';
 import Requests from './Requests';
-import Users from './Users';
+import UsersBase from './Users';
+import MessagesBase from './Messages';
 
 type Props = {
     room: Room,
     className?: string,
 };
 
-const Wrapper = styled.div`
-`;
+const Users = styled(UsersBase)`
+    margin-bottom : ${({ theme }) => `${theme.spacing(1)}px`};
+`
 
-const MessagesWrapper = styled.div`
+const Messages = styled(MessagesBase)`
     border : ${({ theme }) => `1px solid ${theme.palette.divider}`};
     height : 50vh;
     border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
     margin-bottom : ${({ theme }) => `${theme.spacing(2)}px`};
+    overflow : auto;
 `;
 
 const InputBox = styled.div`
@@ -34,25 +39,41 @@ export default ({ className, room }: Props) => {
         handleAcceptRequest,
         handleRejectRequest,
         isOwner
-    } = useRoomOwnerState(room);
+    } = useOwnerState(room);
+    const {
+        inputMessage,
+        handleChangeInput,
+        handleSubmitMessage,
+        handleKeyPress
+    } = useChatState(room.id);
+
     return (
-        <Wrapper className={className} >
+        <div className={className} >
             <Typography>{room.roomName}</Typography>
-            <Users room={room}/>
             {isOwner && (
-                <Requests 
+                <Requests
                     roomId={room.id}
-                    handleAcceptRequest={handleAcceptRequest} 
+                    handleAcceptRequest={handleAcceptRequest}
                     handleRejectRequest={handleRejectRequest}
                 />
             )}
-            <MessagesWrapper>
-
-            </MessagesWrapper>
             <InputBox>
-                <TextField fullWidth variant='outlined' />
-                <IconButton><Send /></IconButton>
+                <TextField 
+                    fullWidth 
+                    variant='outlined' 
+                    value={inputMessage} 
+                    onKeyPress={handleKeyPress}
+                    onChange={handleChangeInput}/>
+                <IconButton onClick={handleSubmitMessage}><Send /></IconButton>
             </InputBox>
-        </Wrapper>
+            <ProfilesLoader uids={room.users}>
+                {(profiles) => (
+                    <div>
+                        <Users profiles={profiles} />
+                        <Messages roomId={room.id} profiles={profiles}/>
+                    </div>
+                )}
+            </ProfilesLoader>
+        </div>
     )
 };

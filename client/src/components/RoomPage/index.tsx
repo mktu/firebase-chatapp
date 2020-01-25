@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Paper from '@material-ui/core/Paper';
 import RoomDialog from '../RoomDialog';
-import useRoomPageState from '../../hooks/useRoomListState';
+import useRoomPageState from './useRoomPageState';
 import RoomList from '../RoomList';
 
 const Wrapper = styled.div`

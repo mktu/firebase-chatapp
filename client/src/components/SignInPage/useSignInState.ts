@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { loginByGoogle, loginWithAnonymous } from '../services/auth';
-import useErrorState from './useErrorState';
+import { loginByGoogle, loginWithAnonymous } from '../../services/auth';
+import useErrorState from '../../hooks/useErrorState';
 
 
 export default function () {
