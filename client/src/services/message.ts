@@ -10,17 +10,42 @@ import { getCollectionListener } from './db';
 const db = firebase.firestore();
 
 export function registMessagesListener(
-    roomId: string,
-    limit: number,
-    onAdded: MessagesTransfer,
-    onModified: MessagesTransfer,
-    onDeleted: MessagesTransfer,
+    {
+        roomId,
+        limit,
+        order,
+        start,
+        onAdded,
+        onModified,
+        onDeleted
+    }: {
+        roomId: string,
+        limit?: number,
+        order?: {
+            key: string,
+            direction: firebase.firestore.OrderByDirection
+        }
+        start?: any,
+        onAdded: MessagesTransfer,
+        onModified: MessagesTransfer,
+        onDeleted: MessagesTransfer,
+    }
 ): Notifier {
-    return db.collection('rooms')
+    let query : 
+    firebase.firestore.DocumentReference<firebase.firestore.DocumentData> | firebase.firestore.Query<firebase.firestore.DocumentData> 
+    = db.collection('rooms')
         .doc(roomId)
-        .collection('messages')
-        .orderBy('date', 'desc')
-        .limit(limit)
+        .collection('messages');
+    if (order){
+        query = query.orderBy(order.key, order.direction);
+    }
+    if (start) {
+        query = query.startAfter(start);
+    }
+    if (limit) {
+        query = query.limit(limit);
+    }
+    return query
         .onSnapshot(getCollectionListener<Message>(
             onAdded,
             onModified,
@@ -35,14 +60,14 @@ export function getMessages({
     cursor,
     onAdded,
     onFailed = consoleError
-}:{
+}: {
     roomId: string,
     limit: number,
     order: firebase.firestore.OrderByDirection,
     cursor?: Message,
     onAdded: MessagesTransfer,
     onFailed?: ErrorHandler,
-}){
+}) {
     let query = db.collection('rooms')
         .doc(roomId)
         .collection('messages')

@@ -10,33 +10,32 @@ export function getCollectionListener<T>(
         let deleted: T[] = [];
         for (let change of querySnapshot.docChanges()) {
             const data = change.doc.data() as T;
-            const room = {
+            const target = {
                 id: change.doc.id,
                 ...data
             };
             if (change.type === 'added') { // !! includes initial snapshot
-                added.push(room);
+                added.push(target);
             }
             else if (change.type === 'modified') {
-                modified.push(room);
+                modified.push(target);
             }
             else if (change.type === 'removed') {
-                deleted.push(room)
+                deleted.push(target)
             }
         }
         if (added.length > 0) {
             onAdded(added);
-            return;
         }
         if (modified.length > 0) {
             onModified(modified);
-            return;
         }
         if (deleted.length > 0) {
             onDeleted(deleted);
-            return;
         }
-        onAdded(added);
+        if(added.length===0 && modified.length===0 && deleted.length===0){
+            onAdded(added); // initialize
+        }
     }
 }
 

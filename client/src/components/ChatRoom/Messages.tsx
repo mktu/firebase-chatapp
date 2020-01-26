@@ -24,7 +24,11 @@ const Messages: React.FC<Props> = ({
     return useMemo(() =>
         (
             <div className={className} id='chat-room-messages'>
-                <MessagesLoader roomId={roomId} >
+                <MessagesLoader roomId={roomId} 
+                    loading={()=>{
+                        return (<div>loading messages...</div>);
+                    }}
+                >
                     {
                         (messages, readMore, hasMore) => {
                             return (
@@ -36,7 +40,7 @@ const Messages: React.FC<Props> = ({
                                     loader={(<div>loading more messages...</div>)}
                                 >
                                     <List>
-                                        {messages.map(mes => {
+                                        {messages.map((mes) => {
                                             return (
                                                 <ListItem id={mes.id} key={mes.id}>
                                                     <ListItemText>{mes.message}</ListItemText>
