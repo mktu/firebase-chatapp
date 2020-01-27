@@ -17,15 +17,21 @@ type Props = {
     className?: string,
 };
 
+const RoomHeader = styled.div`
+    display : flex;
+    align-items : center;
+    justify-content : space-between;
+`;
+
 const Users = styled(UsersBase)`
     margin-bottom : ${({ theme }) => `${theme.spacing(1)}px`};
 `
 
 const Messages = styled(MessagesBase)`
     border : ${({ theme }) => `1px solid ${theme.palette.divider}`};
-    height : 50vh;
+    height : 60vh;
     border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
-    margin-bottom : ${({ theme }) => `${theme.spacing(2)}px`};
+    margin-top : ${({ theme }) => `${theme.spacing(2)}px`};
     overflow : auto;
 `;
 
@@ -49,29 +55,31 @@ export default ({ className, room }: Props) => {
 
     return (
         <div className={className} >
-            <Typography>{room.roomName}</Typography>
-            {isOwner && (
-                <Requests
-                    roomId={room.id}
-                    handleAcceptRequest={handleAcceptRequest}
-                    handleRejectRequest={handleRejectRequest}
-                />
-            )}
-            <InputBox>
-                <TextField 
-                    fullWidth 
-                    variant='outlined' 
-                    value={inputMessage} 
-                    onKeyPress={handleKeyPress}
-                    onChange={handleChangeInput}/>
-                <IconButton onClick={handleSubmitMessage}><Send /></IconButton>
-            </InputBox>
             <ProfilesLoader uids={room.users}>
                 {(profiles) => (
-                    <div>
-                        <Users profiles={profiles} />
-                        <Messages roomId={room.id} profiles={profiles}/>
-                    </div>
+                    <React.Fragment>
+                        <RoomHeader>
+                            <Typography>{room.roomName}</Typography>
+                            <Users profiles={profiles} />
+                        </RoomHeader>
+                        {isOwner && (
+                            <Requests
+                                roomId={room.id}
+                                handleAcceptRequest={handleAcceptRequest}
+                                handleRejectRequest={handleRejectRequest}
+                            />
+                        )}
+                        <InputBox>
+                            <TextField
+                                fullWidth
+                                variant='outlined'
+                                value={inputMessage}
+                                onKeyPress={handleKeyPress}
+                                onChange={handleChangeInput} />
+                            <IconButton onClick={handleSubmitMessage}><Send /></IconButton>
+                        </InputBox>
+                        <Messages roomId={room.id} profiles={profiles} />
+                    </React.Fragment>
                 )}
             </ProfilesLoader>
         </div>

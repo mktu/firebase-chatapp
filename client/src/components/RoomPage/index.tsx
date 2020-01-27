@@ -8,7 +8,7 @@ import RoomList from '../RoomList';
 const Wrapper = styled.div`
     display : flex;
     justify-content : center;
-    padding : 1rem;
+    padding : 3px;
 `;
 
 const ListPaper = styled(Paper)`
