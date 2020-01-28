@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { registMessagesListener, getMessages } from '../../services/message';
 import { Message } from '../../types/message';
 import { LoadingStatus } from '../../constants';

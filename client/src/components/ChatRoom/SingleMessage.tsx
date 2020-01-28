@@ -20,6 +20,9 @@ const SentMessage = styled.div`
     justify-content : flex-start;
     align-items : center;
     width : 100%;
+    &>.message-wrapper{
+        margin-left : ${({ theme }) => `${theme.spacing(1)}px`};
+    }
 `;
 
 const ReceivedMessage = styled.div`
@@ -27,15 +30,19 @@ const ReceivedMessage = styled.div`
     justify-content : flex-end;
     align-items : center;
     width : 100%;
+    &>.message-wrapper{
+        margin-right : ${({ theme }) => `${theme.spacing(1)}px`};
+        display : flex;
+        flex-direction : column;
+        align-items : flex-end;
+    }
 `;
 
-const MessageBox = styled.div`
+const Balloon = styled.div`
     padding : ${({ theme }) => `${theme.spacing(1)}px`};
     background-color : ${({ theme }) => `${theme.palette.grey['200']}`};
     border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
-    max-width : 60%;
-    margin-left : ${({ theme }) => `${theme.spacing(1)}px`};
-    margin-right : ${({ theme }) => `${theme.spacing(1)}px`};
+    max-width : 500px;
 `;
 
 const UserBox = styled.div`
@@ -55,38 +62,38 @@ const SingleMessage: React.FC<Props> = ({
     const userSent = profiles.find(p => p.id === message.profileId);
     const amISent = userSent?.id === profile?.id;
     const date = new Date(message.date);
-    const time = `${date.getMonth()+1}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+    const time = `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+
+    const avatar = useMemo(() => (
+        <UserBox>
+            <Avatar>
+                {userSent?.nickname[0]}
+            </Avatar>
+        </UserBox>
+    ), [userSent, time]);
 
     return useMemo(() =>
         (
             <ListItem className={className} >
                 {amISent ? (
                     <SentMessage>
-                        <UserBox>
-                            <Avatar>
-                                {userSent?.nickname[0]}
-                            </Avatar>
-                            <Typography variant='caption' color='textSecondary'>
-                                {time}
-                            </Typography>
-                        </UserBox>
-                        <MessageBox>
-                            {message.message}
-                        </MessageBox>
+                        {avatar}
+                        <div className='message-wrapper'>
+                            <Typography variant='caption' color='textSecondary'>{userSent?.nickname}</Typography>
+                            <Balloon>
+                                {message.message}
+                            </Balloon>
+                        </div>
                     </SentMessage>
                 ) : (
                         <ReceivedMessage>
-                            <MessageBox>
-                                {message.message}
-                            </MessageBox>
-                            <UserBox>
-                                <Avatar>
-                                    {userSent?.nickname[0]}
-                                </Avatar>
-                                <Typography variant='caption' color='textSecondary'>
-                                    {time}
-                                </Typography>
-                            </UserBox>
+                            <div className='message-wrapper'>
+                                <Typography variant='caption' color='textSecondary'>{userSent?.nickname}</Typography>
+                                <Balloon>
+                                    {message.message}
+                                </Balloon>
+                            </div>
+                            {avatar}
                         </ReceivedMessage>
                     )}
             </ListItem >

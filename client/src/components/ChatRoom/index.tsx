@@ -11,6 +11,7 @@ import useChatState from './useChatState';
 import Requests from './Requests';
 import UsersBase from './Users';
 import MessagesBase from './Messages';
+import Input from './Input';
 
 type Props = {
     room: Room,
@@ -50,7 +51,8 @@ export default ({ className, room }: Props) => {
         inputMessage,
         handleChangeInput,
         handleSubmitMessage,
-        handleKeyPress
+        handleKeyPress,
+        onSelectEmoji
     } = useChatState(room.id);
 
     return (
@@ -69,15 +71,13 @@ export default ({ className, room }: Props) => {
                                 handleRejectRequest={handleRejectRequest}
                             />
                         )}
-                        <InputBox>
-                            <TextField
-                                fullWidth
-                                variant='outlined'
-                                value={inputMessage}
-                                onKeyPress={handleKeyPress}
-                                onChange={handleChangeInput} />
-                            <IconButton onClick={handleSubmitMessage}><Send /></IconButton>
-                        </InputBox>
+                        <Input
+                            inputMessage={inputMessage}
+                            handleChangeInput={handleChangeInput}
+                            handleSubmitMessage={handleSubmitMessage}
+                            handleKeyPress={handleKeyPress}
+                            onSelectEmoji={onSelectEmoji}
+                        />
                         <Messages roomId={room.id} profiles={profiles} />
                     </React.Fragment>
                 )}

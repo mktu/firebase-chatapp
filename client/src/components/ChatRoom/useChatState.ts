@@ -1,4 +1,5 @@
-import { useState, useContext, useRef } from 'react';
+import { useState, useContext } from 'react';
+import { BaseEmoji } from 'emoji-mart'
 import ProfileContext from '../../contexts/ProfileContext';
 import { createMessage } from '../../services/message';
 
@@ -22,10 +23,14 @@ export default function (roomId: string) {
         );
         setInputMessage('')
     }
+    const onSelectEmoji = (emoji:BaseEmoji)=>{
+        setInputMessage(prev=>prev+emoji.native);
+    }
     return {
         inputMessage,
         handleChangeInput,
         handleSubmitMessage,
-        handleKeyPress
+        handleKeyPress,
+        onSelectEmoji
     }
 }

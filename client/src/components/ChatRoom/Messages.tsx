@@ -35,7 +35,7 @@ const Messages: React.FC<Props> = ({
                                     loader={(<div>loading more messages...</div>)}
                                 >
                                     <List>
-                                        {messages.map((mes) => (<SingleMessage profiles={profiles} message={mes}/>))}
+                                        {messages.map((mes) => (<SingleMessage key={mes.id} profiles={profiles} message={mes}/>))}
                                     </List>
                                 </InfiniteScroll>
                             )
@@ -43,7 +43,7 @@ const Messages: React.FC<Props> = ({
                     }
                 </MessagesLoader>
             </div >
-        ), [roomId])
+        ), [roomId,className,profiles])
 };
 
 export default Messages;
