@@ -1,10 +1,13 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useMemo, useContext, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import ProfileContext from '../../contexts/ProfileContext';
 import Typography from '@material-ui/core/Typography';
+import { Emoji } from 'emoji-mart'
+import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon';
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
+import Popover from '@material-ui/core/Popover';
 import IconButton from '@material-ui/core/IconButton';
 import Avatar from '@material-ui/core/Avatar';
-import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import { Profile } from '../../types/profile';
 import { Message } from '../../types/message';
@@ -39,10 +42,13 @@ const ReceivedMessage = styled.div`
 `;
 
 const Balloon = styled.div`
-    padding : ${({ theme }) => `${theme.spacing(1)}px`};
-    background-color : ${({ theme }) => `${theme.palette.grey['200']}`};
-    border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
     max-width : 500px;
+    & > span{
+        display : inline-block;
+        padding : ${({ theme }) => `${theme.spacing(1)}px`};
+        background-color : ${({ theme }) => `${theme.palette.grey['200']}`};
+        border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
+    }
 `;
 
 const UserBox = styled.div`
@@ -50,6 +56,29 @@ const UserBox = styled.div`
     flex-direction : column;
     justify-content : center;
     align-items : center;
+`;
+
+const EmojiActions = styled(IconButton)`
+    display : flex;
+    justify-content : flex-end;
+    align-items : start;
+    ${({ showEmoAction, theme }: { showEmoAction: boolean, theme: any }) => showEmoAction ? `
+        padding : 2px;
+        border-radius :${theme.shape.borderRadius}px;
+        border : 1px solid ${theme.palette.divider};
+        margin-right : ${theme.spacing(0.5)}px;
+       
+    ` : `
+        width : 0;
+        padding : 0;
+        border-radius :${theme.shape.borderRadius}px;
+        margin-right : ${theme.spacing(0.5)}px;
+        overflow : hidden;
+    `}
+     transition: all 0.1s ease-out;
+    &:hover{
+        background-color : transparent;
+    }
 `;
 
 const SingleMessage: React.FC<Props> = ({
@@ -63,6 +92,13 @@ const SingleMessage: React.FC<Props> = ({
     const amISent = userSent?.id === profile?.id;
     const date = new Date(message.date);
     const time = `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+    const [showEmoAction, setShowEmoAction] = useState(false);
+    const onHoverReceivedMessage = useCallback(() => {
+        setShowEmoAction(true);
+    }, []);
+    const onLeaveReceivedMessage = useCallback(() => {
+        setShowEmoAction(false);
+    }, []);
 
     const avatar = useMemo(() => (
         <UserBox>
@@ -70,7 +106,7 @@ const SingleMessage: React.FC<Props> = ({
                 {userSent?.nickname[0]}
             </Avatar>
         </UserBox>
-    ), [userSent, time]);
+    ), [userSent]);
 
     return useMemo(() =>
         (
@@ -79,25 +115,45 @@ const SingleMessage: React.FC<Props> = ({
                     <SentMessage>
                         {avatar}
                         <div className='message-wrapper'>
-                            <Typography variant='caption' color='textSecondary'>{userSent?.nickname}</Typography>
+                            <Typography variant='caption' color='textSecondary'>{userSent?.nickname},{time}</Typography>
                             <Balloon>
-                                {message.message}
+                                <span>
+                                    {message.message}
+                                </span>
                             </Balloon>
                         </div>
                     </SentMessage>
                 ) : (
-                        <ReceivedMessage>
+                        <ReceivedMessage onMouseEnter={onHoverReceivedMessage} onMouseLeave={onLeaveReceivedMessage}>
+                            <EmojiActions disableRipple disableTouchRipple showEmoAction={showEmoAction}>
+                                <React.Fragment>
+                                    <InsertEmoticonIcon fontSize='small' />
+                                    <AddCircleOutlineIcon style={{ fontSize: 15 }} />
+                                </React.Fragment>
+                            </EmojiActions>
                             <div className='message-wrapper'>
-                                <Typography variant='caption' color='textSecondary'>{userSent?.nickname}</Typography>
+                                <Typography variant='caption' color='textSecondary'>{userSent?.nickname},{time}</Typography>
                                 <Balloon>
-                                    {message.message}
+                                    <span>
+                                        {message.message}
+                                    </span>
                                 </Balloon>
                             </div>
                             {avatar}
                         </ReceivedMessage>
                     )}
             </ListItem >
-        ), [profiles, message])
+        ), [
+        message,
+        amISent,
+        avatar,
+        className,
+        onHoverReceivedMessage,
+        onLeaveReceivedMessage,
+        showEmoAction,
+        time,
+        userSent
+    ])
 };
 
 export default SingleMessage;

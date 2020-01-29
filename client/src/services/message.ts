@@ -2,7 +2,6 @@ import firebase from './firebase';
 import {
     Message,
     MessagesTransfer,
-    MessageTransfer
 } from '../types/message';
 import { Notifier, ErrorHandler, consoleError } from '../utils';
 import { getCollectionListener } from './db';

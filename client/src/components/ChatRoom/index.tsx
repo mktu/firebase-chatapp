@@ -1,9 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import { Send } from '@material-ui/icons';
-import TextField from '@material-ui/core/TextField';
 import { Room } from '../../types/room';
 import { ProfilesLoader } from '../Loaders/ProfileLoader';
 import useOwnerState from './useOwnerState';
@@ -34,11 +31,6 @@ const Messages = styled(MessagesBase)`
     border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
     margin-top : ${({ theme }) => `${theme.spacing(2)}px`};
     overflow : auto;
-`;
-
-const InputBox = styled.div`
-    display : flex;
-    align-items : center;
 `;
 
 export default ({ className, room }: Props) => {
