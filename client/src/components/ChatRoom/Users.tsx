@@ -26,8 +26,8 @@ const Users: React.FC<Props> = ({ className, profiles }) => {
         <div className={className} >
             <UsersWrapper>
                 {profiles.map(p => (
-                    <Tooltip title={p.nickname} aria-label="chat-users">
-                        <UserIcon key={p.id}>
+                    <Tooltip key={p.id} title={p.nickname} aria-label="chat-users">
+                        <UserIcon >
                             <Avatar>{p.nickname[0]}</Avatar>
                         </UserIcon>
                     </Tooltip>

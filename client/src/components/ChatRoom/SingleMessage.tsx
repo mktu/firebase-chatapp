@@ -1,19 +1,16 @@
-import React, { useMemo, useContext, useState, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import ProfileContext from '../../contexts/ProfileContext';
 import Typography from '@material-ui/core/Typography';
-import { Emoji } from 'emoji-mart'
-import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon';
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
-import Popover from '@material-ui/core/Popover';
-import IconButton from '@material-ui/core/IconButton';
 import Avatar from '@material-ui/core/Avatar';
 import ListItem from '@material-ui/core/ListItem';
 import { Profile } from '../../types/profile';
 import { Message } from '../../types/message';
+import useMessageState from './useMessageState';
+import { AddEmojiReaction, EmojiReactions } from './EmojiReactions';
 
 type Props = {
     className?: string,
+    roomId: string,
     profiles: Profile[],
     message: Message
 };
@@ -26,6 +23,11 @@ const SentMessage = styled.div`
     &>.message-wrapper{
         margin-left : ${({ theme }) => `${theme.spacing(1)}px`};
     }
+    &>.reactions{
+        display : flex;
+        align-items : flex-end;
+        margin-left : ${({ theme }) => `${theme.spacing(0.5)}px`};
+    }
 `;
 
 const ReceivedMessage = styled.div`
@@ -33,6 +35,13 @@ const ReceivedMessage = styled.div`
     justify-content : flex-end;
     align-items : center;
     width : 100%;
+    &>.emoji-reaction-sender{
+        transition: all 0.1s ease-out;
+    }
+    &>.reactions{
+        display : flex;
+        align-items : flex-end;
+    }
     &>.message-wrapper{
         margin-right : ${({ theme }) => `${theme.spacing(1)}px`};
         display : flex;
@@ -58,48 +67,25 @@ const UserBox = styled.div`
     align-items : center;
 `;
 
-const EmojiActions = styled(IconButton)`
-    display : flex;
-    justify-content : flex-end;
-    align-items : start;
-    ${({ showEmoAction, theme }: { showEmoAction: boolean, theme: any }) => showEmoAction ? `
-        padding : 2px;
-        border-radius :${theme.shape.borderRadius}px;
-        border : 1px solid ${theme.palette.divider};
-        margin-right : ${theme.spacing(0.5)}px;
-       
-    ` : `
-        width : 0;
-        padding : 0;
-        border-radius :${theme.shape.borderRadius}px;
-        margin-right : ${theme.spacing(0.5)}px;
-        overflow : hidden;
-    `}
-     transition: all 0.1s ease-out;
-    &:hover{
-        background-color : transparent;
-    }
-`;
+const initialReactions = {};
 
 const SingleMessage: React.FC<Props> = ({
     className,
     profiles,
-    message
+    message,
+    roomId
 }: Props) => {
-    const { profileState } = useContext(ProfileContext);
-    const { profile } = profileState;
-    const userSent = profiles.find(p => p.id === message.profileId);
-    const amISent = userSent?.id === profile?.id;
-    const date = new Date(message.date);
-    const time = `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
-    const [showEmoAction, setShowEmoAction] = useState(false);
-    const onHoverReceivedMessage = useCallback(() => {
-        setShowEmoAction(true);
-    }, []);
-    const onLeaveReceivedMessage = useCallback(() => {
-        setShowEmoAction(false);
-    }, []);
 
+    const {
+        userSent,
+        amISent,
+        time,
+        onHoverReceivedMessage,
+        onLeaveReceivedMessage,
+        showEmoAction,
+        handleAddReaction
+    } = useMessageState(profiles, message, roomId);
+    const { reactions = initialReactions } = message;
     const avatar = useMemo(() => (
         <UserBox>
             <Avatar>
@@ -122,16 +108,15 @@ const SingleMessage: React.FC<Props> = ({
                                 </span>
                             </Balloon>
                         </div>
+                        <EmojiReactions className='reactions' readonly reactions={reactions} handleAddReaction={handleAddReaction} />
                     </SentMessage>
                 ) : (
                         <ReceivedMessage onMouseEnter={onHoverReceivedMessage} onMouseLeave={onLeaveReceivedMessage}>
-                            <EmojiActions disableRipple disableTouchRipple showEmoAction={showEmoAction}>
-                                <React.Fragment>
-                                    <InsertEmoticonIcon fontSize='small' />
-                                    <AddCircleOutlineIcon style={{ fontSize: 15 }} />
-                                </React.Fragment>
-                            </EmojiActions>
-                            <div className='message-wrapper'>
+                            <div className='emoji-reaction-sender'>
+                                {showEmoAction && (<AddEmojiReaction handleAddReaction={handleAddReaction} />)}
+                            </div>
+                            <EmojiReactions className='reactions' reactions={reactions} handleAddReaction={handleAddReaction} />
+                            <div className='message-wrapper' >
                                 <Typography variant='caption' color='textSecondary'>{userSent?.nickname},{time}</Typography>
                                 <Balloon>
                                     <span>
@@ -148,11 +133,13 @@ const SingleMessage: React.FC<Props> = ({
         amISent,
         avatar,
         className,
+        reactions,
         onHoverReceivedMessage,
         onLeaveReceivedMessage,
         showEmoAction,
+        handleAddReaction,
         time,
-        userSent
+        userSent,
     ])
 };
 

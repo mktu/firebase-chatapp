@@ -35,7 +35,7 @@ const Messages: React.FC<Props> = ({
                                     loader={(<div>loading more messages...</div>)}
                                 >
                                     <List>
-                                        {messages.map((mes) => (<SingleMessage key={mes.id} profiles={profiles} message={mes}/>))}
+                                        {messages.map((mes) => (<SingleMessage key={mes.id} roomId={roomId} profiles={profiles} message={mes}/>))}
                                     </List>
                                 </InfiniteScroll>
                             )

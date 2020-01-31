@@ -30,12 +30,12 @@ export function registMessagesListener(
         onDeleted: MessagesTransfer,
     }
 ): Notifier {
-    let query : 
-    firebase.firestore.DocumentReference<firebase.firestore.DocumentData> | firebase.firestore.Query<firebase.firestore.DocumentData> 
-    = db.collection('rooms')
-        .doc(roomId)
-        .collection('messages');
-    if (order){
+    let query:
+        firebase.firestore.DocumentReference<firebase.firestore.DocumentData> | firebase.firestore.Query<firebase.firestore.DocumentData>
+        = db.collection('rooms')
+            .doc(roomId)
+            .collection('messages');
+    if (order) {
         query = query.orderBy(order.key, order.direction);
     }
     if (start) {
@@ -108,4 +108,38 @@ export function createMessage(
         })
         .then(onSucceeded)
         .catch(onFailed);
+}
+
+export function addReaction(
+    roomId: string,
+    messageId: string,
+    reactionId: string,
+    onSucceeded?: Notifier,
+    onFailed: ErrorHandler = consoleError
+) {
+    const docRef = db.collection('rooms')
+        .doc(roomId)
+        .collection('messages')
+        .doc(messageId);
+    db.runTransaction(function (transaction) {
+        return transaction.get(docRef).then(function (doc) {
+            if (!doc.exists) {
+                onFailed(Error(`Document ${roomId} : ${messageId} does not exist!`));
+                return;
+            }
+            const data = doc.data() as Message;
+            const reactions = data.reactions ? data.reactions : {};
+            const newReactions = {
+                ...reactions,
+                [reactionId] : reactions[reactionId] ? reactions[reactionId]+1 : 1
+            }
+            const newData : Message = {
+                ...data,
+                reactions:newReactions
+            }
+            transaction.update(docRef, newData);
+        });
+    })
+    .then(onSucceeded)
+    .catch(onFailed);
 }
