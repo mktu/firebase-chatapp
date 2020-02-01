@@ -2,6 +2,7 @@ import React, { useMemo, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import { Emoji } from 'emoji-mart'
+import Tooltip from '@material-ui/core/Tooltip';
 import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import Popover, { PopoverOrigin } from '@material-ui/core/Popover';
@@ -30,12 +31,12 @@ const InsertEmojiButton = styled(IconButton)`
     padding : 5px;
 `;
 
-const defaultAnchorOrigin : PopoverOrigin = {
+const defaultAnchorOrigin: PopoverOrigin = {
     vertical: 'top',
     horizontal: 'center',
 };
 
-const defaultTransformOrigin : PopoverOrigin = {
+const defaultTransformOrigin: PopoverOrigin = {
     vertical: 'bottom',
     horizontal: 'right',
 };
@@ -99,25 +100,31 @@ const AddEmojiReaction = ({
 }
 
 
-const EmojiReactions = ({ reactions, className, handleAddReaction, readonly = false }: {
-    reactions: { [s: string]: number },
+const EmojiReactions = ({ reactions, className, handleAddReaction = () => { }, readonly = false }: {
+    reactions: { [s: string]: string[] },
     className?: string,
     readonly?: boolean,
-    handleAddReaction: (reactionId: string) => void
+    handleAddReaction?: (reactionId: string) => void
 }) => {
-    const reactionIds = useMemo(()=>Object.keys(reactions),[reactions]);
+    const reactionIds = useMemo(() => Object.keys(reactions), [reactions]);
     return useMemo(() => (
         <div className={className}>
             {reactionIds.map(id => (
-                <EmojiIconButton disabled={readonly} key={id} onClick={() => {
-                    handleAddReaction(id);
-                }}>
-                    <Emoji emoji={id} size={16} />
-                    <Typography variant='caption' color='textSecondary'>{reactions[id]}</Typography>
-                </EmojiIconButton>
+                <Tooltip title={reactions[id].map(name => (
+                    <div>{name}</div>
+                ))} placement="top">
+                    <div>
+                        <EmojiIconButton disabled={readonly} key={id} onClick={() => {
+                            handleAddReaction(id);
+                        }}>
+                            <Emoji emoji={id} size={16} />
+                            <Typography variant='caption' color='textSecondary'>{reactions[id].length}</Typography>
+                        </EmojiIconButton>
+                    </div>
+                </Tooltip>
             ))}
         </div>
-    ), [reactions, className, handleAddReaction,readonly,reactionIds]);
+    ), [reactions, className, handleAddReaction, readonly, reactionIds]);
 }
 
 export {

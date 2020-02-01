@@ -1,4 +1,4 @@
-import { useContext, useState, useCallback } from 'react';
+import { useContext, useState, useMemo, useCallback } from 'react';
 import ProfileContext from '../../contexts/ProfileContext';
 import { Profile } from '../../types/profile';
 import { Message } from '../../types/message';
@@ -12,7 +12,7 @@ const useMessageState = (
     const { profileState } = useContext(ProfileContext);
     const { profile } = profileState;
     const userSent = profiles.find(p => p.id === message.profileId);
-    const amISent = userSent?.id === profile?.id;
+    const amISent = userSent?.id === profile!.id;
     const date = new Date(message.date);
     const time = `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
     const [showEmoAction, setShowEmoAction] = useState(false);
@@ -29,11 +29,26 @@ const useMessageState = (
             roomId,
             message.id,
             reactionId,
+            profile!.id,
             ()=>{
                 console.log(`add ${reactionId} Succedded`);
             }
         )
     }, [roomId,message.id]);
+
+    const reactions : {[s:string]:string[]} = useMemo(()=>{
+        const reactionsBase = message.reactions || {};
+        const keys = Object.keys(reactionsBase);
+        return keys.reduce<{[s:string]:string[]}>((acc,cur)=>{
+            const profileIds =  reactionsBase[cur];
+            const profilesNames = profileIds.map(id=>{
+                const profile = profiles.find(p=>p.id===id);
+                return profile!.nickname;
+            });
+            acc[cur] = profilesNames;
+            return acc;
+        },{});
+    },[message.reactions,profiles]);
 
     return {
         time,
@@ -42,7 +57,8 @@ const useMessageState = (
         showEmoAction,
         onHoverReceivedMessage,
         onLeaveReceivedMessage,
-        handleAddReaction
+        handleAddReaction,
+        reactions
     }
 };
 

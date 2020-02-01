@@ -114,6 +114,7 @@ export function addReaction(
     roomId: string,
     messageId: string,
     reactionId: string,
+    profileId: string,
     onSucceeded?: Notifier,
     onFailed: ErrorHandler = consoleError
 ) {
@@ -129,9 +130,13 @@ export function addReaction(
             }
             const data = doc.data() as Message;
             const reactions = data.reactions ? data.reactions : {};
+            const profileIds = reactions[reactionId] || [];
+            if(profileIds.includes(profileId)){
+                return;
+            }
             const newReactions = {
                 ...reactions,
-                [reactionId] : reactions[reactionId] ? reactions[reactionId]+1 : 1
+                [reactionId] : [...profileIds,profileId]
             }
             const newData : Message = {
                 ...data,

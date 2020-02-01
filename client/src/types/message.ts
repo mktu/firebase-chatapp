@@ -1,7 +1,7 @@
 import { CollectionTransfer, DocumentTransfer } from './core';
 
 export type Reactions = {
-    [s: string]: number
+    [s: string]: string[]
 };
 export type Message = {
     message : string,

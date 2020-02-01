@@ -83,9 +83,10 @@ const SingleMessage: React.FC<Props> = ({
         onHoverReceivedMessage,
         onLeaveReceivedMessage,
         showEmoAction,
-        handleAddReaction
+        handleAddReaction,
+        reactions
     } = useMessageState(profiles, message, roomId);
-    const { reactions = initialReactions } = message;
+
     const avatar = useMemo(() => (
         <UserBox>
             <Avatar>
