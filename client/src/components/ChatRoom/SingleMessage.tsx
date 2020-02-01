@@ -6,7 +6,7 @@ import ListItem from '@material-ui/core/ListItem';
 import { Profile } from '../../types/profile';
 import { Message } from '../../types/message';
 import useMessageState from './useMessageState';
-import { AddEmojiReaction, EmojiReactions } from './EmojiReactions';
+import { AddEmojiReaction, EmojiReactions } from '../Emoji';
 
 type Props = {
     className?: string,
@@ -66,8 +66,6 @@ const UserBox = styled.div`
     justify-content : center;
     align-items : center;
 `;
-
-const initialReactions = {};
 
 const SingleMessage: React.FC<Props> = ({
     className,

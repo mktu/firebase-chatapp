@@ -1,12 +1,13 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
-import { Emoji } from 'emoji-mart'
+import { Emoji,Picker,BaseEmoji } from 'emoji-mart'
 import Tooltip from '@material-ui/core/Tooltip';
 import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import Popover, { PopoverOrigin } from '@material-ui/core/Popover';
 import IconButton from '@material-ui/core/IconButton';
+import { InsertEmoticon } from '@material-ui/icons';
 
 const EmojiIconButton = styled(IconButton)`
     display : flex;
@@ -23,6 +24,12 @@ const EmojiIconButton = styled(IconButton)`
     }
 `;
 
+const EmojiPickerButton = styled(IconButton)`
+    &:hover{
+        background-color : transparent;
+    }
+`;
+
 const emojiActionIds = [
     'grinning', 'thumbsup', 'cry', 'sweat', 'rage'
 ];
@@ -31,21 +38,17 @@ const InsertEmojiButton = styled(IconButton)`
     padding : 5px;
 `;
 
-const defaultAnchorOrigin: PopoverOrigin = {
-    vertical: 'top',
-    horizontal: 'center',
-};
-
-const defaultTransformOrigin: PopoverOrigin = {
-    vertical: 'bottom',
-    horizontal: 'right',
-};
-
 const AddEmojiReaction = ({
     className,
     handleAddReaction,
-    anchorOrigin = defaultAnchorOrigin,
-    transformOrigin = defaultTransformOrigin
+    anchorOrigin = {
+        vertical: 'top',
+        horizontal: 'center',
+    },
+    transformOrigin = {
+        vertical: 'bottom',
+        horizontal: 'right',
+    }
 }: {
     className?: string,
     anchorOrigin?: PopoverOrigin,
@@ -127,7 +130,53 @@ const EmojiReactions = ({ reactions, className, handleAddReaction = () => { }, r
     ), [reactions, className, handleAddReaction, readonly, reactionIds]);
 }
 
+const EmojiPicker = ({ 
+    onSelectEmoji,
+    className,
+    anchorOrigin = {
+        vertical: 'bottom',
+        horizontal: 'center',
+    },
+    transformOrigin = {
+        vertical: 'top',
+        horizontal: 'center',
+    }
+}:{
+    onSelectEmoji : (emoji:string)=>void,
+    className?:string,
+    anchorOrigin?: PopoverOrigin,
+    transformOrigin?: PopoverOrigin,
+}) => {
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const handleClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(anchorEl=>anchorEl ? null : event.currentTarget);
+    },[setAnchorEl]);
+    const handleClose = useCallback(() => {
+        setAnchorEl(null);
+    },[setAnchorEl]);
+    const open = Boolean(anchorEl);
+
+    const onSelect = useCallback((emoji:BaseEmoji)=>{
+        onSelectEmoji(emoji.native);
+    },[onSelectEmoji]);
+    return (
+        <div className={className}>
+            <EmojiPickerButton onClick={handleClick}>
+                <InsertEmoticon />
+            </EmojiPickerButton>
+            <Popover
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={anchorOrigin}
+                transformOrigin={transformOrigin} >
+                <Picker onSelect={onSelect} />
+            </Popover>
+        </div>)
+}
+
 export {
     AddEmojiReaction,
-    EmojiReactions
+    EmojiReactions,
+    EmojiPicker
 }

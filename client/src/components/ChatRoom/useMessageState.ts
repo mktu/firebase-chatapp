@@ -34,7 +34,7 @@ const useMessageState = (
                 console.log(`add ${reactionId} Succedded`);
             }
         )
-    }, [roomId,message.id]);
+    }, [roomId,message.id,profile]);
 
     const reactions : {[s:string]:string[]} = useMemo(()=>{
         const reactionsBase = message.reactions || {};
