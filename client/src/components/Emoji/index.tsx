@@ -25,9 +25,6 @@ const EmojiIconButton = styled(IconButton)`
 `;
 
 const EmojiPickerButton = styled(IconButton)`
-    &:hover{
-        background-color : transparent;
-    }
 `;
 
 const emojiActionIds = [

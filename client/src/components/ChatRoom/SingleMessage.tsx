@@ -54,6 +54,7 @@ const Balloon = styled.div`
     max-width : 500px;
     & > span{
         display : inline-block;
+        white-space : pre-wrap;
         padding : ${({ theme }) => `${theme.spacing(1)}px`};
         background-color : ${({ theme }) => `${theme.palette.grey['200']}`};
         border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
