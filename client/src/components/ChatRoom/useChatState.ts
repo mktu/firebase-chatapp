@@ -1,14 +1,23 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useCallback } from 'react';
 import ProfileContext from '../../contexts/ProfileContext';
 import { createMessage } from '../../services/message';
+
+type TextInserter = (characters:string) =>void;
+type TextInitializer = ()=>void;
 
 export default function (roomId: string) {
     const [inputMessage, setInputMessage] = useState<string>('');
     const [multiline, setMultiline] = useState(false);
+    const [editorCommands, setEditorCommands] = useState<{
+        inserter:TextInserter,
+        initializer:TextInitializer
+    }>({
+        inserter:()=>{},initializer:()=>{}
+    });
     const { profileState } = useContext(ProfileContext);
     const { profile } = profileState;
-    const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setInputMessage(e.target.value);
+    const handleChangeInput = (text: string) => {
+        setInputMessage(text);
     }
     const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key.toLowerCase() === 'enter' && !multiline) {
@@ -22,15 +31,22 @@ export default function (roomId: string) {
                 inputMessage,
                 profile!.id
             );
-            setInputMessage('')
+            editorCommands.initializer();
         }
     }
     const onSelectEmoji = (emoji: string) => {
-        setInputMessage(prev => prev + emoji);
+        editorCommands.inserter(emoji);
     }
     const onSwitchMultiline = () => {
         setMultiline(val => !val);
     }
+
+    const onEditorMounted = useCallback((inserter:(characters:string)=>void,initializer:()=>void)=>{
+        setEditorCommands({
+            inserter,
+            initializer
+        });
+    },[setEditorCommands]);
     return {
         inputMessage,
         handleChangeInput,
@@ -38,6 +54,7 @@ export default function (roomId: string) {
         handleKeyPress,
         onSelectEmoji,
         multiline,
-        onSwitchMultiline
+        onSwitchMultiline,
+        onEditorMounted
     }
 }

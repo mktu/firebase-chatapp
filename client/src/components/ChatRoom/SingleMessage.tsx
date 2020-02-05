@@ -55,6 +55,9 @@ const Balloon = styled.div`
     & > span{
         display : inline-block;
         white-space : pre-wrap;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        word-break: break-word;
         padding : ${({ theme }) => `${theme.spacing(1)}px`};
         background-color : ${({ theme }) => `${theme.palette.grey['200']}`};
         border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};

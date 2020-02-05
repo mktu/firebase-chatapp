@@ -46,7 +46,8 @@ export default ({ className, room }: Props) => {
         handleKeyPress,
         onSelectEmoji,
         multiline,
-        onSwitchMultiline
+        onSwitchMultiline,
+        onEditorMounted
     } = useChatState(room.id);
 
     return (
@@ -73,6 +74,7 @@ export default ({ className, room }: Props) => {
                             onSelectEmoji={onSelectEmoji}
                             multiline={multiline}
                             onSwitchMultiline={onSwitchMultiline}
+                            onEditorMounted={onEditorMounted}
                         />
                         <Messages roomId={room.id} profiles={profiles} />
                     </React.Fragment>
