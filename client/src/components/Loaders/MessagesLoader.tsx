@@ -97,7 +97,7 @@ const ascOrder : Direction = {
     direction: 'asc'
 };
 
-function PastMessageLoader(
+function BackwardMessageLoader(
     {
         roomId,
         children,
@@ -133,7 +133,7 @@ function PastMessageLoader(
     }, [messages, loaded]);
 
     if (hasMore&&readMore) {
-        return <PastMessageLoader
+        return <BackwardMessageLoader
             roomId={roomId}
             children={children}
             messages={allMessages}
@@ -167,7 +167,7 @@ function LatestMessageLoader(
         start: startDate,
         sentinel
     })
-    return <PastMessageLoader
+    return <BackwardMessageLoader
         roomId={roomId}
         children={children}
         messages={loaded}

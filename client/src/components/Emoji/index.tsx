@@ -78,7 +78,7 @@ const AddEmojiReaction = ({
             >
                 <div>
                     {emojiActionIds.map(id => (
-                        <InsertEmojiButton onClick={() => {
+                        <InsertEmojiButton key={id} onClick={() => {
                             handleAddReaction(id);
                         }}>
                             <Emoji key={id} emoji={id} size={16} />
@@ -110,7 +110,7 @@ const EmojiReactions = ({ reactions, className, handleAddReaction = () => { }, r
     return useMemo(() => (
         <div className={className}>
             {reactionIds.map(id => (
-                <Tooltip title={reactions[id].map(name => (
+                <Tooltip key={id} title={reactions[id].map(name => (
                     <div>{name}</div>
                 ))} placement="top">
                     <div>

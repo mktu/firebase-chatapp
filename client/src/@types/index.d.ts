@@ -52,3 +52,8 @@ declare module 'react-tiny-link'{
     }>;
     export declare const ReactTinyLink: React.FC<IReactTinyLinkProps>;
 };
+
+declare module 'react-linkify' {
+    export default class Linkify extends React.Component<any, any> {
+    }
+}

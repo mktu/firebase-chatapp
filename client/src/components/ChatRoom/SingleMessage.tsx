@@ -6,6 +6,7 @@ import ListItem from '@material-ui/core/ListItem';
 import { Profile } from '../../types/profile';
 import { Message } from '../../types/message';
 import useMessageState from './useMessageState';
+import Baloon from './Baloon';
 import { AddEmojiReaction, EmojiReactions } from '../Emoji';
 
 type Props = {
@@ -50,20 +51,6 @@ const ReceivedMessage = styled.div`
     }
 `;
 
-const Balloon = styled.div`
-    max-width : 500px;
-    & > span{
-        display : inline-block;
-        white-space : pre-wrap;
-        overflow-wrap: break-word;
-        word-wrap: break-word;
-        word-break: break-word;
-        padding : ${({ theme }) => `${theme.spacing(1)}px`};
-        background-color : ${({ theme }) => `${theme.palette.grey['200']}`};
-        border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
-    }
-`;
-
 const UserBox = styled.div`
     display : flex;
     flex-direction : column;
@@ -96,7 +83,6 @@ const SingleMessage: React.FC<Props> = ({
             </Avatar>
         </UserBox>
     ), [userSent]);
-
     return useMemo(() =>
         (
             <ListItem className={className} >
@@ -105,11 +91,7 @@ const SingleMessage: React.FC<Props> = ({
                         {avatar}
                         <div className='message-wrapper'>
                             <Typography variant='caption' color='textSecondary'>{userSent?.nickname},{time}</Typography>
-                            <Balloon>
-                                <span>
-                                    {message.message}
-                                </span>
-                            </Balloon>
+                            <Baloon message={message.message} />
                         </div>
                         <EmojiReactions className='reactions' readonly reactions={reactions} handleAddReaction={handleAddReaction} />
                     </SentMessage>
@@ -121,11 +103,7 @@ const SingleMessage: React.FC<Props> = ({
                             <EmojiReactions className='reactions' reactions={reactions} handleAddReaction={handleAddReaction} />
                             <div className='message-wrapper' >
                                 <Typography variant='caption' color='textSecondary'>{userSent?.nickname},{time}</Typography>
-                                <Balloon>
-                                    <span>
-                                        {message.message}
-                                    </span>
-                                </Balloon>
+                                <Baloon message={message.message} />
                             </div>
                             {avatar}
                         </ReceivedMessage>
