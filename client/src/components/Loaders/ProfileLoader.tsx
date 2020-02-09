@@ -7,7 +7,7 @@ import { LoadingStatus } from '../../constants';
 import { Profile } from '../../types/profile';
 
 
-export const ProfilesLoader: React.FC<{
+export const ProfileListLoader: React.FC<{
     children: (profiles:Profile[])=>React.ReactElement,
     fallback?: () => React.ReactElement,
     loading?: ()=>React.ReactElement,
@@ -38,12 +38,10 @@ export const ProfilesLoader: React.FC<{
     return children(profiles);
 }
 
-type Props = {
+const ProfileLoader: React.FC<{
     children: JSX.Element,
-    fallback: () => JSX.Element,
-}
-
-const UserLoader: React.FC<Props> = ({
+    fallback: () => JSX.Element
+}> = ({
     children,
     fallback,
 }) => {
@@ -85,4 +83,4 @@ const UserLoader: React.FC<Props> = ({
 
 };
 
-export default UserLoader;
+export default ProfileLoader;

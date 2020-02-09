@@ -2,9 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import { Room } from '../../types/room';
-import { ProfilesLoader } from '../Loaders/ProfileLoader';
+import { Profile } from '../../types/profile';
 import useOwnerState from './useOwnerState';
-import useChatState from './useChatState';
 import Requests from './Requests';
 import UsersBase from './Users';
 import MessagesBase from './Messages';
@@ -12,6 +11,7 @@ import Input from './Input';
 
 type Props = {
     room: Room,
+    profiles: Profile[],
     className?: string,
 };
 
@@ -33,53 +33,31 @@ const Messages = styled(MessagesBase)`
     overflow : auto;
 `;
 
-export default ({ className, room }: Props) => {
+export default ({ className, profiles, room }: Props) => {
     const {
         handleAcceptRequest,
         handleRejectRequest,
         isOwner
     } = useOwnerState(room);
-    const {
-        inputMessage,
-        handleChangeInput,
-        handleSubmitMessage,
-        handleKeyPress,
-        onSelectEmoji,
-        multiline,
-        onSwitchMultiline,
-        onEditorMounted
-    } = useChatState(room.id);
 
     return (
         <div className={className} >
-            <ProfilesLoader uids={room.users}>
-                {(profiles) => (
-                    <React.Fragment>
-                        <RoomHeader>
-                            <Typography>{room.roomName}</Typography>
-                            <Users profiles={profiles} />
-                        </RoomHeader>
-                        {isOwner && (
-                            <Requests
-                                roomId={room.id}
-                                handleAcceptRequest={handleAcceptRequest}
-                                handleRejectRequest={handleRejectRequest}
-                            />
-                        )}
-                        <Input
-                            inputMessage={inputMessage}
-                            handleChangeInput={handleChangeInput}
-                            handleSubmitMessage={handleSubmitMessage}
-                            handleKeyPress={handleKeyPress}
-                            onSelectEmoji={onSelectEmoji}
-                            multiline={multiline}
-                            onSwitchMultiline={onSwitchMultiline}
-                            onEditorMounted={onEditorMounted}
-                        />
-                        <Messages roomId={room.id} profiles={profiles} />
-                    </React.Fragment>
-                )}
-            </ProfilesLoader>
+            <RoomHeader>
+                <Typography>{room.roomName}</Typography>
+                <Users profiles={profiles} />
+            </RoomHeader>
+            {isOwner && (
+                <Requests
+                    roomId={room.id}
+                    handleAcceptRequest={handleAcceptRequest}
+                    handleRejectRequest={handleRejectRequest}
+                />
+            )}
+            <Input
+                suggestionCandidates={profiles}
+                roomId={room.id}
+            />
+            <Messages roomId={room.id} profiles={profiles} />
         </div>
     )
 };

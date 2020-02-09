@@ -1,29 +1,29 @@
 import { useState, useContext, useCallback } from 'react';
 import ProfileContext from '../../contexts/ProfileContext';
 import { createMessage } from '../../services/message';
+import { Profile } from '../../types/profile';
 
-type TextInserter = (characters:string) =>void;
-type TextInitializer = ()=>void;
+type TextInserter = (characters: string) => void;
+type TextInitializer = () => void;
+type MentionReplacer = (mention: string) => void;
 
-export default function (roomId: string) {
+export default function (roomId: string, profiles: Profile[]) {
     const [inputMessage, setInputMessage] = useState<string>('');
     const [multiline, setMultiline] = useState(false);
     const [editorCommands, setEditorCommands] = useState<{
-        inserter:TextInserter,
-        initializer:TextInitializer
+        inserter: TextInserter,
+        initializer: TextInitializer,
+        mentionReplacer: MentionReplacer
     }>({
-        inserter:()=>{},initializer:()=>{}
+        inserter: () => { }, initializer: () => { }, mentionReplacer: () => { }
     });
     const { profileState } = useContext(ProfileContext);
     const { profile } = profileState;
     const handleChangeInput = (text: string) => {
         setInputMessage(text);
     }
-    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key.toLowerCase() === 'enter' && !multiline) {
-            handleSubmitMessage();
-        }
-    }
+    const [suggestion, setSuggestion] = useState<Profile[]>([]);
+
     const handleSubmitMessage = () => {
         if (inputMessage !== '') {
             createMessage(
@@ -41,20 +41,44 @@ export default function (roomId: string) {
         setMultiline(val => !val);
     }
 
-    const onEditorMounted = useCallback((inserter:(characters:string)=>void,initializer:()=>void)=>{
+    const onEditorMounted = useCallback((
+        inserter: (characters: string) => void,
+        initializer: () => void,
+        mentionReplacer: (mention: string) => void
+    ) => {
         setEditorCommands({
             inserter,
-            initializer
+            initializer,
+            mentionReplacer
         });
-    },[setEditorCommands]);
+    }, [setEditorCommands]);
+
+    const updateMentionCandidate = useCallback((text: string, start: number, end: number, mounted: boolean) => {
+        if (!mounted) {
+            setSuggestion([]);
+            return;
+        }
+        if (text.length === 1) {
+            setSuggestion(profiles);
+        }
+        const substr = text.substr(1);
+        setSuggestion(profiles.filter(p => p.nickname.includes(substr)));
+
+    }, [profiles]);
+
+    const handleSelectMention = useCallback((profile:Profile) => {
+        editorCommands.mentionReplacer(profile.nickname);
+    },[editorCommands]);
+
     return {
-        inputMessage,
         handleChangeInput,
         handleSubmitMessage,
-        handleKeyPress,
         onSelectEmoji,
         multiline,
         onSwitchMultiline,
-        onEditorMounted
+        onEditorMounted,
+        updateMentionCandidate,
+        suggestion,
+        handleSelectMention
     }
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Switch, Route, Redirect, useHistory } from "react-router-dom";
 import { RoomLoader, RoomsLoader } from '../Loaders';
+import { ProfileListLoader } from '../Loaders/ProfileLoader';
 import RoomPage from '../RoomPage';
 import ChatRoom from '../ChatRoom';
 
@@ -43,7 +44,15 @@ const RoomRoot: React.FC<any> = (props) => {
                                             />;
                                         }}
                                     >
-                                        {(room) => (<ChatRoom room={room} />)}
+                                        {(room) => (
+                                            <ProfileListLoader uids={room.users}>
+                                                {
+                                                    (profiles)=>(
+                                                        <ChatRoom profiles={profiles} room={room} />
+                                                    )
+                                                }
+                                            </ProfileListLoader>
+                                        )}
                                     </RoomLoader>
                                 )
                             }}

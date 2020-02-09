@@ -9,3 +9,6 @@ export const LoadingStatus = {
     Failed : 'failed',
     Succeeded : 'succeeded'
 }
+
+export const MENTION_REGEX = /([@][\w_-]*)/g;
+export const MENTION_TRIGGEZR = '@';
