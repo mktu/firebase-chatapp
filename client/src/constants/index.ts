@@ -10,5 +10,5 @@ export const LoadingStatus = {
     Succeeded : 'succeeded'
 }
 
-export const MENTION_REGEX = /([@][\w_-]*)/g;
-export const MENTION_TRIGGEZR = '@';
+export const MENTION_REGEX = /(^|\s)(@[\w_-]*)/g;
+export const MENTION_TRIGGER = '@';

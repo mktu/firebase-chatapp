@@ -7,7 +7,7 @@ import {
     Modifier
 } from 'draft-js';
 import { StrategyCallback } from './common';
-import { MENTION_TRIGGEZR } from '../../constants'
+import { MENTION_TRIGGER } from '../../constants'
 
 export const getMentionReplacer = (editorState: EditorState, setEditorState: (editorState: EditorState) => void) =>
     (mention: string) => {
@@ -24,7 +24,7 @@ export const getMentionReplacer = (editorState: EditorState, setEditorState: (ed
         const currentBlock = currentContent.getBlockForKey(anchorKey);
         const blockText = currentBlock.getText();
         const textToAnchor = blockText.substr(0, anchorOffset);
-        const begin = textToAnchor.lastIndexOf(MENTION_TRIGGEZR);
+        const begin = textToAnchor.lastIndexOf(MENTION_TRIGGER);
         const end = anchorOffset;
         const mentionTextSelection = currentSelectionState.merge({
             anchorOffset: begin,
@@ -33,7 +33,7 @@ export const getMentionReplacer = (editorState: EditorState, setEditorState: (ed
         let mentionReplacedContent = Modifier.replaceText(
             currentContent,
             mentionTextSelection,
-            `${MENTION_TRIGGEZR}${mention}`,
+            `${MENTION_TRIGGER}${mention}`,
             undefined,
             entityKey
         );

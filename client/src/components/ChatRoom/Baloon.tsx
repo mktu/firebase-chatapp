@@ -1,16 +1,15 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import styled, { css } from 'styled-components';
 import { find } from 'linkifyjs';
 import Linkify from 'react-linkify';
-import { LinkPreview as LinkPreviewBase } from '../LinkPreview';
+import { LinkPreview } from '../LinkPreview';
+import { buildMatchInfo } from '../../logics/regexHelper';
+import { MENTION_REGEX } from '../../constants';
 
 type Props = {
     className?: string,
     message: string
 };
-
-const LinkPreview = styled(LinkPreviewBase)`
-`
 
 const InnerStyle = css`
     display : inline-block;
@@ -33,7 +32,7 @@ const Wrapper = styled.div`
     }
 `;
 
-const Decorator = (decoratedHref: string, decoratedText: string, key: number): React.ReactNode =>{
+const LinkDecorator = (decoratedHref: string, decoratedText: string, key: number): React.ReactNode =>{
     return (
         <a href={decoratedHref} key={key} target='_blank' rel="noopener noreferrer">
           {decoratedText}
@@ -41,26 +40,43 @@ const Decorator = (decoratedHref: string, decoratedText: string, key: number): R
       );
 }
 
+const MentionText = styled.span`
+    color : dodgerblue;
+    cursor: pointer;
+    display : inline-block;
+    background-color : rgba(30,144,255,0.1);
+`;
+
+const makeMentionDecorator = (source: string) => {
+    const matchInfos = buildMatchInfo(source, MENTION_REGEX);
+    return matchInfos.map(m=>m.matched?(
+        <MentionText>
+            {m.text}
+        </MentionText>
+    ):m.text)
+}
+
 const Baloon: React.FC<Props> = ({
     className,
     message,
 }: Props) => {
     const urls = find(message);
+    const mentionDecorated = useMemo(()=>makeMentionDecorator(message),[message]);
     return (
         <Wrapper className={className}>
             {
                 urls.length > 0 ? (
                     <React.Fragment>
                         <span>
-                            <Linkify componentDecorator={Decorator}>
-                                {message}
+                            <Linkify componentDecorator={LinkDecorator}>
+                                {mentionDecorated}
                             </Linkify>
                         </span>
                         <LinkPreview url={urls[0].href} />
                     </React.Fragment>
                 ) : (
                         <span>
-                            {message}
+                            {mentionDecorated}
                         </span>
                     )
             }

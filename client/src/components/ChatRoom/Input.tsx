@@ -22,10 +22,12 @@ const InputBox = styled.div`
     display : grid;
     grid-template-columns: auto 1fr auto;
     align-items : center;
+    & > div {
+        overflow: hidden;
+    }
 `;
 
 const EditorWrapper = styled.div`
-    overflow-x : hidden;
     border : ${({ theme }) => `1px solid ${theme.palette.divider}`};
     border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
     padding : ${({ theme }) => `${theme.spacing(1)}px`};
@@ -78,7 +80,7 @@ const Input = ({
                         <Paper className='suggestion-paper'>
                             <List className='suggestion-list'>
                                 {suggestion.map(s => (
-                                    <ListItem key={s.id} button className='suggestion-list-item' onClick={()=>{
+                                    <ListItem  key={s.id} button className='suggestion-list-item' onClick={() => {
                                         handleSelectMention(s);
                                     }}>
                                         <ListItemAvatar>

@@ -60,8 +60,9 @@ export default function (roomId: string, profiles: Profile[]) {
         }
         if (text.length === 1) {
             setSuggestion(profiles);
+            return;
         }
-        const substr = text.substr(1);
+        const substr = text.substring(start,end);
         setSuggestion(profiles.filter(p => p.nickname.includes(substr)));
 
     }, [profiles]);

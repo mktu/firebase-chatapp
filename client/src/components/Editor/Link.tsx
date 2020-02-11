@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 import {
     ContentBlock,
     ContentState,
@@ -6,6 +7,14 @@ import {
 } from 'draft-js';
 import { LinkPreview } from '../LinkPreview';
 import { StrategyCallback } from './common';
+
+const LinkStyle = styled.a`
+    display : inline-block;
+    white-space : pre-wrap;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+`;
 
 const createLinkComponent = () => {
     const Link: React.FC<{
@@ -17,9 +26,9 @@ const createLinkComponent = () => {
 
         return (
             <React.Fragment>
-                <a href={url} target='_blank' rel="noopener noreferrer">
+                <LinkStyle href={url} target='_blank' rel="noopener noreferrer">
                     {children}
-                </a>
+                </LinkStyle>
                 <LinkPreview url={url} />
             </React.Fragment>
         );

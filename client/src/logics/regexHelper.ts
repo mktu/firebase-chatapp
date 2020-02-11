@@ -1,19 +1,16 @@
 
 export interface MatchedPart {
-    text : string,
-    start : number,
-    end : number
+    text: string,
+    start: number,
+    end: number
 }
 
-export const findMatches = (source:string, regex:RegExp) =>{
+export const findMatches = (source: string, regex: RegExp) => {
     let matchArr;
     let prevLastIndex = regex.lastIndex;
-    let results : MatchedPart[] = [];
+    let results: MatchedPart[] = [];
 
-    // Go through all matches in the text and return the indices to the callback
-    // Break the loop if lastIndex is not changed
     while ((matchArr = regex.exec(source)) !== null) {
-        // eslint-disable-line
         if (regex.lastIndex === prevLastIndex) {
             break;
         }
@@ -21,10 +18,42 @@ export const findMatches = (source:string, regex:RegExp) =>{
         const start = matchArr.index;
         const end = start + matchArr[0].length;
         results.push({
-            text : source.substring(start, end),
+            text: source.substring(start, end),
             start,
             end
         })
     }
+    return results;
+}
+
+export interface MatchInfo {
+    text: string,
+    matched: boolean
+}
+
+export const buildMatchInfo = (source: string, regex: RegExp) => {
+    const parts = findMatches(source, regex);
+    const results: MatchInfo[] = [];
+    let next = 0;
+    for (const part of parts) {
+        if (part.start > 0) {
+            results.push({
+                text: source.substring(next, part.start),
+                matched: false
+            })
+        }
+        results.push({
+            text: source.substring(part.start, part.end),
+            matched: true
+        });
+        next = part.end;
+    }
+    if (next < source.length) {
+        results.push({
+            text: source.substring(next),
+            matched: false
+        });
+    }
+
     return results;
 }

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { ContentBlock } from 'draft-js';
-import { MENTION_REGEX } from '../../constants';
+import { MENTION_REGEX, MENTION_TRIGGER } from '../../constants';
 import { StrategyCallback, findWithRegex } from './common';
 
 export type UpdateMentionCandidate = (
@@ -29,9 +29,9 @@ export const createMentionCandidateComponent = (onUpdate: UpdateMentionCandidate
         end,
         children
     }) => {
-
             useEffect(() => {
-                onUpdate(decoratedText, start, end, true);
+                const mentionIndex = decoratedText.lastIndexOf(MENTION_TRIGGER);
+                onUpdate(decoratedText, mentionIndex+1, end, true);
                 return ()=>{
                     onUpdate('',0,0,false);
                 }
