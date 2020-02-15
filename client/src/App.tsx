@@ -8,7 +8,8 @@ import ProfileContext from './contexts/ProfileContext';
 import RoomContext from './contexts/RoomContext';
 import useAppState from './hooks/useAppState';
 import AppRoot from './components/Routes/AppRoot';
-
+import {dummy} from './services/notification';
+dummy();
 const theme = createMuiTheme({
   palette: {
     primary: deepPurple,

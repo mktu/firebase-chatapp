@@ -15,6 +15,7 @@ const convertUser = (user: firebase.User): User => {
 
 export const listenAuthState = (onLogin: Transfer, onLogout: () => void) => {
     return firebase.auth().onAuthStateChanged(function (user) {
+        console.log(user)
         if (user) {
             onLogin({
                 uid: user.uid,
