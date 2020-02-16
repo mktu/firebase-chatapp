@@ -4,7 +4,7 @@ import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
 import ListItem from '@material-ui/core/ListItem';
 import { Profile } from '../../types/profile';
-import { Message } from '../../types/message';
+import { Message } from '../../../../types/message';
 import useMessageState from './useMessageState';
 import Baloon from './Baloon';
 import { AddEmojiReaction, EmojiReactions } from '../Emoji';

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { registMessagesListener, getMessages } from '../../services/message';
-import { Message } from '../../types/message';
+import { Message } from '../../../../types/message';
 import { LoadingStatus } from '../../constants';
 
 type Children = (
