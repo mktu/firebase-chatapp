@@ -1,5 +1,5 @@
 import firebase from './firebase';
-import { User, Transfer } from '../types/user';
+import { User, Transfer } from '../../../types/user';
 import { consoleError, consoleLogger, ErrorHandler } from '../utils';
 
 type OnSucceeded = (user: User) => void;

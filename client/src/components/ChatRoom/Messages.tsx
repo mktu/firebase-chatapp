@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import List from '@material-ui/core/List';
 import SingleMessage from './SingleMessage';
-import { Profile } from '../../types/profile';
+import { Profile } from '../../../../types/profile';
 import { MessagesLoader } from '../Loaders';
 
 type Props = {

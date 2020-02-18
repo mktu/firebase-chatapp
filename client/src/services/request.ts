@@ -2,7 +2,7 @@ import firebase from './firebase';
 import {  
     JoinRequest, 
     JoinRequestTransfer,
-    JoinRequestsTransfer } from '../types/request';
+    JoinRequestsTransfer } from '../../../types/request';
 import { consoleError, ErrorHandler, Notifier } from '../utils';
 import { RequestStatus } from '../constants';
 import { getCollectionListener, getDocumentListener } from './db';

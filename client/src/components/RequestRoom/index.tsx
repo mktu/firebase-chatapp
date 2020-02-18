@@ -7,7 +7,8 @@ import Typography from '@material-ui/core/Typography';
 import useRequestState from './useRequestState';
 import MakeRequest from './MakeRequest';
 import Refused from './Refused';
-import { Room, RequestStatus } from '../../types/room';
+import { Room } from '../../../../types/room';
+import {RequestStatus} from '../../constants';
 
 type Props = {
     room: Room,

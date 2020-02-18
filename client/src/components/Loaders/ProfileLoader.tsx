@@ -4,7 +4,7 @@ import ProfileContext from '../../contexts/ProfileContext';
 import LoadingPage from '../LoadingPage';
 import { listenProfile, getProfiles } from '../../services/profile';
 import { LoadingStatus } from '../../constants';
-import { Profile } from '../../types/profile';
+import { Profile } from '../../../../types/profile';
 
 
 export const ProfileListLoader: React.FC<{

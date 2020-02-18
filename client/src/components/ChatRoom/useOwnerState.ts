@@ -2,7 +2,8 @@ import { useContext } from 'react';
 import ProfileContext from '../../contexts/ProfileContext';
 import { modifyRoom } from '../../services/room';
 import { updateRequest } from '../../services/request';
-import { Room, JoinRequest, RequestStatus } from '../../types/room';
+import { Room, JoinRequest } from '../../../../types/room';
+import { RequestStatus } from '../../constants';
 
 export default function (room:Room) {
     const { profileState } = useContext(ProfileContext);

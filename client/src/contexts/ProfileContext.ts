@@ -1,5 +1,5 @@
 import React from 'react';
-import {State, ContextType} from '../types/profile';
+import {State, ContextType} from '../../../types/profile';
 
 export const initialState : State = {
     profile: null,

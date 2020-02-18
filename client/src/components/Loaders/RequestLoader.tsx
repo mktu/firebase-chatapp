@@ -1,8 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react';
 import ProfileContext from '../../contexts/ProfileContext';
 import { listenJoinRequestsByUser } from '../../services/request';
-import { Room } from '../../types/room';
-import { JoinRequest } from '../../types/request';
+import { Room } from '../../../../types/room';
+import { JoinRequest } from '../../../../types/request';
 import { LoadingStatus } from '../../constants';
 
 type Props = {

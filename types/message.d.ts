@@ -1,4 +1,4 @@
-import { CollectionTransfer, DocumentTransfer } from '../client/src/types/core';
+import { CollectionTransfer, DocumentTransfer } from './core';
 
 export type Reactions = {
     [s: string]: string[]

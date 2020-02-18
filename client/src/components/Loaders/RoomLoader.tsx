@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import RoomContext from '../../contexts/RoomContext';
 import LoadingPage from '../LoadingPage';
 import { getRoom, registRoomListener } from '../../services/room';
-import { Room } from '../../types/room';
+import { Room } from '../../../../types/room';
 import { LoadingStatus } from '../../constants';
 
 type LoaderProps = {

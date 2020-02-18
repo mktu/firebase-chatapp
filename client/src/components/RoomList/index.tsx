@@ -6,7 +6,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Fab from '@material-ui/core/Fab';
 import { Add } from '@material-ui/icons';
 import Typography from '@material-ui/core/Typography';
-import { State as RoomState, Room } from '../../types/room';
+import { State as RoomState, Room } from '../../../../types/room';
 
 type Props = {
     showDialog: ()=>void,

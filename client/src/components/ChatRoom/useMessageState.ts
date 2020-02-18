@@ -1,6 +1,6 @@
 import { useContext, useState, useMemo, useCallback } from 'react';
 import ProfileContext from '../../contexts/ProfileContext';
-import { Profile } from '../../types/profile';
+import { Profile } from '../../../../types/profile';
 import { Message } from '../../../../types/message';
 import { addReaction } from '../../services/message';
 

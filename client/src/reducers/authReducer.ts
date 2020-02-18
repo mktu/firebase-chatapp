@@ -1,4 +1,4 @@
-import { Action, State } from '../types/user';
+import { Action, State } from '../../../types/user';
 import { initialState } from '../contexts/AuthContext';
 export default (state: State, action: Action): State => {
     switch (action.type) {

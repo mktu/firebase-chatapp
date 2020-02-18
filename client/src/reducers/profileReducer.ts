@@ -1,4 +1,4 @@
-import { Action, State } from '../types/profile';
+import { Action, State } from '../../../types/profile';
 import { initialState } from '../contexts/ProfileContext';
 export default (state: State, action: Action): State => {
     switch (action.type) {

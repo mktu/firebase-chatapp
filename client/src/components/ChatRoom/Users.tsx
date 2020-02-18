@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import IconButton from '@material-ui/core/IconButton';
 import Avatar from '@material-ui/core/Avatar';
 import Tooltip from '@material-ui/core/Tooltip';
-import { Profile } from '../../types/profile';
+import { Profile } from '../../../../types/profile';
 
 type Props = {
     profiles: Profile[],

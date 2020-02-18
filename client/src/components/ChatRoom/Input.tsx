@@ -11,7 +11,7 @@ import Paper from '@material-ui/core/Paper';
 import { Send, Keyboard } from '@material-ui/icons';
 import { EmojiPicker } from '../Emoji';
 import ChatEditor from '../Editor';
-import { Profile } from '../../types/profile';
+import { Profile } from '../../../../types/profile';
 import useChatState from './useChatState';
 
 const AdornmentAdapter = styled.div`

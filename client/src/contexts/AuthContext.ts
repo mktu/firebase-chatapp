@@ -1,5 +1,5 @@
 import React from 'react';
-import {State, ContextType} from '../types/user';
+import {State, ContextType} from '../../../types/user';
 
 export const initialState : State = {
     user: null,

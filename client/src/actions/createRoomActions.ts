@@ -1,4 +1,4 @@
-import { Dispatch, Actions, Room } from '../types/room';
+import { Dispatch, Actions, Room } from '../../../types/room';
 export default (dispatch : Dispatch) : Actions => ({
     add: (rooms : Room[]) => dispatch({ type: 'add', payload: { rooms } }),
     modify: (rooms : Room[]) => dispatch({type : 'modify', payload:{ rooms } }),

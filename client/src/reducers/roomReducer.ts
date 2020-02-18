@@ -1,4 +1,4 @@
-import { Action, State } from '../types/room';
+import { Action, State } from '../../../types/room';
 import { initialState } from '../contexts/RoomContext';
 export default (state: State, action: Action): State => {
     switch (action.type) {

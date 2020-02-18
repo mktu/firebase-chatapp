@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import ProfileContext from '../../contexts/ProfileContext';
 import { listenJoinRequests } from '../../services/request';
-import { JoinRequest } from '../../types/request';
+import { JoinRequest } from '../../../../types/request';
 import { LoadingStatus, RequestStatus } from '../../constants';
 
 type Props = {

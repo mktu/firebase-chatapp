@@ -1,6 +1,6 @@
 import firebase from './firebase';
-import { Transfer, ProfilesTransfer, Profile } from '../types/profile';
-import { User } from '../types/user';
+import { Transfer, ProfilesTransfer, Profile } from '../../../types/profile';
+import { User } from '../../../types/user';
 import { getCollectionListener } from './db';
 import { consoleError, ErrorHandler } from '../utils';
 

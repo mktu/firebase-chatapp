@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
 import ListItem from '@material-ui/core/ListItem';
-import { Profile } from '../../types/profile';
+import { Profile } from '../../../../types/profile';
 import { Message } from '../../../../types/message';
 import useMessageState from './useMessageState';
 import Baloon from './Baloon';

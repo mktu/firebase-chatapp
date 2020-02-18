@@ -1,4 +1,4 @@
-import {CollectionTransfer,DocumentTransfer} from '../types/core';
+import {CollectionTransfer,DocumentTransfer} from '../../../types/core';
 export function getCollectionListener<T>(
     onAdded: CollectionTransfer<T>,
     onModified: CollectionTransfer<T>,

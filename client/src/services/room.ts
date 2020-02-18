@@ -3,7 +3,7 @@ import {
     Room, 
     RoomsTransfer, 
     RoomTransfer
-} from '../types/room';
+} from '../../../types/room';
 import { consoleError, ErrorHandler, Notifier } from '../utils';
 import { getCollectionListener, getDocumentListener } from './db';
 

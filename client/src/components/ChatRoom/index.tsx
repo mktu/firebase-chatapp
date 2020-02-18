@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
-import { Room } from '../../types/room';
-import { Profile } from '../../types/profile';
+import { Room } from '../../../../types/room';
+import { Profile } from '../../../../types/profile';
 import useOwnerState from './useOwnerState';
 import Requests from './Requests';
 import UsersBase from './Users';

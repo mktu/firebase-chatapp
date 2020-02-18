@@ -1,5 +1,5 @@
 import React from 'react';
-import {State, ContextType} from '../types/room';
+import {State, ContextType} from '../../../types/room';
 
 export const initialState : State = {
     rooms: [],
