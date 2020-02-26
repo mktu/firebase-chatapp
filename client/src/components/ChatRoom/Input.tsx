@@ -57,7 +57,8 @@ const Input = ({
         onEditorMounted,
         updateMentionCandidate,
         suggestion,
-        handleSelectMention
+        handleSelectMention,
+        onMountedMention
     } = useChatState(roomId, suggestionCandidates);
 
     return (
@@ -71,6 +72,7 @@ const Input = ({
                     <ChatEditor
                         notifyTextChanged={handleChangeInput}
                         onMounted={onEditorMounted}
+                        onMountedMention={onMountedMention}
                         updateMentionCandidate={updateMentionCandidate}
                     />
 

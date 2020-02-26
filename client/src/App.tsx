@@ -3,13 +3,15 @@ import deepPurple from '@material-ui/core/colors/deepPurple';
 import { BrowserRouter as Router } from "react-router-dom";
 import { ThemeProvider, createMuiTheme, StylesProvider } from '@material-ui/core/styles';
 import { ThemeProvider as StyledThemeProvider } from "styled-components";
-import AuthContext from './contexts/AuthContext';
-import ProfileContext from './contexts/ProfileContext';
-import RoomContext from './contexts/RoomContext';
+import {
+  AuthContext,
+  ProfileContext,
+  RoomContext,
+  NotificationContext
+} from './contexts';
 import useAppState from './hooks/useAppState';
 import AppRoot from './components/Routes/AppRoot';
-import {dummy} from './services/notification';
-dummy();
+
 const theme = createMuiTheme({
   palette: {
     primary: deepPurple,
@@ -19,7 +21,17 @@ console.log(theme);
 
 const App: React.FC = () => {
 
-  const { userState, profileState, userActions, profileActions, roomState, roomActions } = useAppState();
+  const { 
+    userState, 
+    profileState, 
+    userActions, 
+    profileActions, 
+    roomState, 
+    roomActions,
+    notificationState,
+    notificationActions
+  } = useAppState();
+
   return (
     <Router>
       <StylesProvider injectFirst>
@@ -28,7 +40,9 @@ const App: React.FC = () => {
             <AuthContext.Provider value={{ userState, actions: userActions }}>
               <ProfileContext.Provider value={{ profileState, actions: profileActions }}>
                 <RoomContext.Provider value={{ roomState, actions: roomActions }}>
-                  <AppRoot />
+                  <NotificationContext.Provider value={{ notificationState, actions: notificationActions }}>
+                    <AppRoot />
+                  </NotificationContext.Provider>
                 </RoomContext.Provider>
               </ProfileContext.Provider>
             </AuthContext.Provider>

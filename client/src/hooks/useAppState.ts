@@ -2,20 +2,29 @@ import { useReducer,useMemo } from 'react';
 import { initialState as authInitialState } from '../contexts/AuthContext';
 import { initialState as profileInitialState } from '../contexts/ProfileContext';
 import { initialState as roomInitialState } from '../contexts/RoomContext';
-import authActionCreater from '../actions/createAuthActions';
-import profileActionCreater from '../actions/createProfileActions';
-import roomActionCreater from '../actions/createRoomActions';
-import authReducer from '../reducers/authReducer';
-import profileReducer from '../reducers/profileReducer';
-import roomReducer from '../reducers/roomReducer';
+import { initialState as notificationInitialState } from '../contexts/NotificationContext';
+import {
+    createAuthActions,
+    createProfileActions,
+    createRoomActions,
+    createNotificationActions
+} from '../actions';
+import {
+    authReducer,
+    profileReducer,
+    roomReducer,
+    notificationReducer
+} from '../reducers';
 
 export default function () {
     const [userState, dispatchUser] = useReducer(authReducer, authInitialState);
     const [profileState, dispatchProfile] = useReducer(profileReducer, profileInitialState);
     const [roomState, dispatchRoom] = useReducer(roomReducer, roomInitialState);
-    const userActions = useMemo(()=>authActionCreater(dispatchUser),[dispatchUser]);
-    const profileActions = useMemo(()=>profileActionCreater(dispatchProfile),[dispatchProfile]);
-    const roomActions = useMemo(()=>roomActionCreater(dispatchRoom),[dispatchRoom]);
+    const [notificationState, dispatchNotification] = useReducer(notificationReducer, notificationInitialState);
+    const userActions = useMemo(()=>createAuthActions(dispatchUser),[dispatchUser]);
+    const profileActions = useMemo(()=>createProfileActions(dispatchProfile),[dispatchProfile]);
+    const roomActions = useMemo(()=>createRoomActions(dispatchRoom),[dispatchRoom]);
+    const notificationActions = useMemo(()=>createNotificationActions(dispatchNotification),[dispatchNotification]);
     
     return {
         userState,
@@ -23,6 +32,8 @@ export default function () {
         userActions,
         profileActions,
         roomState,
-        roomActions
+        roomActions,
+        notificationState,
+        notificationActions
     };
 }

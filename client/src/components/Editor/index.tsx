@@ -17,13 +17,15 @@ const ChatEditor: React.FC<{
     onMounted: (
         inserter: (characters: string) => void,
         initializer: () => void,
-        mentionReplacer: (mention: string) => void
+        mentionReplacer: (mention: string, profileId: string) => void
     ) => void,
+    onMountedMention: (profileId: string) =>void
 }> = ({
-    notifyTextChanged,
-    onMounted,
-    updateMentionCandidate
-}) => {
+        notifyTextChanged,
+        onMounted,
+        updateMentionCandidate,
+        onMountedMention
+    }) => {
 
         const constructDecorator = useCallback(() => {
             return new CompositeDecorator([
@@ -33,7 +35,7 @@ const ChatEditor: React.FC<{
                 },
                 {
                     strategy: findMentionStrategy,
-                    component : createMentionComponent()
+                    component: createMentionComponent(onMountedMention)
                 },
                 {
                     strategy: findMentionCandidateStrategy,
@@ -61,7 +63,7 @@ const ChatEditor: React.FC<{
             const initializer = () => {
                 setEditorState(EditorState.createEmpty(constructDecorator()));
             };
-            
+
             onMounted(inserter, initializer, getMentionReplacer(editorState, setEditorState))
         }, [onMounted, setEditorState, editorState, constructDecorator]);
 

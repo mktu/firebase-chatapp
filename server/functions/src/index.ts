@@ -1,40 +1,76 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
+import { config } from 'dotenv';
 import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
 import { Message } from '../../../types/message';
-
+import { Profile } from '../../../types/profile';
+       
+config();
 admin.initializeApp();
 
 exports.sendNotifications = functions.firestore.document('rooms/{roomId}/messages/{messageId}').onCreate(
-    async (snapshot : DocumentSnapshot) => {
+    async (snapshot : DocumentSnapshot, context : functions.EventContext) => {
+      const roomId = context.params.roomId;
       // Notification details.
       if(!snapshot.exists){
         console.error('document not exists')
         return;
       }
       const message = snapshot.data() as Message;
-      const payload = {
-        notification: {
-          title: 'NEW MESSAGE',
-          body: message,
-          click_action: `https://${process.env.FIREBASE_PROJECT_ID}.firebaseapp.com`,
-        }
-      };
-      console.log(payload)
-  
-    //   // Get the list of device tokens.
-    //   const allTokens = await admin.firestore().collection('fcmTokens').get();
-    //   const tokens = [];
-    //   allTokens.forEach((tokenDoc) => {
-    //     tokens.push(tokenDoc.id);
-    //   });
-  
-    //   if (tokens.length > 0) {
-    //     // Send notifications to all tokens.
-    //     const response = await admin.messaging().sendToDevice(tokens, payload);
-    //     await cleanupTokens(response, tokens);
-    //     console.log('Notifications have been sent and tokens cleaned up.');
-    //   }
+      if(! message.mentions ){
+        return;
+      }
+      if(!message.profileId){
+        console.error('profileId is not defined')
+        return;
+      }
+
+      const profile = await admin
+      .firestore()
+      .collection('profiles')
+      .doc(message.profileId)
+      .get();
+
+      if(!profile.exists){
+        console.error(`profile ${message.profileId} is not exists.`)
+        return;
+      }
+
+      const nickname = (profile.data() as Profile).nickname;
+
+      // Get the list of device tokens.
+      const allTokens = await admin
+      .firestore()
+      .collection('tokens')
+      .where('profileId', 'in', message.mentions)
+      .get();
+
+      const tokens : string[] = [];
+      allTokens.forEach((tokenDoc) => {
+        tokens.push(tokenDoc.id);
+      });
+      console.log(tokens)
+      
+      if (tokens.length > 0) {
+
+        const payload : admin.messaging.MulticastMessage = {
+          notification: {
+            title: `Message from ${nickname}`,
+            body: message.message,
+          },
+          webpush : {
+            fcmOptions : {
+              link : `https://${process.env.FIREBASE_PROJECT_ID}.firebaseapp.com/rooms/${roomId}`
+            }
+          },
+          tokens 
+        };
+        // Send notifications to all tokens.
+        const response = await admin.messaging().sendMulticast(payload)
+        console.log(response);
+        //await cleanupTokens(response, tokens);
+        console.log('Notifications have been sent and tokens cleaned up.');
+      }
 });
 
     // Cleans up the tokens that are no longer valid.

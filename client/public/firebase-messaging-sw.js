@@ -14,6 +14,9 @@ firebase.initializeApp({
 // messages.
 const messaging = firebase.messaging();
 
+// MEMO:
+// NEVER BE INVOKED!
+// because messages from server are always Notification messages.
 messaging.setBackgroundMessageHandler(function(payload) {
     console.log('[firebase-messaging-sw.js] Received background message ', payload);
     // Customize notification here

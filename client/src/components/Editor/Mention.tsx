@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import styled from 'styled-components';
 import {
     EditorState,
@@ -10,11 +10,12 @@ import { StrategyCallback } from './common';
 import { MENTION_TRIGGER } from '../../constants'
 
 export const getMentionReplacer = (editorState: EditorState, setEditorState: (editorState: EditorState) => void) =>
-    (mention: string) => {
+    (mention: string, profileId: string) => {
         const contentStateWithEntity = editorState
             .getCurrentContent()
             .createEntity('mention', 'IMMUTABLE', {
                 mention,
+                profileId
             });
         const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
         const currentSelectionState = editorState.getSelection();
@@ -65,12 +66,23 @@ const MentionText = styled.span`
     background-color : rgba(30,144,255,0.2);
 `;
 
-export const createMentionComponent = () => {
+export const createMentionComponent = (onMountMention : (profileId:string, unmounted?:boolean)=>void) => {
     const Mention: React.FC<{
-        children: React.ReactNode
+        children: React.ReactNode,
+        entityKey: string,
+        contentState: ContentState,
     }> = ({
-        children
+        children,
+        entityKey,
+        contentState
     }) => {
+        const { profileId } = contentState.getEntity(entityKey).getData();
+        useEffect(()=>{
+            onMountMention(profileId);
+            return ()=>{
+                onMountMention(profileId,true);
+            }
+        },[])
             return (
                 <MentionText >
                     {children}

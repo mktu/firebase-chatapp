@@ -5,6 +5,7 @@ import RoomsLoader from './RoomsLoader';
 import RequestLoader from './RequestLoader';
 import RequestsLoader from './RequestsLoader';
 import MessagesLoader from './MessagesLoader';
+import TokenLoader from './TokenLoader';
 
 export {
     UserLoader,
@@ -13,5 +14,6 @@ export {
     RoomsLoader,
     RequestLoader,
     RequestsLoader,
-    MessagesLoader
+    MessagesLoader,
+    TokenLoader
 }

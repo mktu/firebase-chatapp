@@ -5,10 +5,11 @@ import { Profile } from '../../../../types/profile';
 
 type TextInserter = (characters: string) => void;
 type TextInitializer = () => void;
-type MentionReplacer = (mention: string) => void;
+type MentionReplacer = (mention: string, profileId: string) => void;
 
 export default function (roomId: string, profiles: Profile[]) {
     const [inputMessage, setInputMessage] = useState<string>('');
+    const [mentions,setMentions] = useState<string[]>([]);
     const [multiline, setMultiline] = useState(false);
     const [editorCommands, setEditorCommands] = useState<{
         inserter: TextInserter,
@@ -29,7 +30,8 @@ export default function (roomId: string, profiles: Profile[]) {
             createMessage(
                 roomId,
                 inputMessage,
-                profile!.id
+                profile!.id,
+                mentions
             );
             editorCommands.initializer();
         }
@@ -44,7 +46,7 @@ export default function (roomId: string, profiles: Profile[]) {
     const onEditorMounted = useCallback((
         inserter: (characters: string) => void,
         initializer: () => void,
-        mentionReplacer: (mention: string) => void
+        mentionReplacer: (mention: string, profileId: string) => void
     ) => {
         setEditorCommands({
             inserter,
@@ -62,14 +64,23 @@ export default function (roomId: string, profiles: Profile[]) {
             setSuggestion(profiles);
             return;
         }
-        const substr = text.substring(start,end);
+        const substr = text.substring(start, end);
         setSuggestion(profiles.filter(p => p.nickname.includes(substr)));
 
     }, [profiles]);
 
-    const handleSelectMention = useCallback((profile:Profile) => {
-        editorCommands.mentionReplacer(profile.nickname);
-    },[editorCommands]);
+    const handleSelectMention = useCallback((profile: Profile) => {
+        editorCommands.mentionReplacer(profile.nickname, profile.id);
+    }, [editorCommands]);
+
+    const onMountedMention = useCallback((profileId:string, unmounted=false)=>{
+        if(unmounted){
+            setMentions(ids=>ids.filter(id=>id!==profileId));
+        }
+        else{
+            setMentions(ids=>[...ids,profileId]);
+        }
+    },[]);
 
     return {
         handleChangeInput,
@@ -80,6 +91,7 @@ export default function (roomId: string, profiles: Profile[]) {
         onEditorMounted,
         updateMentionCandidate,
         suggestion,
-        handleSelectMention
+        handleSelectMention,
+        onMountedMention
     }
 }

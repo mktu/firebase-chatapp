@@ -8,6 +8,7 @@ export type Message = {
     profileId : string,
     date : number,
     reactions? : Reactions,
+    mentions? : string[],
     id : string
 };
 

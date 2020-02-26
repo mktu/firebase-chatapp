@@ -82,3 +82,4 @@ export function modifyRoom(
         .then(onSucceeded)
         .catch(onFailed);
 }
+

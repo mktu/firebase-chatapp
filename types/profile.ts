@@ -3,7 +3,7 @@ import { CollectionTransfer, DocumentTransfer } from './core';
 export type Profile = {
     nickname : string,
     uid : string,
-    id : string
+    id : string,
 };
 
 export type Action = {

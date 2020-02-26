@@ -4,7 +4,7 @@ import SignInPage from '../SignInPage';
 import { RegisterProfilePage, UpdateProfilePage } from '../ProfilePage';
 import RoomRoot from './RoomRoot';
 import RequestRoot from './RequestRoot';
-import { UserLoader, ProfileLoader } from '../Loaders';
+import { UserLoader, ProfileLoader, TokenLoader } from '../Loaders';
 import Header from '../Header';
 import { RedirectBack } from './common';
 
@@ -16,11 +16,14 @@ const RequiresProfileRoot: React.FC<{}> = () => {
             state: { from: location }
         }} />;
     }}>
-        <Switch>
-            <RoomRoot path='/rooms'/>
-            <RequestRoot path='/requests/:roomId' />
-            <Route path='/profile/update' component={UpdateProfilePage} />
-        </Switch>
+        <TokenLoader>
+            <Switch>
+                <RoomRoot path='/rooms' />
+                <RequestRoot path='/requests/:roomId' />
+                <Route path='/profile/update' component={UpdateProfilePage} />
+            </Switch>
+        </TokenLoader>
+
     </ProfileLoader>
 }
 

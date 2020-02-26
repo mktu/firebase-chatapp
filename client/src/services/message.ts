@@ -95,6 +95,7 @@ export function createMessage(
     roomId: string,
     message: string,
     profileId: string,
+    mentions?: string[],
     onSucceeded?: Notifier,
     onFailed: ErrorHandler = consoleError
 ) {
@@ -104,6 +105,7 @@ export function createMessage(
         .add({
             message,
             profileId,
+            mentions,
             date: Date.now()
         })
         .then(onSucceeded)
