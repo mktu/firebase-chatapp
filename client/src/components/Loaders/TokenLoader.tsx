@@ -1,28 +1,75 @@
-import React, { useContext, useEffect } from 'react';
-import ProfileContext from '../../contexts/ProfileContext';
-import { requestPermission, getToken, onTokenRefresh, saveToken } from '../../services/notification';
-import { consoleError } from '../../utils';
-type Props = {
-    children: JSX.Element,
-}
+import React, { useState, useEffect, useCallback } from 'react';
+import { requestPermission, getToken, getSavedToken, getPermission } from '../../services/notification';
+import { LoadingStatusType } from '../../constants';
+import { Token } from '../../../../types/notification';
 
-const TokenLoader: React.FC<Props> = ({
+export type OnLoadToken = (rawToken:string,token?:Token)=>void;
+
+const TokenLoader: React.FC<{
+    children:React.ReactElement,
+    loading:React.ReactElement,
+    fallback:React.ReactElement,
+    onLoadToken:OnLoadToken
+}> = ({
     children,
+    loading,
+    fallback,
+    onLoadToken
 }) => {
-    const { profileState } = useContext(ProfileContext);
-    const { profile } = profileState;
+    const [status,setStatus] = useState<LoadingStatusType>('loading');
     useEffect(() => {
-        requestPermission(() => {
-            getToken((token) => {
-                profile && saveToken(profile.id, token);
-            }, consoleError);
-            onTokenRefresh((token) => {
-                profile && saveToken(profile.id, token);
+        getToken((rawToken) => {
+            getSavedToken(rawToken,(token)=>{
+                onLoadToken(rawToken,token);
+                setStatus('succeeded');
+            },()=>{
+                onLoadToken(rawToken);
+                setStatus('succeeded');
             })
-        }, consoleError)
-    }, [profile]);
-
+        }, ()=>{
+            setStatus('failed');
+        });
+    }, [onLoadToken]);
+    if(status==='loading'){
+        return loading;
+    }
+    if(status==='failed'){
+        return fallback;
+    }
     return children;
 };
 
-export default TokenLoader;
+const PermissionLoader: React.FC<{
+    renderDefault : ( onPermissionRequest : ()=>void )=>React.ReactElement,
+    fallback : React.ReactElement,
+    children : React.ReactElement
+}> = ({
+    renderDefault,
+    fallback,
+    children
+}) =>{
+    const [permission, setPermission] = useState<NotificationPermission>('default');
+    useEffect(()=>{
+        setPermission(getPermission());
+    },[]);
+    const onPermissionRequest = useCallback(()=>{
+        requestPermission(()=>{
+            setPermission('granted');
+        },()=>{
+            setPermission('denied');
+        })
+    },[])
+
+    if(permission==='default'){
+        return renderDefault(onPermissionRequest);
+    }
+    if(permission==='denied'){
+        return fallback
+    }
+    return children;
+}
+
+export {
+    TokenLoader,
+    PermissionLoader,
+}

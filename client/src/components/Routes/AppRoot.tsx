@@ -1,10 +1,10 @@
 import React from 'react';
 import { useLocation, Redirect, Switch, Route } from "react-router-dom";
 import SignInPage from '../SignInPage';
-import { RegisterProfilePage, UpdateProfilePage } from '../ProfilePage';
+import { RegisterProfile, UpdateProfile } from '../Profile';
 import RoomRoot from './RoomRoot';
 import RequestRoot from './RequestRoot';
-import { UserLoader, ProfileLoader, TokenLoader } from '../Loaders';
+import { UserLoader, ProfileLoader } from '../Loaders';
 import Header from '../Header';
 import { RedirectBack } from './common';
 
@@ -16,13 +16,11 @@ const RequiresProfileRoot: React.FC<{}> = () => {
             state: { from: location }
         }} />;
     }}>
-        <TokenLoader>
-            <Switch>
-                <RoomRoot path='/rooms' />
-                <RequestRoot path='/requests/:roomId' />
-                <Route path='/profile/update' component={UpdateProfilePage} />
-            </Switch>
-        </TokenLoader>
+        <Switch>
+            <RoomRoot path='/rooms' />
+            <RequestRoot path='/requests/:roomId' />
+            <Route path='/profile/update' component={UpdateProfile} />
+        </Switch>
 
     </ProfileLoader>
 }
@@ -37,7 +35,7 @@ const RequiresUserRoot: React.FC<{}> = () => {
     }}>
         <Switch>
             <Route exact path='/profile/create'>
-                <RegisterProfilePage onSucceeded={() => (
+                <RegisterProfile onSucceeded={() => (
                     <RedirectBack defaultPath='/' />
                 )} />
             </Route>

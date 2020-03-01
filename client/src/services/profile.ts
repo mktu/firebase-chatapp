@@ -9,7 +9,7 @@ const db = firebase.firestore();
 export function addProfile(
     nickname: string,
     user: User,
-    onSucceeded : ()=>void | undefined,
+    onSucceeded : Transfer | undefined,
     onFailed: ErrorHandler = consoleError
 ) {
     db.collection('profiles').add({
@@ -17,7 +17,18 @@ export function addProfile(
         nickname,
         lastUpdate: Date.now()
     })
-        .then(onSucceeded)
+        .then((docRef)=>{
+            if(onSucceeded){
+                docRef.get().then(doc=>{
+                    if(doc.exists){
+                        onSucceeded({
+                            ...doc.data() as Profile,
+                            id : doc.id
+                        })
+                    }
+                }).catch(onFailed)
+            }
+        })
         .catch(onFailed);
 }
 

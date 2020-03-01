@@ -10,7 +10,7 @@ admin.initializeApp();
 
 exports.sendNotifications = functions.firestore.document('rooms/{roomId}/messages/{messageId}').onCreate(
     async (snapshot : DocumentSnapshot, context : functions.EventContext) => {
-      const roomId = context.params.roomId;
+      const {roomId,messageId} = context.params;
       // Notification details.
       if(!snapshot.exists){
         console.error('document not exists')
@@ -63,7 +63,10 @@ exports.sendNotifications = functions.firestore.document('rooms/{roomId}/message
               link : `https://${process.env.FIREBASE_PROJECT_ID}.firebaseapp.com/rooms/${roomId}`
             }
           },
-          tokens 
+          tokens,
+          data : {
+            messageId
+          }
         };
         // Send notifications to all tokens.
         const response = await admin.messaging().sendMulticast(payload)

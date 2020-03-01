@@ -82,7 +82,7 @@ export const createMentionComponent = (onMountMention : (profileId:string, unmou
             return ()=>{
                 onMountMention(profileId,true);
             }
-        },[])
+        },[profileId])
             return (
                 <MentionText >
                     {children}

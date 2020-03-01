@@ -30,4 +30,5 @@ export type ContextType = {
 
 export type Dispatch = (action : Action) => void;
 
-export type TokenTransfer = (notification : string) => void;
+export type RawTokenTransfer = (token : string) => void;
+export type TokenTransfer = (token : Token) => void;

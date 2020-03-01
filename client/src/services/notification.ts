@@ -1,12 +1,13 @@
 import firebase from './firebase';
 import { Notifier, ErrorHandler, consoleError } from '../utils';
-import { TokenTransfer } from '../../../types/notification';
+import { RawTokenTransfer,TokenTransfer,Token } from '../../../types/notification';
 
 const db = firebase.firestore();
 
 let requestPermission : (onSucceeded: Notifier, onFailed: ErrorHandler) =>void = ()=>{};
-let onTokenRefresh: (onRefresh: TokenTransfer) => void = () => { };
-let getToken: (onSucceeded: TokenTransfer, onFailed: ErrorHandler) => void = () => { };
+let onTokenRefresh: (onRefresh: RawTokenTransfer) => void = () => { };
+let getToken: (onSucceeded: RawTokenTransfer, onFailed?: ErrorHandler) => void = () => { };
+let getPermission: () => NotificationPermission = ()=>'default';
 
 if (!firebase.messaging.isSupported()) {
   console.log('FCM not supported')
@@ -26,9 +27,10 @@ if (!firebase.messaging.isSupported()) {
     })
     .catch(onFailed);
   };
+  getPermission = ()=>Notification.permission;
 
   const messaging = firebase.messaging();
-  onTokenRefresh = (onRefresh: TokenTransfer) => {
+  onTokenRefresh = (onRefresh: RawTokenTransfer) => {
     messaging.onTokenRefresh(() => {
       messaging.getToken().then((refreshedToken) => {
         onRefresh(refreshedToken)
@@ -37,7 +39,7 @@ if (!firebase.messaging.isSupported()) {
       });
     });
   }
-  getToken = (onSucceeded: TokenTransfer, onFailed: ErrorHandler) => {
+  getToken = (onSucceeded: RawTokenTransfer, onFailed: ErrorHandler = consoleError) => {
     messaging.getToken().then((currentToken) => {
       if (currentToken) {
         onSucceeded(currentToken)
@@ -60,16 +62,55 @@ const saveToken = (
   onSucceeded ?: () => void,
   onFailed: ErrorHandler = consoleError
 )=>{
-  db.collection('tokens').doc(token).set({
+  db.collection('tokens')
+  .doc(token)
+  .set({
     profileId
   })
   .then(onSucceeded)
   .catch(onFailed);
 }
 
+const getSavedToken = (
+  token : string,
+  onSucceeded : TokenTransfer,
+  onFailed: ErrorHandler = consoleError
+)=>{
+  db.collection('tokens')
+  .doc(token)
+  .get()
+  .then((doc)=>{
+    if(doc.exists){
+      onSucceeded({
+        ...doc.data() as Token,
+        id : doc.id
+      });
+    }
+    else{
+      onFailed(Error(`token ${token} does not exist.`))
+    }
+  })
+  .catch(onFailed);
+}
+
+const deleteToken = (
+  token : string,
+  onSucceeded ?: () => void,
+  onFailed: ErrorHandler = consoleError
+)=>{
+  db.collection('tokens')
+  .doc(token)
+  .delete()
+  .then(onSucceeded)
+  .catch(onFailed)
+}
+
 export {
   onTokenRefresh,
   getToken,
+  getPermission,
   requestPermission,
-  saveToken
+  saveToken,
+  deleteToken,
+  getSavedToken
 }

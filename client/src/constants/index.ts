@@ -4,7 +4,13 @@ export const RequestStatus = {
     Rejected : 'rejected'
 }
 
-export const LoadingStatus = {
+export type LoadingStatusType = 'loading' | 'failed' | 'succeeded';
+
+export const LoadingStatus  : {
+    Loading : LoadingStatusType,
+    Failed : LoadingStatusType,
+    Succeeded : LoadingStatusType
+} = {
     Loading : 'loading',
     Failed : 'failed',
     Succeeded : 'succeeded'

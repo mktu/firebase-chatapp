@@ -42,7 +42,7 @@ const ChatEditor: React.FC<{
                     component: createMentionCandidateComponent(updateMentionCandidate)
                 }
             ]);
-        }, [updateMentionCandidate]);
+        }, [updateMentionCandidate,onMountedMention]);
 
         const [editorState, setEditorState] = useState(
             EditorState.createEmpty(constructDecorator())
