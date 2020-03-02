@@ -8,7 +8,7 @@ import {Wrapper, Paper} from './Common';
 
 
 const RegisterProfile : React.FC<{
-    onSucceeded : ()=> JSX.Element
+    onSucceeded : ()=> React.ReactElement
 }> = ({
     onSucceeded
 }) =>{

@@ -18,7 +18,7 @@ const UpdateProfilePage : React.FC<{
         updatable,
         notifiable,
         onLoadToken,
-        onSwitchNotifiable
+        onSwitchNotifiable,
     } = useUpdateProfileState();
     return (
         <Wrapper className={className}>

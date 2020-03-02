@@ -1,4 +1,5 @@
 import { useState, useContext, useEffect, useCallback } from 'react';
+import { useSnackbar } from 'notistack';
 import AuthContext from '../../contexts/AuthContext';
 import ProfileContext from '../../contexts/ProfileContext';
 import { addProfile, getProfile, modifyProfile } from '../../services/profile';
@@ -13,6 +14,7 @@ const useCommonState = () => {
     const [nickname, setNickname] = useState('');
     const [notifiable, setNotifiable] = useState(false);
     const [token,setToken] = useState<string>();
+    const { enqueueSnackbar } = useSnackbar();
     
     const onChangeNickname = (e: React.ChangeEvent<HTMLInputElement>) => {
         setNickname(e.target.value);
@@ -32,9 +34,19 @@ const useCommonState = () => {
     },[]);
     const updateToken = useCallback((profileId:string)=>{
         if(notifiable){
-            token && saveToken(profileId, token);
+            token && saveToken(profileId, token, ()=>{
+                console.log('Token saved successfully');
+            }, (error)=>{
+                console.error(error);
+                enqueueSnackbar('An error occurred while saving token',{variant:'error'});
+            });
         }else{
-            token && deleteToken(token);
+            token && deleteToken(token, ()=>{
+                console.log('Token deleted successfully');
+            },(error)=>{
+                console.error(error);
+                enqueueSnackbar('An error occurred while deleting token',{variant:'error'});
+            });
         }
     },[token,notifiable]);
     return {
@@ -48,7 +60,8 @@ const useCommonState = () => {
         onSwitchNotifiable,
         notifiable,
         onLoadToken,
-        updateToken
+        updateToken,
+        enqueueSnackbar
     }
 }
 
@@ -57,18 +70,13 @@ export function useRegisterProfileState() {
         nickname,
         setNickname,
         setError,
-        error,
-        hasError,
         user,
-        onChangeNickname,
-        onSwitchNotifiable,
-        notifiable,
-        onLoadToken,
-        updateToken
+        updateToken,
+        enqueueSnackbar,
+        ...other
     } = useCommonState();
-
-    const registrable = nickname !== '' && user;
     const [succeeded, setSucceeded] = useState<boolean>(false);
+    const registrable = nickname !== '' && user;
     useEffect(() => {
         if (user) {
             setNickname(user.name || '');
@@ -85,12 +93,12 @@ export function useRegisterProfileState() {
                 console.log('Profile is not registered');
             })
         }
-    }, [user]);
+    }, [user,setSucceeded]);
 
     const registerProfile = () => {
         if (registrable) {
             addProfile(nickname, user!, (profile) => {
-                console.log(`succeeded register profile "${nickname}"`);
+                enqueueSnackbar(`Succeeded register profile`,{variant:'success'})
                 setSucceeded(true);
                 updateToken(profile.id);
             }, setError);
@@ -98,16 +106,11 @@ export function useRegisterProfileState() {
     }
 
     return {
-        onChangeNickname,
         nickname,
         registerProfile,
-        error,
-        hasError,
         registrable,
         succeeded,
-        notifiable,
-        onLoadToken,
-        onSwitchNotifiable
+        ...other
     };
 }
 
@@ -116,13 +119,9 @@ export function useUpdateProfileState() {
         nickname,
         setNickname,
         setError,
-        error,
-        hasError,
-        onChangeNickname,
-        onSwitchNotifiable,
-        notifiable,
-        onLoadToken,
-        updateToken
+        updateToken,
+        enqueueSnackbar,
+        ...other
     } = useCommonState();
     const { profileState } = useContext(ProfileContext);
     const { profile } = profileState;
@@ -142,20 +141,15 @@ export function useUpdateProfileState() {
                 nickname
             }, () => {
                 updateToken(profile!.id);
-                console.log(`succeeded modify profile "${nickname}"`);
+                enqueueSnackbar(`Succeeded update profile`,{variant:'success'});
             }, setError);
         }
     }
 
     return {
-        onChangeNickname,
         nickname,
-        error,
-        hasError,
         updatable,
         updateProfile,
-        onSwitchNotifiable,
-        notifiable,
-        onLoadToken,
+        ...other
     };
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import deepPurple from '@material-ui/core/colors/deepPurple';
+import { SnackbarProvider, VariantType } from 'notistack';
 import { BrowserRouter as Router } from "react-router-dom";
 import { ThemeProvider, createMuiTheme, StylesProvider } from '@material-ui/core/styles';
 import { ThemeProvider as StyledThemeProvider } from "styled-components";
@@ -21,12 +22,12 @@ console.log(theme);
 
 const App: React.FC = () => {
 
-  const { 
-    userState, 
-    profileState, 
-    userActions, 
-    profileActions, 
-    roomState, 
+  const {
+    userState,
+    profileState,
+    userActions,
+    profileActions,
+    roomState,
     roomActions,
     notificationState,
     notificationActions
@@ -37,15 +38,17 @@ const App: React.FC = () => {
       <StylesProvider injectFirst>
         <ThemeProvider theme={theme}>
           <StyledThemeProvider theme={theme}>
-            <AuthContext.Provider value={{ userState, actions: userActions }}>
-              <ProfileContext.Provider value={{ profileState, actions: profileActions }}>
-                <RoomContext.Provider value={{ roomState, actions: roomActions }}>
-                  <NotificationContext.Provider value={{ notificationState, actions: notificationActions }}>
-                    <AppRoot />
-                  </NotificationContext.Provider>
-                </RoomContext.Provider>
-              </ProfileContext.Provider>
-            </AuthContext.Provider>
+            <SnackbarProvider maxSnack={3}>
+              <AuthContext.Provider value={{ userState, actions: userActions }}>
+                <ProfileContext.Provider value={{ profileState, actions: profileActions }}>
+                  <RoomContext.Provider value={{ roomState, actions: roomActions }}>
+                    <NotificationContext.Provider value={{ notificationState, actions: notificationActions }}>
+                      <AppRoot />
+                    </NotificationContext.Provider>
+                  </RoomContext.Provider>
+                </ProfileContext.Provider>
+              </AuthContext.Provider>
+            </SnackbarProvider>
           </StyledThemeProvider>
         </ThemeProvider>
       </StylesProvider>
