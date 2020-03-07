@@ -48,7 +48,7 @@ const useCommonState = () => {
                 enqueueSnackbar('An error occurred while deleting token',{variant:'error'});
             });
         }
-    },[token,notifiable]);
+    },[token,notifiable,enqueueSnackbar]);
     return {
         nickname,
         setNickname,

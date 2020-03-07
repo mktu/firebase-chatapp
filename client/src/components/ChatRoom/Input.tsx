@@ -8,7 +8,7 @@ import Avatar from '@material-ui/core/Avatar';
 import 'emoji-mart/css/emoji-mart.css';
 import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
-import { Send, Keyboard } from '@material-ui/icons';
+import { Send } from '@material-ui/icons';
 import { EmojiPicker } from '../Emoji';
 import ChatEditor from '../Editor';
 import { Profile } from '../../../../types/profile';
@@ -53,7 +53,6 @@ const Input = ({
         handleChangeInput,
         handleSubmitMessage,
         onSelectEmoji,
-        onSwitchMultiline,
         onEditorMounted,
         updateMentionCandidate,
         suggestion,
@@ -65,7 +64,6 @@ const Input = ({
         <InputBox className={className}>
             <AdornmentAdapter>
                 <EmojiPicker onSelectEmoji={onSelectEmoji} />
-                <IconButton onClick={onSwitchMultiline}><Keyboard /></IconButton>
             </AdornmentAdapter>
             <div>
                 <EditorWrapper>

@@ -53,11 +53,11 @@ export default ({ className, profiles, room }: Props) => {
                     handleRejectRequest={handleRejectRequest}
                 />
             )}
+            <Messages roomId={room.id} profiles={profiles} />
             <Input
                 suggestionCandidates={profiles}
                 roomId={room.id}
             />
-            <Messages roomId={room.id} profiles={profiles} />
         </div>
     )
 };

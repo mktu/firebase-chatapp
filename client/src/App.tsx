@@ -1,6 +1,6 @@
 import React from 'react';
 import deepPurple from '@material-ui/core/colors/deepPurple';
-import { SnackbarProvider, VariantType } from 'notistack';
+import { SnackbarProvider } from 'notistack';
 import { BrowserRouter as Router } from "react-router-dom";
 import { ThemeProvider, createMuiTheme, StylesProvider } from '@material-ui/core/styles';
 import { ThemeProvider as StyledThemeProvider } from "styled-components";

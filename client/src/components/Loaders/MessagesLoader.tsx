@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { registMessagesListener, getMessages } from '../../services/message';
 import { Message } from '../../../../types/message';
 import { LoadingStatus } from '../../constants';
@@ -20,24 +20,22 @@ type Direction = {
     key: string,
     direction: 'desc' | 'asc'
 }
-
-function useMessageListener({
+type Unsubscribe = () => void;
+function useMessageListener2({
     roomId,
     limit,
     order,
-    start,
     sentinel,
 }: {
     roomId: string,
     limit?: number,
     order: Direction,
-    start?: number,
     sentinel: Message,
 }) {
     const [hasMore, setHasMore] = useState(false);
     const [loaded, setMessages] = useState<Message[]>([]);
-    
-    useEffect(() => {
+    const unsubscribes = useRef<Unsubscribe[]>([]);
+    const readMessages = useCallback((start: number) => {
         const unsubscribe = registMessagesListener({
             roomId,
             limit,
@@ -45,9 +43,14 @@ function useMessageListener({
             start,
             onAdded: (results) => {
                 if (results.length > 0) {
-                    setMessages(prev => [...results, ...prev]);
                     if (sentinel) {
+                        // It is necessary first to not attach the scroll event of react-infinite-scroller
                         setHasMore(!Boolean(results.find(m => m.id === sentinel?.id)));
+                    }
+                    if (order.direction === 'desc') {
+                        setMessages(prev => [...prev, ...results])
+                    } else {
+                        setMessages(prev => [...results, ...prev]);
                     }
                 }
             },
@@ -74,25 +77,31 @@ function useMessageListener({
                 });
             }
         });
+        unsubscribes.current.push(unsubscribe);
+    }, [roomId, limit, order, sentinel]);
+
+    useEffect(() => {
         return () => {
-            unsubscribe && unsubscribe();
+            for (const unsubscribe of unsubscribes.current) {
+                unsubscribe();
+            }
             setMessages([]);
             setHasMore(false);
+            unsubscribes.current = [];
         };
-    }, [roomId, start, limit, order, sentinel]);
+    }, []);
 
     return {
         hasMore,
-        loaded
+        loaded,
+        readMessages
     }
 }
-
-
-const descOrder : Direction = {
+const descOrder: Direction = {
     key: 'date',
     direction: 'desc'
 };
-const ascOrder : Direction = {
+const ascOrder: Direction = {
     key: 'date',
     direction: 'asc'
 };
@@ -110,38 +119,34 @@ function BackwardMessageLoader(
         children: Children,
         messages: Message[],
         sentinel: Message,
-        limit:number
-        startDate? : number
+        limit: number
+        startDate: number
     }
 ) {
     const {
         hasMore,
         loaded,
-    } = useMessageListener({
+        readMessages
+    } = useMessageListener2({
         roomId,
         limit,
         order: descOrder,
-        start: startDate,
         sentinel
     })
-    const [readMore, setReadMore] = useState<boolean>(false);
-    const handleReadMore = () => {
-        setReadMore(true);
-    };
+    useEffect(() => {
+        readMessages(startDate);
+    }, [startDate, readMessages]);
+
     const allMessages = useMemo(() => {
         return [...messages, ...loaded];
     }, [messages, loaded]);
 
-    if (hasMore&&readMore) {
-        return <BackwardMessageLoader
-            roomId={roomId}
-            children={children}
-            messages={allMessages}
-            sentinel={sentinel}
-            limit={10}
-            startDate={loaded[loaded.length-1].date}
-        />;
-    }
+    const handleReadMore = useCallback(() => {
+        if (hasMore) {
+            readMessages(allMessages[allMessages.length - 1].date);
+        }
+    }, [hasMore, allMessages,readMessages]);
+
     return children(allMessages, handleReadMore, hasMore);
 }
 
@@ -156,17 +161,21 @@ function LatestMessageLoader(
         sentinel: Message
     }
 ) {
-    const startDate = useMemo(()=>{
+    const startDate = useMemo(() => {
         return Date.now();
-    },[]);
+    }, []);
     const {
         loaded,
-    } = useMessageListener({
+        readMessages
+    } = useMessageListener2({
         roomId,
         order: ascOrder,
-        start: startDate,
         sentinel
     })
+    useEffect(()=>{
+        readMessages(startDate);
+    },[startDate,readMessages]);
+    
     return <BackwardMessageLoader
         roomId={roomId}
         children={children}
@@ -198,7 +207,7 @@ const MessagesLoader: React.FC<Props> = ({
                 setStatus(LoadingStatus.Failed);
             }
         });
-        return ()=>{
+        return () => {
             setStatus(LoadingStatus.Loading);
         }
     }, [roomId]);

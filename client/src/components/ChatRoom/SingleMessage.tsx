@@ -58,12 +58,12 @@ const UserBox = styled.div`
     align-items : center;
 `;
 
-const SingleMessage: React.FC<Props> = ({
+const SingleMessage: React.FC<Props> = React.forwardRef(({
     className,
     profiles,
     message,
     roomId
-}: Props) => {
+}: Props, ref:any) => {
 
     const {
         userSent,
@@ -85,7 +85,7 @@ const SingleMessage: React.FC<Props> = ({
     ), [userSent]);
     return useMemo(() =>
         (
-            <ListItem className={className} >
+            <ListItem className={className} ref={ref}>
                 {amISent ? (
                     <SentMessage>
                         {avatar}
@@ -121,7 +121,8 @@ const SingleMessage: React.FC<Props> = ({
         handleAddReaction,
         time,
         userSent,
+        ref
     ])
-};
+});
 
 export default SingleMessage;
