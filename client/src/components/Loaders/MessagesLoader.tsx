@@ -142,7 +142,7 @@ function BackwardMessageLoader(
     }, [messages, loaded]);
 
     const handleReadMore = useCallback(() => {
-        if (hasMore) {
+        if (hasMore && allMessages.length > 0) {
             readMessages(allMessages[allMessages.length - 1].date);
         }
     }, [hasMore, allMessages,readMessages]);
