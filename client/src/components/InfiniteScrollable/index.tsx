@@ -8,14 +8,16 @@ function InfiniteScrollable<T extends { id: string }>({
     hasMore,
     renderItem,
     autoScrollThreshold = 100,
-    listComponent = 'div'
+    listComponent = 'div',
+    renderNewItemNotification = () => (<div />)
 }: {
     items: T[],
     renderItem: (item: T) => React.ReactElement,
     loadMore: () => void,
     hasMore: boolean,
     autoScrollThreshold?: number,
-    listComponent?: any
+    listComponent?: any,
+    renderNewItemNotification?: (show:boolean, onClickScrollToBottom: () => void) => React.ReactElement
 }) {
     const itemsEndRef = useRef<any>(null);
     const [lastestId, setLatestId] = useState<string>();
@@ -24,12 +26,13 @@ function InfiniteScrollable<T extends { id: string }>({
         flex-direction : column-reverse;
     `, [listComponent]);
     const [automaticallyScrollDown, setAutomaticallyScrollDown] = useState(false);
+    const hasItemNotSeen = items.length>0 &&  lastestId !== items[0].id && !automaticallyScrollDown;
     useEffect(() => {
         let enableAutomaticallyScrollDown = false;
         let unmounted = false;
         const parentNode = itemsEndRef.current && itemsEndRef.current.parentNode;
         const onScroll = (event: any) => {
-            if(unmounted) return;
+            if (unmounted) return;
             const node = event.target;
             const margin = node.scrollHeight - (node.scrollTop + node.clientHeight);
             if (margin < autoScrollThreshold) {
@@ -45,7 +48,7 @@ function InfiniteScrollable<T extends { id: string }>({
             }
         };
         parentNode && parentNode.addEventListener('scroll', onScroll);
-        return ()=>{
+        return () => {
             unmounted = true;
             parentNode && parentNode.removeEventListener('scroll', onScroll);
         }
@@ -59,13 +62,13 @@ function InfiniteScrollable<T extends { id: string }>({
                 setLatestId(items[0].id!);
             }
             else if (lastestId !== items[0].id) {
-                setLatestId(items[0].id!);
                 if (automaticallyScrollDown) {
+                    setLatestId(items[0].id!);
                     itemsEndRef.current.scrollIntoView({ behavior: "smooth" });
                 }
             }
         }
-    }, [items,automaticallyScrollDown,lastestId]);
+    }, [items, automaticallyScrollDown, lastestId]);
 
     return useMemo(() => (
         <React.Fragment>
@@ -81,8 +84,11 @@ function InfiniteScrollable<T extends { id: string }>({
                 </StyledList>
             </InfiniteScroll>
             <div ref={itemsEndRef} />
+            {renderNewItemNotification(hasItemNotSeen, ()=>{
+                itemsEndRef.current.scrollIntoView({ behavior: "smooth" });
+            })}
         </React.Fragment>
-    ), [items, loadMore, hasMore,renderItem]);
+    ), [items, loadMore, hasMore, renderItem,hasItemNotSeen,renderNewItemNotification]);
 }
 
 

@@ -1,9 +1,25 @@
 import React, { useMemo } from 'react';
+import styled from 'styled-components';
 import List from '@material-ui/core/List';
 import SingleMessage from './SingleMessage';
 import InfiniteScrollable from '../InfiniteScrollable';
 import { Profile } from '../../../../types/profile';
 import { MessagesLoader } from '../Loaders';
+import MessageNotification from './MessageNotification';
+
+const Wrapper = styled.div`
+    position : relative;
+    & > .messages-scrollable{
+        overflow : auto;
+        height : 100%;
+    }
+    & > .messages-scrollable > .messages-notification{
+        position : absolute;
+        left: 0;
+        right: 0;
+        margin: auto;
+    }
+`;
 
 const Messages: React.FC<{
     className?: string,
@@ -16,29 +32,33 @@ const Messages: React.FC<{
 }) => {
         return useMemo(() =>
             (
-                <div className={className} id='chat-room-messages'>
-                    <MessagesLoader roomId={roomId}
-                        loading={() => {
-                            return (<div>loading messages...</div>);
-                        }}
-                    >
-                        {
-                            (messages, readMore, hasMore) => {
-                                return (
-                                    <InfiniteScrollable
-                                        loadMore={readMore}
-                                        hasMore={hasMore}
-                                        items={messages}
-                                        listComponent={List}
-                                        renderItem={(message)=>(
-                                            <SingleMessage key={message.id} roomId={roomId} profiles={profiles} message={message} />
-                                        )}
-                                    />
-                                )
+                <Wrapper className={className} >
+                    <div className='messages-scrollable'>
+                        <MessagesLoader roomId={roomId}
+                            loading={() => {
+                                return (<div>loading messages...</div>);
+                            }}
+                        >
+                            {
+                                (messages, readMore, hasMore) => {
+                                    return (
+                                        <InfiniteScrollable
+                                            loadMore={readMore}
+                                            hasMore={hasMore}
+                                            items={messages}
+                                            listComponent={List}
+                                            renderNewItemNotification={(show, onClick) => (
+                                                <MessageNotification className='messages-notification' show={show} onClick={onClick} />)}
+                                            renderItem={(message) => (
+                                                <SingleMessage key={message.id} roomId={roomId} profiles={profiles} message={message} />
+                                            )}
+                                        />
+                                    )
+                                }
                             }
-                        }
-                    </MessagesLoader>
-                </div >
+                        </MessagesLoader>
+                    </div>
+                </Wrapper >
             ), [roomId, className, profiles])
     };
 

@@ -5,59 +5,61 @@ import { Room } from '../../../../types/room';
 import { Profile } from '../../../../types/profile';
 import useOwnerState from './useOwnerState';
 import Requests from './Requests';
-import UsersBase from './Users';
-import MessagesBase from './Messages';
+import Users from './Users';
+import Messages from './Messages';
 import Input from './Input';
 
-type Props = {
+const Wrapper = styled.div`
+    & > .room-header{
+        display : flex;
+        align-items : center;
+        justify-content : space-between;
+    }
+    & > .room-messages {
+        border : ${({ theme }) => `1px solid ${theme.palette.divider}`};
+        height : 60vh;
+        border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
+        margin-top : ${({ theme }) => `${theme.spacing(2)}px`};
+        margin-bottom : ${({ theme }) => `${theme.spacing(1)}px`};
+    }
+`;
+
+const ChatRoom: React.FC<{
     room: Room,
     profiles: Profile[],
     className?: string,
-};
+}> = ({
+    className,
+    profiles,
+    room
+}) => {
+        const {
+            handleAcceptRequest,
+            handleRejectRequest,
+            isOwner
+        } = useOwnerState(room);
 
-const RoomHeader = styled.div`
-    display : flex;
-    align-items : center;
-    justify-content : space-between;
-`;
-
-const Users = styled(UsersBase)`
-    margin-bottom : ${({ theme }) => `${theme.spacing(1)}px`};
-`
-
-const Messages = styled(MessagesBase)`
-    border : ${({ theme }) => `1px solid ${theme.palette.divider}`};
-    height : 60vh;
-    border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
-    margin-top : ${({ theme }) => `${theme.spacing(2)}px`};
-    overflow : auto;
-`;
-
-export default ({ className, profiles, room }: Props) => {
-    const {
-        handleAcceptRequest,
-        handleRejectRequest,
-        isOwner
-    } = useOwnerState(room);
-
-    return (
-        <div className={className} >
-            <RoomHeader>
-                <Typography>{room.roomName}</Typography>
-                <Users profiles={profiles} />
-            </RoomHeader>
-            {isOwner && (
-                <Requests
+        return (
+            <Wrapper className={className} >
+                <div className='room-header'>
+                    <Typography>{room.roomName}</Typography>
+                    <Users className='room-header-users' profiles={profiles} />
+                </div>
+                {isOwner && (
+                    <Requests
+                        roomId={room.id}
+                        handleAcceptRequest={handleAcceptRequest}
+                        handleRejectRequest={handleRejectRequest}
+                    />
+                )}
+                <Messages className='room-messages' roomId={room.id} profiles={profiles} />
+                <Input
+                    className='room-input'
+                    suggestionCandidates={profiles}
                     roomId={room.id}
-                    handleAcceptRequest={handleAcceptRequest}
-                    handleRejectRequest={handleRejectRequest}
                 />
-            )}
-            <Messages roomId={room.id} profiles={profiles} />
-            <Input
-                suggestionCandidates={profiles}
-                roomId={room.id}
-            />
-        </div>
-    )
-};
+            </Wrapper>
+        )
+    };
+
+export default ChatRoom;
