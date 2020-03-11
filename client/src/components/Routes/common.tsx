@@ -8,7 +8,7 @@ export const RedirectBack: React.FC<{
 }) => {
         const location = useLocation();
         if (location.state) {
-            const { from, pathname } = location.state;
+            const { from, pathname } = location.state as any;
             if (from && from.pathname !== pathname) {
                 return <Redirect to={{
                     pathname: from.pathname,
