@@ -5,7 +5,7 @@ import SingleMessage from './SingleMessage';
 import InfiniteScrollable from '../InfiniteScrollable';
 import { Profile } from '../../../../types/profile';
 import { MessagesLoader } from '../Loaders';
-import MessageNotification from './MessageNotification';
+import NewItemNotification from '../InfiniteScrollable/NewItemNotification';
 
 const Wrapper = styled.div`
     position : relative;
@@ -48,7 +48,7 @@ const Messages: React.FC<{
                                             items={messages}
                                             listComponent={List}
                                             renderNewItemNotification={(show, onClick) => (
-                                                <MessageNotification className='messages-notification' show={show} onClick={onClick} />)}
+                                                <NewItemNotification className='messages-notification' show={show} onClick={onClick} />)}
                                             renderItem={(message) => (
                                                 <SingleMessage key={message.id} roomId={roomId} profiles={profiles} message={message} />
                                             )}
