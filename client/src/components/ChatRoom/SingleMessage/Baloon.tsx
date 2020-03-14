@@ -2,16 +2,11 @@ import React, {useMemo} from 'react';
 import styled, { css } from 'styled-components';
 import { find } from 'linkifyjs';
 import Linkify from 'react-linkify';
-import { LinkPreview } from '../LinkPreview';
-import { buildMatchInfo } from '../../logics/regexHelper';
-import { MENTION_REGEX } from '../../constants';
+import { LinkPreview } from '../../LinkPreview';
+import { buildMatchInfo } from '../../../logics/regexHelper';
+import { MENTION_REGEX } from '../../../constants';
 
-type Props = {
-    className?: string,
-    message: string
-};
-
-const InnerStyle = css`
+const innerStyle = css`
     display : inline-block;
     white-space : pre-wrap;
     overflow-wrap: break-word;
@@ -25,10 +20,10 @@ const InnerStyle = css`
 const Wrapper = styled.div`
     max-width : 500px;
     & > span{
-        ${InnerStyle};
+        ${innerStyle};
     }
     & > span > a {
-        ${InnerStyle};
+        ${innerStyle};
     }
 `;
 
@@ -56,10 +51,13 @@ const makeMentionDecorator = (source: string) => {
     ):m.text)
 }
 
-const Baloon: React.FC<Props> = ({
+const Baloon: React.FC<{
+    className?: string,
+    message: string
+}> = ({
     className,
     message,
-}: Props) => {
+}) => {
     const urls = find(message);
     const mentionDecorated = useMemo(()=>makeMentionDecorator(message),[message]);
     return (
