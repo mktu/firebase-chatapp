@@ -24,7 +24,7 @@ const EditUserContainer: React.FC<{
                 ...room,
                 users: profiles.filter(p => p.id !== profileId).map(p => p.id)
             })
-        }, [profiles]);
+        }, [profiles,room]);
 
         return <Presenter
             show={show}

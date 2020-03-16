@@ -14,6 +14,8 @@ const Wrapper = styled.div`
     height : 100%;
     & > .room-messages {
         height : 65vh;
+        width : 100%;
+        overflow : scroll;
         border : ${({ theme }) => `1px solid ${theme.palette.divider}`};
         border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
         margin-top : ${({ theme }) => `${theme.spacing(1)}px`};

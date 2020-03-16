@@ -1,6 +1,6 @@
 import React, { useMemo,useContext, useState, useCallback } from 'react';
 import ListItem from '@material-ui/core/ListItem';
-import * as Presenters from './Presenters';
+import * as Presenters from './Presenter';
 import { Profile } from '../../../../../types/profile';
 import { Message } from '../../../../../types/message';
 import ProfileContext from '../../../contexts/ProfileContext';
