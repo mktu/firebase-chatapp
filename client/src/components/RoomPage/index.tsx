@@ -8,17 +8,18 @@ import RoomList from '../RoomList';
 const Wrapper = styled.div`
     display : flex;
     justify-content : center;
-    padding : 3px;
+    padding : 5px;
+    height : 100%;
+    box-sizing: border-box;
 `;
 
 const ListPaper = styled(Paper)`
     width : 30%;
     padding : 1rem;
-    height : 100%;
     margin-right : 1rem;
 `
 
-const RoomPaper = styled(Paper)(({closed}:{closed:boolean})=>`
+const RoomPaper = styled('div')(({closed}:{closed:boolean})=>`
     width : ${closed? `0` : `60%`};
     padding :${closed? `0` : `1rem`};
     transition: all 0.3s ease-out;

@@ -7,9 +7,6 @@ import Button from '@material-ui/core/Button';
 import { Person } from '@material-ui/icons';
 import useHeaderState from '../../hooks/useHeaderState';
 
-const Wrapper = styled.div`
-`;
-
 const Toolbar = styled(ToolbarBase)`
     & > :last-child{
         margin-left : auto;
@@ -33,23 +30,21 @@ const PersonIcon = styled(Person)`
 export default () => {
     const { profile, handleLogout, jumpToProfile } = useHeaderState();
     return (
-        <Wrapper>
-            <AppBar position="static">
-                <Toolbar>
-                    <Typography variant='h6'>Chat App</Typography>
-                    <div>
-                        {profile && (
-                            <LoginMenu>
-                                <ProfileButton color='inherit' onClick={jumpToProfile}>
-                                    <PersonIcon />
-                                    {profile.nickname}
-                                </ProfileButton>
-                                <Button color='inherit' onClick={handleLogout}>LOG OUT</Button>
-                            </LoginMenu>
-                        )}
-                    </div>
-                </Toolbar>
-            </AppBar>
-        </Wrapper>
+        <AppBar position="static">
+            <Toolbar>
+                <Typography variant='h6'>Chat App</Typography>
+                <div>
+                    {profile && (
+                        <LoginMenu>
+                            <ProfileButton color='inherit' onClick={jumpToProfile}>
+                                <PersonIcon />
+                                {profile.nickname}
+                            </ProfileButton>
+                            <Button color='inherit' onClick={handleLogout}>LOG OUT</Button>
+                        </LoginMenu>
+                    )}
+                </div>
+            </Toolbar>
+        </AppBar>
     )
 };

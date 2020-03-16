@@ -52,7 +52,7 @@ const Container: React.FC<{
             const profileIds =  reactionsBase[cur];
             const profilesNames = profileIds.map(id=>{
                 const profile = profiles.find(p=>p.id===id);
-                return profile!.nickname;
+                return profile?.nickname || 'Unknown';
             });
             acc[cur] = profilesNames;
             return acc;
@@ -76,7 +76,7 @@ return useMemo(() =>
                         onHoverReceivedMessage={onHoverReceivedMessage}
                         onLeaveReceivedMessage={onLeaveReceivedMessage}
                         handleAddReaction={handleAddReaction}
-                        sender={sender!.nickname}
+                        sender={sender?.nickname || 'Unknown'}
                         message={message.message}
                         reactions={reactions}
                         showEmoAction={showEmoAction}

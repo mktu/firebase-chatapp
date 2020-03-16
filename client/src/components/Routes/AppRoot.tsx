@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 import { useLocation, Redirect, Switch, Route } from "react-router-dom";
 import SignInPage from '../SignInPage';
 import { RegisterProfile, UpdateProfile } from '../Profile';
@@ -46,9 +47,15 @@ const RequiresUserRoot: React.FC<{}> = () => {
     </UserLoader >
 }
 
+const Wrapper = styled.div`
+    display: grid;
+    height : 100vh;
+    grid-template-rows: auto 1fr;
+`;
+
 const Root: React.FC<{}> = () => {
     return (
-        <React.Fragment>
+        <Wrapper>
             <Header />
             <Switch>
                 <Route exact path='/'>
@@ -65,7 +72,7 @@ const Root: React.FC<{}> = () => {
                     <RequiresUserRoot />
                 </Route>
             </Switch>
-        </React.Fragment>
+        </Wrapper>
     )
 }
 
