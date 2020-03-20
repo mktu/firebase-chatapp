@@ -9,7 +9,7 @@ const theme = createMuiTheme({
         primary: deepPurple,
     },
 });
-
+console.log(theme)
 addDecorator(storyFn => (
     <StylesProvider injectFirst>
         <ThemeProvider theme={theme}>

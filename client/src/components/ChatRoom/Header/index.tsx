@@ -1,7 +1,7 @@
-import Container from './Container';
-import Users from './Users';
+import HeaderContainer from './Container';
+import HeaderPresenter from './Presenter';
 
-export default Container;
+export default HeaderContainer;
 export {
-    Users
+    HeaderPresenter
 }

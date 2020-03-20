@@ -1,74 +1,67 @@
-import React, { useContext, useState } from 'react';
-import styled from 'styled-components';
-import Typography from '@material-ui/core/Typography';
+import React, { useContext, useState, useEffect } from 'react';
 import { Room, JoinRequest } from '../../../../../types/room';
 import { Profile } from '../../../../../types/profile';
 import ProfileContext from '../../../contexts/ProfileContext';
 import { modifyRoom } from '../../../services/room';
-import { updateRequest } from '../../../services/request';
-import { RequestStatus } from '../../../constants';
-import Users from './Users';
-import UserEditor from '../UserEditor';
-import Requests from './Requests';
+import UsersDialog from '../UsersDialog';
+import RequestsDialog from '../RequestsDialog';
+import HeaderPresenter from './Presenter';
 
-
-const Wrapper = styled.div`
-    & > .opened-header{
-        display : flex;
-        align-items : center;
-        justify-content : space-between;
-    }
-`;
-
-const ChatRoomHeader: React.FC<{
+const HeaderContainer: React.FC<{
     room: Room,
     profiles: Profile[],
+    requests: JoinRequest[],
     className?: string,
 }> = ({
     className,
     profiles,
-    room
+    room,
+    requests
 }) => {
         const [showUserEditor, setShowUserEditor] = useState(false);
+        const [showRequests, setShowRequests] = useState(false);
+        const [nameEditable,setNameEditable] = useState(false);
+        const [roomName,setRoomName] = useState(room.roomName);
+        useEffect(()=>{
+            setRoomName(room.roomName)
+        },[room.roomName])
         const { profileState } = useContext(ProfileContext);
         const { profile } = profileState;
         const isOwner = profile?.id === room.ownerId;
-
-        const handleAcceptRequest = (request: JoinRequest) => {
-            updateRequest(room.id,
-                {
-                    ...request,
-                    status: RequestStatus.Accepted
-                });
-            modifyRoom({
-                ...room,
-                users: [...room.users, request.profileId]
-            });
-        }
-        const handleRejectRequest = (request: JoinRequest) => {
-            updateRequest(room.id,
-                {
-                    ...request,
-                    status: RequestStatus.Rejected
-                });
-        }
-
         return (
-            <Wrapper className={className} >
-                <div className='opened-header'>
-                    <Typography variant='h6' >{room.roomName}</Typography>
-                    <Users onClickMore={() => {
+            <React.Fragment>
+                <HeaderPresenter 
+                    nameEditable={nameEditable}
+                    roomName={roomName}
+                    profiles={profiles}
+                    className={className}
+                    owner={isOwner}
+                    onChangeRoomName={setRoomName}
+                    requestCount={requests.length}
+                    onClickEditName={(editable)=>{
+                        setNameEditable(editable);
+                        if(!editable && roomName!==room.roomName){
+                            modifyRoom({
+                                ...room,
+                                roomName : roomName
+                            });
+                        }
+                    }}
+                    onClickShowMoreUser={()=>{
                         setShowUserEditor(true);
-                    }} className='room-header-users' profiles={profiles} />
-                </div>
+                    }}
+                />
                 {isOwner && (
-                    <Requests
-                        roomId={room.id}
-                        handleAcceptRequest={handleAcceptRequest}
-                        handleRejectRequest={handleRejectRequest}
+                    <RequestsDialog
+                        show={showRequests && isOwner}
+                        requests={requests}
+                        room={room}
+                        onClose={() => {
+                            setShowRequests(false);
+                        }}
                     />
                 )}
-                <UserEditor
+                <UsersDialog
                     show={showUserEditor}
                     room={room}
                     owner={isOwner}
@@ -77,8 +70,8 @@ const ChatRoomHeader: React.FC<{
                         setShowUserEditor(false);
                     }}
                 />
-            </Wrapper>
+            </React.Fragment>
         )
     };
 
-export default ChatRoomHeader;
+export default HeaderContainer;

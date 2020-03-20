@@ -1,11 +1,11 @@
-import React, {useRef,useEffect} from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import Typography from '@material-ui/core/Typography';
 import { Room } from '../../../../types/room';
 import { Profile } from '../../../../types/profile';
 import Header from './Header';
 import Messages from './Messages';
 import Input from './Input';
+import { RequestsLoader } from '../Loaders';
 
 const Wrapper = styled.div`
     box-sizing: border-box;
@@ -13,8 +13,9 @@ const Wrapper = styled.div`
     grid-template-rows: auto 1fr auto;
     height : 100%;
     & > .room-messages {
-        height : 65vh;
+        height : 70vh;
         width : 100%;
+        padding : 2px;
         overflow : scroll;
         border : ${({ theme }) => `1px solid ${theme.palette.divider}`};
         border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
@@ -37,7 +38,12 @@ const ChatRoom: React.FC<{
 }) => {
         return (
             <Wrapper className={className} >
-                <Header room={room} profiles={profiles}/>
+                <RequestsLoader roomId={room.id}>
+                    {(requests) => (
+                        <Header requests={requests} room={room} profiles={profiles} />
+                    )}
+                </RequestsLoader>
+
                 <Messages className='room-messages' roomId={room.id} profiles={profiles} />
                 <Input
                     className='room-input'

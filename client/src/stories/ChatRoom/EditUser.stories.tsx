@@ -1,10 +1,10 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
-import {EditUserPresenter} from '../../components/ChatRoom/UserEditor';
+import {EditUserPresenter} from '../../components/ChatRoom/UsersDialog';
 
 
 export default {
-    title: 'ChatRoom/Header',
+    title: 'ChatRoom/UserEditor',
 };
 
 export const Default = () => <EditUserPresenter 

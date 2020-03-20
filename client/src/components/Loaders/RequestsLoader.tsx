@@ -2,53 +2,41 @@ import React, { useState, useContext, useEffect } from 'react';
 import ProfileContext from '../../contexts/ProfileContext';
 import { listenJoinRequests } from '../../services/request';
 import { JoinRequest } from '../../../../types/request';
-import { LoadingStatus, RequestStatus } from '../../constants';
+import { RequestStatus } from '../../constants';
 
 type Props = {
-    children: (requests: JoinRequest[]) => JSX.Element,
-    loading: () => JSX.Element,
-    fallback: () => JSX.Element,
+    children: (requests: JoinRequest[]) => React.ReactElement,
     roomId: string
 }
 
 const RequestLoader: React.FC<Props> = ({
     children,
-    loading,
-    fallback,
     roomId
 }) => {
-    const [status, setStatus] = useState<string>(LoadingStatus.Loading);
-    const [requests, setRequests] = useState<JoinRequest[]>([])
+    const [requests, setRequests] = useState<JoinRequest[]>([]);
+    const requestingRequests = requests.filter(req => req.status === RequestStatus.Requesting);
     const { profileState } = useContext(ProfileContext);
     const { profile } = profileState;
 
     useEffect(() => {
         let unsubscribe: ReturnType<typeof listenJoinRequests> = () => { };
-        let requests_: JoinRequest[] = [];
 
         unsubscribe = listenJoinRequests(roomId, (added) => {
             if (added.length > 0) {
-                requests_ = [...requests_, ...added];
-                setRequests(requests_.filter(req => req.status === RequestStatus.Requesting));
-                setStatus(LoadingStatus.Succeeded);
-            } else {
-                setStatus(LoadingStatus.Failed);
+                setRequests(reqs => [...reqs, ...added]);
             }
         }, (modified) => {
-            requests_ = requests_.map(req => {
+            setRequests(reqs => reqs.map(req => {
                 const found = modified.find(r => r.id === req.id);
                 if (found) {
                     return found;
                 }
                 return req;
-            });
-            setRequests(requests_.filter(req => req.status === RequestStatus.Requesting));
+            }));
         }, (deleted) => {
-            requests_ = requests_.filter(req => {
+            setRequests(reqs => reqs.filter(req => {
                 return !deleted.find(r => r.id === req.id);
-            });
-            setStatus(LoadingStatus.Failed);
-            setRequests(requests_.filter(req => req.status === RequestStatus.Requesting));
+            }))
         })
 
         return () => {
@@ -56,13 +44,7 @@ const RequestLoader: React.FC<Props> = ({
         };
     }, [profile, roomId, setRequests]);
 
-    if (status === LoadingStatus.Loading) {
-        return loading();
-    }
-    if (status === LoadingStatus.Failed) {
-        return fallback();
-    }
-    return children(requests);
+    return children(requestingRequests);
 };
 
 export default RequestLoader;
