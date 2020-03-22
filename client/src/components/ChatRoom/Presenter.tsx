@@ -6,18 +6,20 @@ const Wrapper = styled.div`
     display: grid;
     grid-template-rows: auto 1fr auto;
     height : 100%;
+    & > .room-header{
+        padding : ${({ theme }) => `${theme.spacing(1)}px`};
+    }
     & > .room-messages {
-        height : 70vh;
+        height : 100%;
         width : 100%;
         padding : 2px;
+        box-sizing: border-box;
         overflow : scroll;
         border : ${({ theme }) => `1px solid ${theme.palette.divider}`};
         border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
-        margin-top : ${({ theme }) => `${theme.spacing(1)}px`};
-        margin-bottom : ${({ theme }) => `${theme.spacing(1)}px`};
     }
-    & > .room-requests {
-        height : 10vh;
+    & > .room-input{
+        padding : ${({ theme }) => `${theme.spacing(1)}px`};
     }
 `;
 

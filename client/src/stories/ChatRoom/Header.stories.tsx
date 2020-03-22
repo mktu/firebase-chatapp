@@ -11,6 +11,7 @@ export const Default = () => <HeaderPresenter
     requestCount={0}
     nameEditable={false}
     owner={false}
+    onClickRequest={action('click request')}
     onClickEditName={action('click edit name')}
     roomName='Test1'
     onChangeRoomName={action('change room name')}
@@ -24,6 +25,7 @@ export const UserIconsMax = () => <HeaderPresenter
     requestCount={0}
     owner={true}
     nameEditable={true}
+    onClickRequest={action('click request')}
     onClickEditName={action('click edit name')}
     roomName='Test2'
     onChangeRoomName={action('change room name')}
@@ -41,6 +43,7 @@ export const UserIconsMax = () => <HeaderPresenter
     requestCount={3}
     owner={true}
     nameEditable={false}
+    onClickRequest={action('click request')}
     onChangeRoomName={action('change room name')}
     onClickEditName={action('click edit name')}
     roomName='Test3'

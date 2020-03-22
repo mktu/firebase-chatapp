@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import styled from 'styled-components';
 import { Room } from '../../../../types/room';
 import { JoinRequest } from '../../../../types/request';
 import { modifyRoom } from '../../services/room';
@@ -9,11 +10,15 @@ import InputContainer from '../../components/ChatRoom/Input';
 import { Presenter } from '../../components/ChatRoom/';
 import { action } from '@storybook/addon-actions';
 
-type ItemType = {id:string,date:number};
+type ItemType = { id: string, date: number };
 
 const MAX_PAGE_SIZE = 10;
 const ITEM_MAX_IN_PAGE = 20;
-const FULL_ITEMS = [...Array(ITEM_MAX_IN_PAGE * MAX_PAGE_SIZE).keys()].map(i => ({ id: i.toString(), date:Date.now()+i }));
+const FULL_ITEMS = [...Array(ITEM_MAX_IN_PAGE * MAX_PAGE_SIZE).keys()].map(i => ({ id: i.toString(), date: Date.now() + i }));
+
+const Wrapper = styled.div`
+    height : 100vh;
+`;
 
 const DummyLoader: React.FC<{
     children: (
@@ -21,13 +26,15 @@ const DummyLoader: React.FC<{
         readMore: () => void,
         hasMore: boolean
     ) => React.ReactElement,
-    latest ?: ItemType[]
+    maxPageSize?: number,
+    latest?: ItemType[]
 }> = ({
     children,
+    maxPageSize = MAX_PAGE_SIZE,
     latest = []
 }) => {
         const [page, setPage] = useState(0);
-        const hasMore = page < MAX_PAGE_SIZE;
+        const hasMore = page < maxPageSize;
         const loadMore = () => {
             if (hasMore) {
                 setTimeout(() => {
@@ -35,7 +42,7 @@ const DummyLoader: React.FC<{
                 }, 500);
             }
         }
-        const items = [...latest,...FULL_ITEMS.slice(0, MAX_PAGE_SIZE * page)];
+        const items = [...latest, ...FULL_ITEMS.slice(0, maxPageSize * page)];
         return children(
             items,
             loadMore,
@@ -51,14 +58,16 @@ export default {
 
 const Container: React.FC<{
     className?: string,
-    requests : JoinRequest[]
+    requests: JoinRequest[],
+    maxPageSize?: number,
 }> = ({
     className,
-    requests 
+    requests,
+    maxPageSize = MAX_PAGE_SIZE
 }) => {
 
         const owenr = true;
-        const profiles=[
+        const profiles = [
             { id: 'test1', nickname: 'First User', uid: 'test1' },
             { id: 'test2', nickname: 'Second User', uid: 'test2' },
             { id: 'test3', nickname: 'Third User', uid: 'test3' },
@@ -66,12 +75,12 @@ const Container: React.FC<{
             { id: 'test5', nickname: 'Fifth User', uid: 'test5' },
             { id: 'test6', nickname: 'Sixth User', uid: 'test6' },
         ];
-        const profile = {id: 'test3', nickname: 'Third User', uid: 'test3'};
-        const room : Room = {
-            roomName : 'testroom',
-            ownerId : 'test3',
-            users : profiles.map(p=>p.id),
-            id : '1'
+        const profile = { id: 'test3', nickname: 'Third User', uid: 'test3' };
+        const room: Room = {
+            roomName: 'testroom',
+            ownerId: 'test3',
+            users: profiles.map(p => p.id),
+            id: '1'
         }
         const renderHeader = useCallback((style) => {
             return (
@@ -92,17 +101,19 @@ const Container: React.FC<{
                 <Messages
                     className={style}
                     loader={(onComplete) => (
-                        <DummyLoader >
+                        <DummyLoader
+                            maxPageSize={maxPageSize}
+                        >
                             {onComplete}
                         </DummyLoader>)}
-                    renderMessage={(message:ItemType) => (<SingleMessageContainer
+                    renderMessage={(message: ItemType) => (<SingleMessageContainer
                         roomId={room.id}
                         profile={profile!}
                         message={{
-                            id:message.id,
-                            message:message.id,
-                            profileId:message.id,
-                            date:message.date
+                            id: message.id,
+                            message: message.id,
+                            profileId: message.id,
+                            date: message.date
                         }}
                         profiles={profiles}
                         addReaction={action('add reaction')}
@@ -124,19 +135,22 @@ const Container: React.FC<{
         }, [room, profiles, profile]);
 
         return (
-            <Presenter
-                className={className}
-                renderHeader={renderHeader}
-                renderMessages={renderMessages}
-                renderFooter={renderFooter}
-            />
+            <Wrapper>
+                <Presenter
+                    className={className}
+                    renderHeader={renderHeader}
+                    renderMessages={renderMessages}
+                    renderFooter={renderFooter}
+                />
+            </Wrapper>
         )
     };
 
 
-export const Default = () => <Container requests={[]}/>;
+export const Default = () => <Container requests={[]} />;
+export const Empty = () => <Container requests={[]} maxPageSize={0}/>;
 export const Requests = () => <Container requests={[
-    { id:'test1', nickName:'First User', date:Date.now(), status:'requesting', profileId : 'test1p'},
-    { id:'test2', nickName:'Second User', date:Date.now(), status:'requesting', profileId : 'test2p'},
-]}/>;
+    { id: 'test1', nickName: 'First User', date: Date.now(), status: 'requesting', profileId: 'test1p' },
+    { id: 'test2', nickName: 'Second User', date: Date.now(), status: 'requesting', profileId: 'test2p' },
+]} />;
 

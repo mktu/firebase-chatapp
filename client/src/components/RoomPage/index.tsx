@@ -6,10 +6,10 @@ import useRoomPageState from './useRoomPageState';
 import RoomList from '../RoomList';
 
 const Wrapper = styled.div`
+    height : 100%;
     display : flex;
     justify-content : center;
     padding : 5px;
-    height : 100%;
     box-sizing: border-box;
 `;
 
@@ -17,18 +17,21 @@ const ListPaper = styled(Paper)`
     width : 30%;
     padding : 1rem;
     margin-right : 1rem;
+    box-sizing: border-box;
+    height : 100%;
 `
 
-const RoomPaper = styled('div')(({closed}:{closed:boolean})=>`
-    width : ${closed? `0` : `60%`};
-    padding :${closed? `0` : `1rem`};
+const RoomPaper = styled('div')(({ closed }: { closed: boolean }) => `
+    box-sizing: border-box;
+    height : 100%;
+    width : ${closed ? `0` : `60%`};
     transition: all 0.3s ease-out;
 `);
 
 type Props = {
-    children:JSX.Element,
-    closed : boolean,
-    handleLoadRoom : (roomId:string)=>void
+    children: JSX.Element,
+    closed: boolean,
+    handleLoadRoom: (roomId: string) => void
 };
 
 const RoomPage: React.FC<Props> = ({ children, closed, handleLoadRoom }) => {
@@ -46,7 +49,7 @@ const RoomPage: React.FC<Props> = ({ children, closed, handleLoadRoom }) => {
             <ListPaper>
                 <RoomList
                     showDialog={showDialog}
-                    handleSelectRoom={(room)=>{
+                    handleSelectRoom={(room) => {
                         handleLoadRoom(room.id);
                     }}
                     roomState={roomState}

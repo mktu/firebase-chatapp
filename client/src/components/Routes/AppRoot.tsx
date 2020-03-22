@@ -50,7 +50,7 @@ const RequiresUserRoot: React.FC<{}> = () => {
 const Wrapper = styled.div`
     display: grid;
     height : 100vh;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto 90vh;
 `;
 
 const Root: React.FC<{}> = () => {
