@@ -7,6 +7,7 @@ function ScrollableContainer<T extends { id: string }>({
     loadMore,
     hasMore,
     renderItem,
+    className,
     autoScrollThreshold = 100,
     listComponent = 'div',
     renderNewItemNotification = () => (<div />)
@@ -17,6 +18,7 @@ function ScrollableContainer<T extends { id: string }>({
     hasMore: boolean,
     autoScrollThreshold?: number,
     listComponent?: any,
+    className?:string,
     renderNewItemNotification?: (show:boolean, onClickScrollToBottom: () => void) => React.ReactElement
 }) {
     const itemsEndRef = useRef<any>(null);
@@ -79,7 +81,7 @@ function ScrollableContainer<T extends { id: string }>({
                 useWindow={false}
                 isReverse
             >
-                <StyledList>
+                <StyledList className={className}>
                     {items.map(renderItem)}
                 </StyledList>
             </InfiniteScroll>
@@ -88,7 +90,7 @@ function ScrollableContainer<T extends { id: string }>({
                 itemsEndRef.current.scrollIntoView({ behavior: "smooth" });
             })}
         </React.Fragment>
-    ), [items, loadMore, hasMore, renderItem,hasItemNotSeen,renderNewItemNotification]);
+    ), [className, items, loadMore, hasMore, renderItem,hasItemNotSeen,renderNewItemNotification]);
 }
 
 

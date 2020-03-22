@@ -50,9 +50,10 @@ const ChatEditor: React.FC<{
 
         const onChange = (editorState: EditorState) => {
             setEditorState(editorState);
-            notifyTextChanged(editorState.getCurrentContent().getPlainText());
         }
 
+        const plainText = editorState.getCurrentContent().getPlainText();
+        
         useEffect(() => {
             const inserter = (characters: string) => {
                 const selectionState = editorState.getSelection();
@@ -66,6 +67,10 @@ const ChatEditor: React.FC<{
 
             onMounted(inserter, initializer, getMentionReplacer(editorState, setEditorState))
         }, [onMounted, setEditorState, editorState, constructDecorator]);
+
+        useEffect(()=>{
+            notifyTextChanged(plainText);
+        },[plainText,notifyTextChanged])
 
         return (<Editor
             editorState={editorState}

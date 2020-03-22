@@ -45,7 +45,7 @@ const MentionText = styled.span`
 const makeMentionDecorator = (source: string) => {
     const matchInfos = buildMatchInfo(source, MENTION_REGEX);
     return matchInfos.map(m=>m.matched?(
-        <MentionText>
+        <MentionText key={m.text}>
             {m.text}
         </MentionText>
     ):m.text)

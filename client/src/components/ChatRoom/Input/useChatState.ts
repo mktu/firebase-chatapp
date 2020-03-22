@@ -1,7 +1,7 @@
 import { useState, useContext, useCallback } from 'react';
-import ProfileContext from '../../contexts/ProfileContext';
-import { createMessage } from '../../services/message';
-import { Profile } from '../../../../types/profile';
+import ProfileContext from '../../../contexts/ProfileContext';
+import { createMessage } from '../../../services/message';
+import { Profile } from '../../../../../types/profile';
 
 type TextInserter = (characters: string) => void;
 type TextInitializer = () => void;
