@@ -8,7 +8,7 @@ export type Room = {
 };
 
 export type JoinRequest = {
-    status : string,
+    status : 'requesting'|'accepted'|'rejected',
     profileId : string,
     nickName : string,
     date : number,

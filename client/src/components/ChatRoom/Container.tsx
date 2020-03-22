@@ -2,6 +2,7 @@ import React, { useCallback, useContext } from 'react';
 import ProfileContext from '../../contexts/ProfileContext';
 import { Room } from '../../../../types/room';
 import { Profile } from '../../../../types/profile';
+import { Message } from '../../../../types/message';
 import { modifyRoom } from '../../services/room';
 import { addReaction, createMessage } from '../../services/message';
 import { updateRequest } from '../../services/request';
@@ -54,7 +55,7 @@ const Container: React.FC<{
                         >
                             {onComplete}
                         </MessagesLoader>)}
-                    renderMessage={(message) => (<SingleMessageContainer
+                    renderMessage={(message:Message) => (<SingleMessageContainer
                         roomId={room.id}
                         profile={profile!}
                         message={message}

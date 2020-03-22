@@ -1,7 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { Room, JoinRequest } from '../../../../../types/room';
 import { Profile } from '../../../../../types/profile';
-import { RequestStatus } from '../../../constants';
 import UsersDialog from '../UsersDialog';
 import RequestsDialog from '../RequestsDialog';
 import HeaderPresenter from './Presenter';
@@ -37,7 +36,7 @@ const HeaderContainer: React.FC<{
             updateRequest(room.id,
                 {
                     ...request,
-                    status: RequestStatus.Accepted
+                    status: 'accepted'
                 });
             modifyRoom({
                 ...room,
@@ -48,7 +47,7 @@ const HeaderContainer: React.FC<{
             updateRequest(room.id,
                 {
                     ...request,
-                    status: RequestStatus.Rejected
+                    status: 'rejected'
                 });
         }
 
@@ -69,6 +68,9 @@ const HeaderContainer: React.FC<{
                     owner={owenr}
                     onChangeRoomName={setRoomName}
                     requestCount={requests.length}
+                    onClickRequest={()=>{
+                        setShowRequests(true);
+                    }}
                     onClickEditName={(editable)=>{
                         setNameEditable(editable);
                         if(!editable && roomName!==room.roomName){

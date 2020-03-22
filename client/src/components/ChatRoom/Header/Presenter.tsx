@@ -69,6 +69,7 @@ function HeaderPresenter<T extends {
     owner,
     onClickShowMoreUser,
     onClickEditName,
+    onClickRequest,
     onChangeRoomName
 }: {
     roomName: string,
@@ -79,6 +80,7 @@ function HeaderPresenter<T extends {
     owner: boolean,
     onClickEditName: (editable: boolean) => void,
     onClickShowMoreUser: () => void,
+    onClickRequest: ()=> void,
     onChangeRoomName : (roomName:string) => void
 }) {
     return (
@@ -108,7 +110,7 @@ function HeaderPresenter<T extends {
             <div className='menu-icons'>
                 {owner && requestCount > 0 && (
                     <Tooltip title={`${requestCount} join requests`} aria-label="join-requests">
-                        <IconButton className='join-request-icon'>
+                        <IconButton className='join-request-icon' onClick={onClickRequest}>
                             <RecordVoiceOverIcon color='secondary' />
                             <span>
                                 {requestCount}

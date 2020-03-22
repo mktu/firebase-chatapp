@@ -1,7 +1,6 @@
 import { CollectionTransfer, DocumentTransfer } from './core';
-
 export type JoinRequest = {
-    status : string,
+    status : 'requesting'|'accepted'|'rejected',
     profileId : string,
     nickName : string,
     date : number,
