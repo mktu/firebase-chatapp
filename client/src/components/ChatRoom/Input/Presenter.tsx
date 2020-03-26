@@ -1,21 +1,10 @@
 import React from 'react';
-import styled, { css } from 'styled-components';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import Avatar from '@material-ui/core/Avatar';
+import styled from 'styled-components';
 import 'emoji-mart/css/emoji-mart.css';
 import IconButton from '@material-ui/core/IconButton';
-import Paper from '@material-ui/core/Paper';
 import { Send } from '@material-ui/icons';
 import { EmojiPicker } from '../../Emoji';
-
-const Suggestion = css`
- & > .suggestion-paper > .suggestion-list > .suggestion-list-item {
-     padding : ${({ theme }) => `${theme.spacing(1)}px`};
- }
-`
+import Suggestion from './Suggestion';
 
 const Wrapper = styled.div`
     display : grid;
@@ -27,20 +16,24 @@ const Wrapper = styled.div`
 
     & > .input-content {
         overflow: hidden;
-
-        & .input-editor {
+        > .input-editor {
+            max-height: 20vh;
+            overflow: scroll;
             border : ${({ theme }) => `1px solid ${theme.palette.divider}`};
             border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
             padding : ${({ theme }) => `${theme.spacing(1)}px`};
         }
 
-        & .input-suggestion{
-            ${Suggestion};
+        > .input-suggestion{
         }
     }
 `;
 
-
+const Portal = styled.div(({ bottom, left }: { bottom: number, left: number }) => `
+    position : absolute;
+    bottom : ${bottom}px;
+    left : ${left}px;
+`)
 
 function Presenter<T extends {
     id: string,
@@ -52,15 +45,25 @@ function Presenter<T extends {
     onSelectEmoji,
     renderRichEditor,
     handleSelectMention,
+    focusSuggestion,
+    onLeaveSuggenstionFocus
 }: {
     className?: string,
-    suggestion: T[],
+    suggestion?: {
+        rect: {
+            left: number,
+            bottom: number,
+            height: number
+        },
+        profiles: T[]
+    },
+    focusSuggestion : boolean,
+    onLeaveSuggenstionFocus : ()=>void,
     handleSelectMention: (profile: T) => void,
     handleSubmitMessage: () => void,
     onSelectEmoji: (emoji: string) => void,
     renderRichEditor: () => React.ReactElement
 }) {
-
     return (
         <Wrapper className={className}>
             <div className='input-options'>
@@ -70,25 +73,19 @@ function Presenter<T extends {
                 <div className='input-editor'>
                     {renderRichEditor()}
                 </div>
-                <div className='input-suggestion'>
-                    {suggestion.length > 0 && (
-                        <Paper className='suggestion-paper'>
-                            <List className='suggestion-list'>
-                                {suggestion.map(s => (
-                                    <ListItem key={s.id} button className='suggestion-list-item' onClick={() => {
-                                        handleSelectMention(s);
-                                    }}>
-                                        <ListItemAvatar>
-                                            <Avatar>
-                                                {s.nickname[0]}
-                                            </Avatar>
-                                        </ListItemAvatar>
-                                        <ListItemText className='suggestion-list-item-text'>{s.nickname}</ListItemText>
-                                    </ListItem>))}
-                            </List>
-                        </Paper>
-                    )}
-                </div>
+                {suggestion && (
+                    <Portal
+                        bottom={suggestion.rect.bottom + suggestion.rect.height}
+                        left={suggestion.rect.left}
+                    >
+                        <Suggestion
+                            suggestion={suggestion.profiles}
+                            handleSelect={handleSelectMention}
+                            focus={focusSuggestion}
+                            onLeaveFocus={onLeaveSuggenstionFocus}
+                        />
+                    </Portal>
+                )}
             </div>
             <div>
                 <IconButton onClick={handleSubmitMessage}><Send /></IconButton>

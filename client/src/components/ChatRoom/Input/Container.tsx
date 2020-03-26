@@ -1,11 +1,26 @@
 import React, { useState, useCallback } from 'react';
-import ChatEditor from '../../Editor';
+import ChatEditor, {
+    KeyEvent,
+    TextInserter,
+    TextInitializer,
+    MentionReplacer,
+    Focuser
+} from '../../Editor';
 import { Profile } from '../../../../../types/profile';
 import Presenter from './Presenter';
 
-type TextInserter = (characters: string) => void;
-type TextInitializer = () => void;
-type MentionReplacer = (mention: string, profileId: string) => void;
+type PortalRectType = {
+    top: number,
+    left: number,
+    right: number,
+    bottom: number,
+    width: number,
+    height: number
+}
+type SuggestionType = {
+    profiles: Profile[],
+    rect: PortalRectType
+}
 
 const Container = ({
     className,
@@ -31,16 +46,18 @@ const Container = ({
     const [editorCommands, setEditorCommands] = useState<{
         inserter: TextInserter,
         initializer: TextInitializer,
-        mentionReplacer: MentionReplacer
+        mentionReplacer: MentionReplacer,
+        focuser : Focuser
     }>({
-        inserter: () => { }, initializer: () => { }, mentionReplacer: () => { }
+        inserter: () => { }, initializer: () => { }, mentionReplacer: () => { }, focuser : ()=>{}
     });
+    const [suggestion, setSuggestion] = useState<SuggestionType>();
+    const [focusSuggestion,setFocusSuggestion] = useState(false);
 
     const handleChangeInput = useCallback((text: string) => {
         setInputMessage(text);
-    },[]);
+    }, []);
 
-    const [suggestion, setSuggestion] = useState<Profile[]>([]);
 
     const handleSubmitMessage = () => {
         if (inputMessage !== '') {
@@ -58,28 +75,37 @@ const Container = ({
     }
 
     const onEditorMounted = useCallback((
-        inserter: (characters: string) => void,
-        initializer: () => void,
-        mentionReplacer: (mention: string, profileId: string) => void
+        inserter: TextInserter,
+        initializer: TextInitializer,
+        mentionReplacer: MentionReplacer,
+        focuser : Focuser
     ) => {
         setEditorCommands({
             inserter,
             initializer,
-            mentionReplacer
+            mentionReplacer,
+            focuser
         });
     }, [setEditorCommands]);
 
-    const updateMentionCandidate = useCallback((text: string, start: number, end: number, mounted: boolean) => {
+    const updateMentionCandidate = useCallback((text: string, start: number, end: number, mounted: boolean, rect?: PortalRectType) => {
         if (!mounted) {
-            setSuggestion([]);
+            setSuggestion(undefined);
+            setFocusSuggestion(false);
             return;
         }
-        if (text.length === 1) {
-            setSuggestion(profiles);
+        if (text.length === 1 && rect) {
+            setSuggestion({
+                profiles,
+                rect
+            });
             return;
         }
         const substr = text.substring(start, end);
-        setSuggestion(profiles.filter(p => p.nickname.includes(substr)));
+        rect && setSuggestion({
+            profiles: profiles.filter(p => p.nickname.includes(substr)),
+            rect
+        });
 
     }, [profiles]);
 
@@ -96,6 +122,20 @@ const Container = ({
         }
     }, []);
 
+    const onKeyPress = useCallback((key:KeyEvent)=>{
+        if(suggestion){
+            if(key==='UpArrow'){
+                setFocusSuggestion(true);
+            }
+        }
+    },[suggestion,setFocusSuggestion]);
+
+    const onLeaveSuggenstionFocus = useCallback(()=>{
+        setSuggestion(undefined);
+        setFocusSuggestion(false);
+        editorCommands.focuser();
+    },[setFocusSuggestion,editorCommands]);
+
     const renderRichEditor = useCallback(() => {
         return (
             <ChatEditor
@@ -103,10 +143,10 @@ const Container = ({
                 onMounted={onEditorMounted}
                 onMountedMention={onMountedMention}
                 updateMentionCandidate={updateMentionCandidate}
+                onKeyPress={onKeyPress}
             />
         )
-    }, [handleChangeInput, onEditorMounted, onMountedMention, updateMentionCandidate])
-
+    }, [handleChangeInput, onEditorMounted, onMountedMention, updateMentionCandidate, onKeyPress])
     return (
         <Presenter
             className={className}
@@ -115,6 +155,8 @@ const Container = ({
             onSelectEmoji={onSelectEmoji}
             handleSubmitMessage={handleSubmitMessage}
             suggestion={suggestion}
+            focusSuggestion={focusSuggestion}
+            onLeaveSuggenstionFocus={onLeaveSuggenstionFocus}
         />
     )
 };

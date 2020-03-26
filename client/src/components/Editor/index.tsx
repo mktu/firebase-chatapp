@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
     Editor,
     EditorState,
@@ -9,24 +9,32 @@ import { findLinkStrategy, createLinkComponent } from './Link';
 import { findMentionCandidateStrategy, createMentionCandidateComponent, UpdateMentionCandidate as UpdateMentionCandidateAlias } from './MentionCandidate';
 import { getMentionReplacer, findMentionStrategy, createMentionComponent } from './Mention';
 
+export type TextInserter = (characters: string) => void;
+export type TextInitializer = () => void;
+export type MentionReplacer = (mention: string, profileId: string) => void;
+export type Focuser = ()=>void;
 export type UpdateMentionCandidate = UpdateMentionCandidateAlias;
+export type KeyEvent = 'DownArrow'|'UpArrow'|'LeftArrow'|'RightArrow';
 
 const ChatEditor: React.FC<{
     notifyTextChanged: (text: string) => void,
     updateMentionCandidate: UpdateMentionCandidate,
     onMounted: (
-        inserter: (characters: string) => void,
-        initializer: () => void,
-        mentionReplacer: (mention: string, profileId: string) => void
+        inserter: TextInserter,
+        initializer: TextInitializer,
+        mentionReplacer: MentionReplacer,
+        focuser : Focuser
     ) => void,
-    onMountedMention: (profileId: string) =>void
+    onMountedMention: (profileId: string) =>void,
+    onKeyPress? : (key:KeyEvent)=>void,
 }> = ({
         notifyTextChanged,
         onMounted,
         updateMentionCandidate,
-        onMountedMention
+        onMountedMention,
+        onKeyPress
     }) => {
-
+        const ref = useRef<Editor|null>(null);
         const constructDecorator = useCallback(() => {
             return new CompositeDecorator([
                 {
@@ -47,13 +55,10 @@ const ChatEditor: React.FC<{
         const [editorState, setEditorState] = useState(
             EditorState.createEmpty(constructDecorator())
         );
-
         const onChange = (editorState: EditorState) => {
             setEditorState(editorState);
         }
-
         const plainText = editorState.getCurrentContent().getPlainText();
-        
         useEffect(() => {
             const inserter = (characters: string) => {
                 const selectionState = editorState.getSelection();
@@ -64,17 +69,28 @@ const ChatEditor: React.FC<{
             const initializer = () => {
                 setEditorState(EditorState.createEmpty(constructDecorator()));
             };
-
-            onMounted(inserter, initializer, getMentionReplacer(editorState, setEditorState))
+            const focuser = () => {
+                ref.current?.focus();
+            }
+            onMounted(inserter, initializer, getMentionReplacer(editorState, setEditorState),focuser)
         }, [onMounted, setEditorState, editorState, constructDecorator]);
 
         useEffect(()=>{
             notifyTextChanged(plainText);
         },[plainText,notifyTextChanged])
 
+        const handleKeyEvent = useCallback((key:KeyEvent) => ()=>{
+            onKeyPress && onKeyPress(key);
+        },[onKeyPress]);
+
         return (<Editor
+            ref={ref}
             editorState={editorState}
             onChange={onChange}
+            onDownArrow={handleKeyEvent('DownArrow')}
+            onUpArrow={handleKeyEvent('UpArrow')}
+            onRightArrow={handleKeyEvent('RightArrow')}
+            onLeftArrow={handleKeyEvent('LeftArrow')}
         />)
     }
 
