@@ -59,7 +59,7 @@ const Container = ({
     }, []);
 
 
-    const handleSubmitMessage = () => {
+    const handleSubmitMessage = useCallback(() => {
         if (inputMessage !== '') {
             createMessage(
                 roomId,
@@ -69,7 +69,8 @@ const Container = ({
             );
             editorCommands.initializer();
         }
-    }
+    },[inputMessage,editorCommands,createMessage,mentions,profile,roomId])
+
     const onSelectEmoji = (emoji: string) => {
         editorCommands.inserter(emoji);
     }
@@ -123,12 +124,15 @@ const Container = ({
     }, []);
 
     const onKeyPress = useCallback((key:KeyEvent)=>{
+        if(key==='CtrlEnter'){
+            handleSubmitMessage();
+        }
         if(suggestion){
             if(key==='UpArrow'){
                 setFocusSuggestion(true);
             }
         }
-    },[suggestion,setFocusSuggestion]);
+    },[suggestion,setFocusSuggestion,handleSubmitMessage]);
 
     const onLeaveSuggenstionFocus = useCallback(()=>{
         setSuggestion(undefined);

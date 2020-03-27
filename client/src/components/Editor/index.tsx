@@ -3,7 +3,9 @@ import {
     Editor,
     EditorState,
     CompositeDecorator,
-    Modifier
+    Modifier,
+    getDefaultKeyBinding,
+    KeyBindingUtil
 } from 'draft-js';
 import { findLinkStrategy, createLinkComponent } from './Link';
 import { findMentionCandidateStrategy, createMentionCandidateComponent, UpdateMentionCandidate as UpdateMentionCandidateAlias } from './MentionCandidate';
@@ -12,9 +14,9 @@ import { getMentionReplacer, findMentionStrategy, createMentionComponent } from 
 export type TextInserter = (characters: string) => void;
 export type TextInitializer = () => void;
 export type MentionReplacer = (mention: string, profileId: string) => void;
-export type Focuser = ()=>void;
+export type Focuser = () => void;
 export type UpdateMentionCandidate = UpdateMentionCandidateAlias;
-export type KeyEvent = 'DownArrow'|'UpArrow'|'LeftArrow'|'RightArrow';
+export type KeyEvent = 'DownArrow' | 'UpArrow' | 'LeftArrow' | 'RightArrow' | 'CtrlEnter';
 
 const ChatEditor: React.FC<{
     notifyTextChanged: (text: string) => void,
@@ -23,18 +25,20 @@ const ChatEditor: React.FC<{
         inserter: TextInserter,
         initializer: TextInitializer,
         mentionReplacer: MentionReplacer,
-        focuser : Focuser
+        focuser: Focuser
     ) => void,
-    onMountedMention: (profileId: string) =>void,
-    onKeyPress? : (key:KeyEvent)=>void,
+    onMountedMention: (profileId: string) => void,
+    onKeyPress?: (key: KeyEvent) => void,
+    placeholder?: string,
 }> = ({
-        notifyTextChanged,
-        onMounted,
-        updateMentionCandidate,
-        onMountedMention,
-        onKeyPress
-    }) => {
-        const ref = useRef<Editor|null>(null);
+    notifyTextChanged,
+    onMounted,
+    updateMentionCandidate,
+    onMountedMention,
+    onKeyPress,
+    placeholder
+}) => {
+        const ref = useRef<Editor | null>(null);
         const constructDecorator = useCallback(() => {
             return new CompositeDecorator([
                 {
@@ -50,7 +54,7 @@ const ChatEditor: React.FC<{
                     component: createMentionCandidateComponent(updateMentionCandidate)
                 }
             ]);
-        }, [updateMentionCandidate,onMountedMention]);
+        }, [updateMentionCandidate, onMountedMention]);
 
         const [editorState, setEditorState] = useState(
             EditorState.createEmpty(constructDecorator())
@@ -72,21 +76,41 @@ const ChatEditor: React.FC<{
             const focuser = () => {
                 ref.current?.focus();
             }
-            onMounted(inserter, initializer, getMentionReplacer(editorState, setEditorState),focuser)
+            onMounted(inserter, initializer, getMentionReplacer(editorState, setEditorState), focuser)
         }, [onMounted, setEditorState, editorState, constructDecorator]);
 
-        useEffect(()=>{
+        useEffect(() => {
             notifyTextChanged(plainText);
-        },[plainText,notifyTextChanged])
+        }, [plainText, notifyTextChanged])
 
-        const handleKeyEvent = useCallback((key:KeyEvent) => ()=>{
+        const handleKeyEvent = useCallback((key: KeyEvent) => () => {
             onKeyPress && onKeyPress(key);
-        },[onKeyPress]);
+        }, [onKeyPress]);
 
         return (<Editor
             ref={ref}
+            blockStyleFn={(block) => {
+                switch (block.getType()) {
+                    case 'blockquote': return 'RichEditor-blockquote';
+                }
+                return '';
+            }}
+            placeholder={placeholder}
             editorState={editorState}
             onChange={onChange}
+            handleKeyCommand={(command) => {
+                if (command === 'ctrl-enter') {
+                    handleKeyEvent('CtrlEnter')();
+                    return 'handled';
+                }
+                return 'not-handled';
+            }}
+            keyBindingFn={(e) => {
+                if (e.keyCode === 13 /* enter key */ && KeyBindingUtil.hasCommandModifier(e)) {
+                    return 'ctrl-enter';
+                }
+                return getDefaultKeyBinding(e);
+            }}
             onDownArrow={handleKeyEvent('DownArrow')}
             onUpArrow={handleKeyEvent('UpArrow')}
             onRightArrow={handleKeyEvent('RightArrow')}

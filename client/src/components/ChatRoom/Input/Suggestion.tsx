@@ -25,7 +25,7 @@ function Sugestion<T extends {
     handleSelect,
     onLeaveFocus,
     focus,
-    reverse = true
+    reverse = false
 }: {
     className?: string,
     suggestion: T[],
@@ -59,7 +59,7 @@ function Sugestion<T extends {
                     }
                     else if(
                         e.keyCode === 39 || // right
-                        e.keyCode === 9
+                        e.keyCode === 9 // tab
                         ){
                         e.preventDefault();
                         focusIndex >= 0 && focusIndex < suggestion.length && 

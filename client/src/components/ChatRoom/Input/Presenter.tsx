@@ -9,7 +9,7 @@ import Suggestion from './Suggestion';
 const Wrapper = styled.div`
     display : grid;
     grid-template-columns: auto 1fr auto;
-    
+    align-items : center;
     & > .input-options {
         display : flex;
     }
@@ -17,14 +17,15 @@ const Wrapper = styled.div`
     & > .input-content {
         overflow: hidden;
         > .input-editor {
+            font-size : 14px;
             max-height: 20vh;
             overflow: scroll;
             border : ${({ theme }) => `1px solid ${theme.palette.divider}`};
             border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
             padding : ${({ theme }) => `${theme.spacing(1)}px`};
         }
-
         > .input-suggestion{
+
         }
     }
 `;
@@ -57,15 +58,15 @@ function Presenter<T extends {
         },
         profiles: T[]
     },
-    focusSuggestion : boolean,
-    onLeaveSuggenstionFocus : ()=>void,
+    focusSuggestion: boolean,
+    onLeaveSuggenstionFocus: () => void,
     handleSelectMention: (profile: T) => void,
     handleSubmitMessage: () => void,
     onSelectEmoji: (emoji: string) => void,
     renderRichEditor: () => React.ReactElement
 }) {
     return (
-        <Wrapper className={className}>
+        <Wrapper className={className} >
             <div className='input-options'>
                 <EmojiPicker onSelectEmoji={onSelectEmoji} />
             </div>
@@ -83,6 +84,7 @@ function Presenter<T extends {
                             handleSelect={handleSelectMention}
                             focus={focusSuggestion}
                             onLeaveFocus={onLeaveSuggenstionFocus}
+                            reverse
                         />
                     </Portal>
                 )}
