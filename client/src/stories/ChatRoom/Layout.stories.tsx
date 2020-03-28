@@ -35,13 +35,13 @@ const DummyLoader: React.FC<{
 }) => {
         const [page, setPage] = useState(0);
         const hasMore = page < maxPageSize;
-        const loadMore = () => {
+        const loadMore = useCallback(() => {
             if (hasMore) {
                 setTimeout(() => {
                     setPage(i => i + 1);
                 }, 500);
             }
-        }
+        },[hasMore]);
         const items = [...latest, ...FULL_ITEMS.slice(0, maxPageSize * page)];
         return children(
             items,
