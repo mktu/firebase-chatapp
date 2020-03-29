@@ -8,6 +8,11 @@ import { getCollectionListener } from './db';
 
 const db = firebase.firestore();
 
+export type Order = {
+    key: string,
+    direction: firebase.firestore.OrderByDirection
+};
+
 export function registMessagesListener(
     {
         roomId,
@@ -20,10 +25,7 @@ export function registMessagesListener(
     }: {
         roomId: string,
         limit?: number,
-        order?: {
-            key: string,
-            direction: firebase.firestore.OrderByDirection
-        }
+        order?: Order,
         start?: any,
         onAdded: MessagesTransfer,
         onModified: MessagesTransfer,
@@ -62,7 +64,7 @@ export function getMessages({
 }: {
     roomId: string,
     limit: number,
-    order: firebase.firestore.OrderByDirection,
+    order: Order,
     cursor?: Message,
     onAdded: MessagesTransfer,
     onFailed?: ErrorHandler,
@@ -70,7 +72,7 @@ export function getMessages({
     let query = db.collection('rooms')
         .doc(roomId)
         .collection('messages')
-        .orderBy('date', order);
+        .orderBy(order.key, order.direction);
     if (cursor) {
         query = query.startAfter(cursor.date);
     }

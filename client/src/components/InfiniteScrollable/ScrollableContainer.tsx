@@ -75,7 +75,7 @@ function ScrollableContainer<T extends { id: string }>({
             unmounted = true;
             parentNode && parentNode.removeEventListener('scroll', onScroll);
         }
-    }, [autoScrollThreshold, hasMore, loading, loadMore, setLoading]);
+    }, [autoScrollThreshold, hasMore, loading, loadMore, setLoading, nextScrollThreshold]);
 
 
     useEffect(() => {
