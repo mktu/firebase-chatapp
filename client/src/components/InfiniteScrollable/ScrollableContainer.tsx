@@ -30,28 +30,33 @@ function ScrollableContainer<T extends { id: string }>({
         flex-direction : column-reverse;
     `, [listComponent]);
     const [automaticallyScrollDown, setAutomaticallyScrollDown] = useState(false);
-    const [triggerNextLoad, setTriggerNextLoad] = useState<'forward' | 'none' | 'backward'>('none');
-    const [loading, setLoading] = useState(false);
-    const [lastScrollPosition, setLastScrollPosition] = useState<{
-        scrollTop: number,
-        scrollHeight: number
+    const [loading, setLoading] = useState<{
+        snapshot: {
+            scrollTop: number,
+            scrollHeight: number
+        }
     }>();
 
     const hasItemNotSeen = items.length > 0 && lastestId !== items[0].id && !automaticallyScrollDown;
     useEffect(() => {
         let enableAutomaticallyScrollDown = false;
+        let nextLoad: 'forward' | 'none' | 'backward' = 'none';
         let unmounted = false;
-        const parentNode = itemsEndRef.current && itemsEndRef.current.parentNode;
+        const parentNode = itemsEndRef.current && itemsEndRef.current.parentElement;
         const onScroll = (event: any) => {
             if (unmounted) return;
             const node = event.target;
             const marginBottom = node.scrollHeight - (node.scrollTop + node.clientHeight);
             const marginTop = node.scrollTop;
-            if (marginTop < nextScrollThreshold && triggerNextLoad!=='backward' ) {
-                setTriggerNextLoad('backward');
-            }
-            else {
-                triggerNextLoad!=='none' && setTriggerNextLoad('none')
+            if (marginTop < nextScrollThreshold && nextLoad !== 'backward' && hasMore && !loading) {
+                nextLoad = 'backward';
+                parentNode && setLoading({
+                    snapshot: {
+                        scrollHeight: parentNode.scrollHeight,
+                        scrollTop: parentNode.scrollTop
+                    }
+                });
+                loadMore();
             }
             if (marginBottom < autoScrollThreshold) {
                 if (!enableAutomaticallyScrollDown) {
@@ -70,38 +75,24 @@ function ScrollableContainer<T extends { id: string }>({
             unmounted = true;
             parentNode && parentNode.removeEventListener('scroll', onScroll);
         }
-    }, [autoScrollThreshold, hasMore, setTriggerNextLoad, triggerNextLoad, loading]);
+    }, [autoScrollThreshold, hasMore, loading, loadMore, setLoading]);
+
 
     useEffect(() => {
-        if (hasMore && !loading && triggerNextLoad !== 'none') {
-            setLoading(true);
-            const parentNode = itemsEndRef.current && itemsEndRef.current.parentElement
-            if (parentNode) {
-                console.log('UPDATE')
-                setLastScrollPosition({
-                    scrollHeight: parentNode.scrollHeight,
-                    scrollTop: parentNode.scrollTop
-                });
-            }
-            loadMore();
-        }
-    }, [hasMore, loadMore, loading, setLoading, triggerNextLoad, setLastScrollPosition]);
-
-    useEffect(()=>{
         hasMore && loadMore();
-    },[hasMore,loadMore]);
+    }, [hasMore, loadMore]);
 
     useEffect(() => {
         const parentNode = itemsEndRef.current && itemsEndRef.current.parentElement;
-        if (parentNode && lastScrollPosition) {
-            console.log('Next Top')
-            parentNode.scrollTop = parentNode.scrollHeight -
-                lastScrollPosition.scrollHeight +
-                lastScrollPosition.scrollTop;
-            setLastScrollPosition(undefined)
-            setLoading(false);
+        if (parentNode && loading) {
+            const { snapshot } = loading;
+            if (parentNode.scrollHeight !== snapshot.scrollHeight) {
+                parentNode.scrollTop = parentNode.scrollHeight -
+                    snapshot.scrollHeight + snapshot.scrollTop;
+                setLoading(undefined);
+            }
         }
-    }, [items.length, setLastScrollPosition])
+    }, [items.length, loading])
 
     useEffect(() => {
         if (items.length === 0) return;
