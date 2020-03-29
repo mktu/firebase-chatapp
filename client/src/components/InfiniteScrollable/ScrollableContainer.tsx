@@ -79,8 +79,8 @@ function ScrollableContainer<T extends { id: string }>({
 
 
     useEffect(() => {
-        hasMore && loadMore();
-    }, [hasMore, loadMore]);
+        hasMore && items.length === 0 && loadMore();
+    }, [hasMore, loadMore, items.length]);
 
     useEffect(() => {
         const parentNode = itemsEndRef.current && itemsEndRef.current.parentElement;
