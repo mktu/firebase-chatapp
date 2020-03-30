@@ -8,22 +8,29 @@ function ScrollableContainer<T extends { id: string }>({
     hasMore,
     renderItem,
     className,
+    listItemClassName,
+    focusItemId,
     autoScrollThreshold = 100,
     nextScrollThreshold = 250,
     listComponent = 'div',
+    listItemComponent = 'div',
     renderNewItemNotification = () => (<div />)
 }: {
     items: T[],
     renderItem: (item: T) => React.ReactElement,
     loadMore: () => void,
     hasMore: boolean,
+    focusItemId?: string,
     autoScrollThreshold?: number,
     nextScrollThreshold?: number
     listComponent?: any,
+    listItemComponent?: any,
+    listItemClassName?: string,
     className?: string,
     renderNewItemNotification?: (show: boolean, onClickScrollToBottom: () => void) => React.ReactElement
 }) {
     const itemsEndRef = useRef<HTMLDivElement | null>(null);
+    const focusItemRef = useRef<Element | null>(null);
     const [lastestId, setLatestId] = useState<string>();
     const StyledList = useMemo(() => styled(listComponent)`
         display:flex;
@@ -36,6 +43,7 @@ function ScrollableContainer<T extends { id: string }>({
             scrollHeight: number
         }
     }>();
+    const ListItemComponent = listItemComponent;
 
     const hasItemNotSeen = items.length > 0 && lastestId !== items[0].id && !automaticallyScrollDown;
     useEffect(() => {
@@ -43,9 +51,9 @@ function ScrollableContainer<T extends { id: string }>({
         let nextLoad: 'forward' | 'none' | 'backward' = 'none';
         let unmounted = false;
         const parentNode = itemsEndRef.current && itemsEndRef.current.parentElement;
-        const onScroll = (event: any) => {
+        const onScroll = (event: Event) => {
             if (unmounted) return;
-            const node = event.target;
+            const node = event.target as HTMLElement;
             const marginBottom = node.scrollHeight - (node.scrollTop + node.clientHeight);
             const marginTop = node.scrollTop;
             if (marginTop < nextScrollThreshold && nextLoad !== 'backward' && hasMore && !loading) {
@@ -96,16 +104,17 @@ function ScrollableContainer<T extends { id: string }>({
 
     useEffect(() => {
         if (items.length === 0) return;
-        if (itemsEndRef.current) {
-            if (!lastestId) {
-                itemsEndRef.current.scrollIntoView();
+        if (!lastestId) {
+            const element = focusItemRef.current || itemsEndRef.current;
+            if(element){
+                element.scrollIntoView();
                 setLatestId(items[0].id!);
             }
-            else if (lastestId !== items[0].id) {
-                if (automaticallyScrollDown) {
-                    setLatestId(items[0].id!);
-                    itemsEndRef.current.scrollIntoView({ behavior: "smooth" });
-                }
+        }
+        else if (lastestId !== items[0].id && itemsEndRef.current) {
+            if (automaticallyScrollDown) {
+                setLatestId(items[0].id!);
+                itemsEndRef.current.scrollIntoView({ behavior: "smooth" });
             }
         }
     }, [items, automaticallyScrollDown, lastestId]);
@@ -113,7 +122,11 @@ function ScrollableContainer<T extends { id: string }>({
     return useMemo(() => (
         <React.Fragment>
             <StyledList className={className}>
-                {items.map(renderItem)}
+                {items.map(item => (
+                    <ListItemComponent className={listItemClassName} key={item.id} ref={focusItemId === item.id ? focusItemRef : undefined}>
+                        {renderItem(item)}
+                    </ListItemComponent>
+                ))}
             </StyledList>
             <div ref={itemsEndRef} />
             {renderNewItemNotification(hasItemNotSeen, () => {

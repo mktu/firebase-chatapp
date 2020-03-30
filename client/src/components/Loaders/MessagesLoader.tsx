@@ -1,7 +1,9 @@
-import React, {useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { registMessagesListener, getMessages } from '../../services/message';
 import { Message } from '../../../../types/message';
-import InfiniteSnapshotLoader, { SnapshotListenerRegister, SingleItemLoader } from './InfiniteSnapshotLoader';
+import InfiniteSnapshotLoader, { SnapshotListenerRegister } from './InfiniteSnapshotLoader';
+import { LoadingStatusType, LoadingStatus } from '../../constants';
+
 
 type Children = (
     messages: Message[],
@@ -20,6 +22,26 @@ const MessagesLoader: React.FC<{
     fallback,
     loading
 }) => {
+        const [status, setStatus] = useState<LoadingStatusType>(LoadingStatus.Loading);
+        const [sentinel, setSentinel] = useState<Message>();
+        useEffect(() => {
+            getMessages({
+                roomId,
+                limit: 1,
+                order: { key: 'date', direction: 'asc' },
+                onAdded: (items) => {
+                    items.length > 0 && setSentinel(items[0])
+                    setStatus(LoadingStatus.Succeeded);
+                },
+                onFailed: () => {
+                    setStatus(LoadingStatus.Failed);
+                }
+            });
+            return () => {
+                setStatus(LoadingStatus.Loading);
+            }
+        }, [roomId]);
+
         const registSnapshotListener: SnapshotListenerRegister<Message> = useCallback(({
             limit,
             order,
@@ -39,29 +61,19 @@ const MessagesLoader: React.FC<{
             })
         }, [roomId]);
 
-        const itemLoader: SingleItemLoader<Message> = useCallback(({
-            order,
-            onReceived,
-            onFailed
-        }) => {
-            getMessages({
-                roomId,
-                limit: 1,
-                order,
-                onAdded: (items) => {
-                    items.length > 0 && onReceived(items[0])
-                },
-                onFailed
-            })
-        }, [roomId]);
+        if (status === LoadingStatus.Failed) {
+            return fallback ? fallback() : null;
+        }
+
+        if (status === LoadingStatus.Loading) {
+            return loading ? loading() : null;
+        }
 
         return <InfiniteSnapshotLoader
             children={children}
-            fallback={fallback}
-            loading={loading}
+            sentinel={sentinel!}
             registSnapshotListener={registSnapshotListener}
-            itemLoader={itemLoader}
         />
     }
 
-    export default MessagesLoader;
+export default MessagesLoader;

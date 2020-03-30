@@ -33,9 +33,11 @@ function Presenter<T extends{
 }>({
     className,
     loader,
-    renderMessage
+    renderMessage,
+    focusMessageId
 }: {
     className?: string,
+    focusMessageId?:string
     loader: (
         onLoadCompleted: OnLoadCompleted<T>,
         onLoading: OnLoading
@@ -51,17 +53,16 @@ function Presenter<T extends{
                 loadMore={readMore}
                 hasMore={hasMore}
                 items={messages}
+                focusItemId={focusMessageId}
                 listComponent={List}
+                listItemComponent={ListItem}
+                listItemClassName='messages-item'
                 renderNewItemNotification={(show, onClick) => (
                     <NewItemNotification className='messages-notification' show={show} onClick={onClick} />)}
-                renderItem={(message) => (
-                    <ListItem key={message.id} className='messages-item'>
-                        {renderMessage(message)}
-                    </ListItem>
-                )}
+                renderItem={renderMessage}
             />
         )
-    }, [renderMessage]);
+    }, [renderMessage, focusMessageId]);
     return (
         <Wrapper className={className} >
             <div className='messages-scrollable'>

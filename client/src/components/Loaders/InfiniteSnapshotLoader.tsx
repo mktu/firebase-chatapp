@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { LoadingStatus } from '../../constants';
 
 type Direction = {
     key: string,
@@ -217,50 +216,4 @@ function LatestItemLoader<T extends ItemTypeBase>(
     />;
 }
 
-function InfiniteSnapshotLoader<T extends ItemTypeBase>({
-    children,
-    fallback,
-    loading,
-    registSnapshotListener,
-    itemLoader
-}: {
-    children: Children<T>,
-    fallback?: () => React.ReactElement,
-    loading?: () => React.ReactElement,
-    registSnapshotListener: SnapshotListenerRegister<T>,
-    itemLoader : SingleItemLoader<T>
-}) {
-    const [status, setStatus] = useState<string>(LoadingStatus.Loading);
-    const [sentinel, setSentinel] = useState<T>();
-    useEffect(() => {
-        itemLoader({
-            order: ascOrder,
-            onReceived: (result) => {
-                setSentinel(result);
-                setStatus(LoadingStatus.Succeeded);
-            },
-            onFailed: () => {
-                setStatus(LoadingStatus.Failed);
-            }
-        });
-        return () => {
-            setStatus(LoadingStatus.Loading);
-        }
-    }, [itemLoader]);
-
-    if (status === LoadingStatus.Failed) {
-        return fallback ? fallback() : null;
-    }
-
-    if (status === LoadingStatus.Loading) {
-        return loading ? loading() : null;
-    }
-
-    return <LatestItemLoader
-        children={children}
-        sentinel={sentinel!}
-        registSnapshotListener={registSnapshotListener}
-    />
-}
-
-export default InfiniteSnapshotLoader;
+export default LatestItemLoader;

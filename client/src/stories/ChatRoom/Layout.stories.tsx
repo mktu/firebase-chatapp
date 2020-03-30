@@ -60,9 +60,11 @@ const Container: React.FC<{
     className?: string,
     requests: JoinRequest[],
     maxPageSize?: number,
+    focus?: string
 }> = ({
     className,
     requests,
+    focus,
     maxPageSize = MAX_PAGE_SIZE
 }) => {
 
@@ -100,6 +102,7 @@ const Container: React.FC<{
             return (
                 <Messages
                     className={style}
+                    focusMessageId={focus}
                     loader={(onComplete) => (
                         <DummyLoader
                             maxPageSize={maxPageSize}
@@ -148,6 +151,8 @@ const Container: React.FC<{
 
 
 export const Default = () => <Container requests={[]} />;
+export const FocusBottom = () => <Container focus={'0'} requests={[]} />;
+export const FocusMiddle = () => <Container focus={'5'} requests={[]} />;
 export const Empty = () => <Container requests={[]} maxPageSize={0}/>;
 export const Requests = () => <Container requests={[
     { id: 'test1', nickName: 'First User', date: Date.now(), status: 'requesting', profileId: 'test1p' },
