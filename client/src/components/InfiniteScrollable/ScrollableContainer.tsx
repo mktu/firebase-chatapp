@@ -10,6 +10,7 @@ function ScrollableContainer<T extends { id: string }>({
     className,
     listItemClassName,
     focusItemId,
+    forwardScrollable,
     autoScrollThreshold = 100,
     nextScrollThreshold = 250,
     listComponent = 'div',
@@ -18,8 +19,9 @@ function ScrollableContainer<T extends { id: string }>({
 }: {
     items: T[],
     renderItem: (item: T) => React.ReactElement,
-    loadMore: () => void,
+    loadMore: (forward?: boolean) => void,
     hasMore: boolean,
+    forwardScrollable?: boolean,
     focusItemId?: string,
     autoScrollThreshold?: number,
     nextScrollThreshold?: number
@@ -38,6 +40,7 @@ function ScrollableContainer<T extends { id: string }>({
     `, [listComponent]);
     const [automaticallyScrollDown, setAutomaticallyScrollDown] = useState(false);
     const [loading, setLoading] = useState<{
+        direction: 'forward' | 'none' | 'backward',
         snapshot: {
             scrollTop: number,
             scrollHeight: number
@@ -59,14 +62,27 @@ function ScrollableContainer<T extends { id: string }>({
             if (marginTop < nextScrollThreshold && nextLoad !== 'backward' && hasMore && !loading) {
                 nextLoad = 'backward';
                 parentNode && setLoading({
+                    direction: nextLoad,
                     snapshot: {
                         scrollHeight: parentNode.scrollHeight,
                         scrollTop: parentNode.scrollTop
                     }
                 });
-                loadMore();
+                loadMore(false);
             }
-            if (marginBottom < autoScrollThreshold) {
+            else if (marginBottom < nextScrollThreshold && nextLoad !== 'forward' && forwardScrollable && !loading) {
+                nextLoad = 'forward';
+                parentNode && setLoading({
+                    direction: nextLoad,
+                    snapshot: {
+                        scrollHeight: parentNode.scrollHeight,
+                        scrollTop: parentNode.scrollTop
+                    }
+                });
+                loadMore(true);
+            }
+            // enables if all forward scrollable items has loaded
+            if (marginBottom < autoScrollThreshold && !forwardScrollable) {
                 if (!enableAutomaticallyScrollDown) {
                     setAutomaticallyScrollDown(true);
                 }
@@ -83,20 +99,22 @@ function ScrollableContainer<T extends { id: string }>({
             unmounted = true;
             parentNode && parentNode.removeEventListener('scroll', onScroll);
         }
-    }, [autoScrollThreshold, hasMore, loading, loadMore, setLoading, nextScrollThreshold]);
+    }, [autoScrollThreshold, hasMore, loading, loadMore, setLoading, nextScrollThreshold, forwardScrollable]);
 
 
-    useEffect(() => {
-        hasMore && items.length === 0 && loadMore();
-    }, [hasMore, loadMore, items.length]);
+    // useEffect(() => {
+    //     hasMore && items.length === 0 && loadMore(false);
+    // }, [hasMore, loadMore, items.length]);
 
     useEffect(() => {
         const parentNode = itemsEndRef.current && itemsEndRef.current.parentElement;
         if (parentNode && loading) {
-            const { snapshot } = loading;
+            const { snapshot, direction } = loading;
             if (parentNode.scrollHeight !== snapshot.scrollHeight) {
-                parentNode.scrollTop = parentNode.scrollHeight -
-                    snapshot.scrollHeight + snapshot.scrollTop;
+                if (direction === 'backward') {
+                    parentNode.scrollTop = parentNode.scrollHeight -
+                        snapshot.scrollHeight + snapshot.scrollTop;
+                }
                 setLoading(undefined);
             }
         }
@@ -106,16 +124,16 @@ function ScrollableContainer<T extends { id: string }>({
         if (items.length === 0) return;
         if (!lastestId) {
             const element = focusItemRef.current || itemsEndRef.current;
-            if(element){
+            if (element) {
                 element.scrollIntoView();
                 setLatestId(items[0].id!);
             }
         }
         else if (lastestId !== items[0].id && itemsEndRef.current) {
             if (automaticallyScrollDown) {
-                setLatestId(items[0].id!);
                 itemsEndRef.current.scrollIntoView({ behavior: "smooth" });
             }
+            setLatestId(items[0].id!);
         }
     }, [items, automaticallyScrollDown, lastestId]);
 

@@ -23,7 +23,8 @@ const Wrapper = styled.div`
 export type OnLoadCompleted<T> = (
     messages: T[],
     readMore: () => void,
-    hasMore: boolean
+    hasMore: boolean,
+    forwardScrollable?: boolean
 ) => React.ReactElement;
 
 export type OnLoading = () => React.ReactElement;
@@ -47,7 +48,7 @@ function Presenter<T extends{
     const loading: OnLoading = useCallback(() => {
         return (<div>loading messages...</div>);
     }, [])
-    const onLoadCompleted: OnLoadCompleted<T> = useCallback((messages, readMore, hasMore) => {
+    const onLoadCompleted: OnLoadCompleted<T> = useCallback((messages, readMore, hasMore, forwardScrollable) => {
         return (
             <InfiniteScrollable
                 loadMore={readMore}
@@ -56,6 +57,7 @@ function Presenter<T extends{
                 focusItemId={focusMessageId}
                 listComponent={List}
                 listItemComponent={ListItem}
+                forwardScrollable={forwardScrollable}
                 listItemClassName='messages-item'
                 renderNewItemNotification={(show, onClick) => (
                     <NewItemNotification className='messages-notification' show={show} onClick={onClick} />)}
