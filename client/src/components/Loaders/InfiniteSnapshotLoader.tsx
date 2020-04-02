@@ -1,9 +1,11 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 
-type Direction = {
+type Order = {
     key: string,
-    direction: 'desc' | 'asc'
+    order: 'desc' | 'asc'
 }
+
+type LoadDirection = 'backward' | 'forward';
 
 type Unsubscribe = () => void;
 
@@ -23,7 +25,7 @@ export type SnapshotListenerRegister<T> = (
     }:
         {
             limit?: number,
-            order: Direction,
+            order: Order,
             start: number,
             onAdded: (results: T[]) => void,
             onModified: (results: T[]) => void,
@@ -38,48 +40,70 @@ export type SingleItemLoader<T> = (
         onFailed
     }:
         {
-            order: Direction,
+            order: Order,
             onReceived: (results: T) => void,
-            onFailed: (error : Error)=>void
+            onFailed: (error: Error) => void
         }) => void;
-
+type ReadMore = (forward?: boolean) => void;
 type Children<T> = (
     items: T[],
-    readMore: () => void,
-    hasMore: boolean
+    readMore: ReadMore,
+    backwardListenable: boolean,
+    forwardListenable?: boolean
 ) => React.ReactElement;
+
+const calcOrder = (direction:LoadDirection, orderBase:Order) : Order=> {
+    if(orderBase.order==='desc'){
+        return direction === 'backward' ? {key:orderBase.key,order:'desc'} : {key:orderBase.key,order:'asc'};
+    }
+    return direction === 'backward' ? {key:orderBase.key,order:'asc'} : {key:orderBase.key,order:'desc'};
+}
 
 
 function useInfiniteSnapshotListener<T extends ItemTypeBase>({
     limit,
     order,
-    sentinel,
+    backwardSentinel,
+    forwardSentinel,
     registSnapshotListener
 }: {
     limit?: number,
-    order: Direction,
-    sentinel: T,
+    order: Order,
+    backwardSentinel: T,
+    forwardSentinel?: T,
     registSnapshotListener: SnapshotListenerRegister<T>
 }) {
-    const [hasMore, setHasMore] = useState(false);
+    const [backwardListenable, setBackwardListenable] = useState(false);
+    const [forwardListenable, setForwardListenable] = useState(false);
     const [loaded, setMessages] = useState<T[]>([]);
     const unsubscribes = useRef<Unsubscribe[]>([]);
-    const readItems = useCallback((start: number) => {
+    const readItems = useCallback((start: number, direction: LoadDirection) => {
         const unsubscribe = registSnapshotListener(
             {
                 limit,
-                order,
+                order:calcOrder(direction,order),
                 start,
                 onAdded: (results) => {
                     if (results.length > 0) {
-                        if (sentinel) {
-                            // It is necessary first to not attach the scroll event of react-infinite-scroller
-                            setHasMore(!Boolean(results.find(m => m.id === sentinel?.id)));
+                        if (direction === 'backward') {
+                            if (backwardSentinel) {
+                                setBackwardListenable(!Boolean(results.find(m => m.id === backwardSentinel?.id)));
+                            }
+                            if (order.order === 'desc') {
+                                setMessages(prev => [...prev, ...results])
+                            } else {
+                                setMessages(prev => [...results, ...prev]);
+                            }
                         }
-                        if (order.direction === 'desc') {
-                            setMessages(prev => [...prev, ...results])
-                        } else {
-                            setMessages(prev => [...results, ...prev]);
+                        else{
+                            if (forwardSentinel) {
+                                setForwardListenable(!Boolean(results.find(m => m.id === forwardSentinel?.id)));
+                            }
+                            if (order.order === 'desc') {
+                                setMessages(prev => [...results, ...prev])
+                            } else {
+                                setMessages(prev => [...prev, ...results]);
+                            }
                         }
                     }
                 },
@@ -108,7 +132,7 @@ function useInfiniteSnapshotListener<T extends ItemTypeBase>({
             }
         )
         unsubscribes.current.push(unsubscribe);
-    }, [limit, order, sentinel, registSnapshotListener]);
+    }, [limit, order, backwardSentinel, forwardSentinel, registSnapshotListener]);
 
     useEffect(() => {
         return () => {
@@ -116,24 +140,26 @@ function useInfiniteSnapshotListener<T extends ItemTypeBase>({
                 unsubscribe();
             }
             setMessages([]);
-            setHasMore(false);
+            setBackwardListenable(false);
+            setForwardListenable(false);
             unsubscribes.current = [];
         };
     }, []);
 
     return {
-        hasMore,
+        backwardListenable,
+        forwardListenable,
         loaded,
         readItems
     }
 }
-const descOrder: Direction = {
+const descOrder: Order = {
     key: 'date',
-    direction: 'desc'
+    order: 'desc'
 };
-const ascOrder: Direction = {
+const ascOrder: Order = {
     key: 'date',
-    direction: 'asc'
+    order: 'asc'
 };
 
 function BackwardItemLoader<T extends ItemTypeBase>(
@@ -154,40 +180,49 @@ function BackwardItemLoader<T extends ItemTypeBase>(
     }
 ) {
     const {
-        hasMore,
+        backwardListenable,
+        forwardListenable,
         loaded,
         readItems
     } = useInfiniteSnapshotListener({
         limit,
         order: descOrder,
-        sentinel,
+        backwardSentinel: sentinel,
         registSnapshotListener
     })
     useEffect(() => {
-        readItems(startDate);
+        readItems(startDate, 'backward');
     }, [startDate, readItems]);
 
     const allItems = useMemo(() => {
         return [...items, ...loaded];
     }, [items, loaded]);
 
-    const handleReadMore = useCallback(() => {
-        if (hasMore && allItems.length > 0) {
-            readItems(allItems[allItems.length - 1].date);
+    const handleReadMore = useCallback((forward?: boolean) => {
+        if(allItems.length > 0){
+            if (!forward && backwardListenable) {
+                readItems(allItems[allItems.length - 1].date, 'backward');
+            }
+            else if(forward && forwardListenable) {
+                readItems(allItems[0].date, 'forward');
+            }
         }
-    }, [hasMore, allItems, readItems]);
+        
+    }, [backwardListenable, allItems, readItems, forwardListenable]);
 
-    return children(allItems, handleReadMore, hasMore);
+    return children(allItems, handleReadMore, backwardListenable, forwardListenable);
 }
 
 function LatestItemLoader<T extends ItemTypeBase>(
     {
         children,
-        sentinel,
+        backwardSentinel,
+        forwardSentinel,
         registSnapshotListener
     }: {
         children: Children<T>,
-        sentinel: T,
+        backwardSentinel: T,
+        forwardSentinel?: T,
         registSnapshotListener: SnapshotListenerRegister<T>
     }
 ) {
@@ -196,20 +231,20 @@ function LatestItemLoader<T extends ItemTypeBase>(
     }, []);
     const {
         loaded,
-        readItems: readMessages
+        readItems
     } = useInfiniteSnapshotListener({
         order: ascOrder,
-        sentinel,
+        backwardSentinel,
         registSnapshotListener
     })
     useEffect(() => {
-        readMessages(startDate);
-    }, [startDate, readMessages]);
+        readItems(startDate, 'backward');
+    }, [startDate, readItems]);
 
     return <BackwardItemLoader
         children={children}
         items={loaded}
-        sentinel={sentinel}
+        sentinel={backwardSentinel}
         startDate={startDate}
         limit={10}
         registSnapshotListener={registSnapshotListener}

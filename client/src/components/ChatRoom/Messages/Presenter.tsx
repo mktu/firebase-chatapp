@@ -10,7 +10,6 @@ const Wrapper = styled.div`
     & > .messages-scrollable{
         overflow : auto;
         height : 100%;
-
         > .messages-notification{
             position : absolute;
             left: 0;

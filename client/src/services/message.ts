@@ -10,7 +10,7 @@ const db = firebase.firestore();
 
 export type Order = {
     key: string,
-    direction: firebase.firestore.OrderByDirection
+    order: firebase.firestore.OrderByDirection
 };
 
 export function registMessagesListener(
@@ -38,7 +38,7 @@ export function registMessagesListener(
             .doc(roomId)
             .collection('messages');
     if (order) {
-        query = query.orderBy(order.key, order.direction);
+        query = query.orderBy(order.key, order.order);
     }
     if (start) {
         query = query.startAfter(start);
@@ -72,7 +72,7 @@ export function getMessages({
     let query = db.collection('rooms')
         .doc(roomId)
         .collection('messages')
-        .orderBy(order.key, order.direction);
+        .orderBy(order.key, order.order);
     if (cursor) {
         query = query.startAfter(cursor.date);
     }

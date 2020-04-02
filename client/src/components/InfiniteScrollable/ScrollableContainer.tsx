@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import InfiniteScroll from 'react-infinite-scroller'
 
 function ScrollableContainer<T extends { id: string }>({
     items,
@@ -33,7 +32,7 @@ function ScrollableContainer<T extends { id: string }>({
 }) {
     const itemsEndRef = useRef<HTMLDivElement | null>(null);
     const focusItemRef = useRef<Element | null>(null);
-    const [lastestId, setLatestId] = useState<string>();
+    const [trackingId, setTrackingId] = useState<string>();
     const StyledList = useMemo(() => styled(listComponent)`
         display:flex;
         flex-direction : column-reverse;
@@ -48,7 +47,7 @@ function ScrollableContainer<T extends { id: string }>({
     }>();
     const ListItemComponent = listItemComponent;
 
-    const hasItemNotSeen = items.length > 0 && lastestId !== items[0].id && !automaticallyScrollDown;
+    const hasItemNotSeen = items.length > 0 && trackingId !== items[0].id && !automaticallyScrollDown;
     useEffect(() => {
         let enableAutomaticallyScrollDown = false;
         let nextLoad: 'forward' | 'none' | 'backward' = 'none';
@@ -81,7 +80,7 @@ function ScrollableContainer<T extends { id: string }>({
                 });
                 loadMore(true);
             }
-            // enables if all forward scrollable items has loaded
+            // automatically scrolling down will be enabled after the most recent item has loaded
             if (marginBottom < autoScrollThreshold && !forwardScrollable) {
                 if (!enableAutomaticallyScrollDown) {
                     setAutomaticallyScrollDown(true);
@@ -102,10 +101,6 @@ function ScrollableContainer<T extends { id: string }>({
     }, [autoScrollThreshold, hasMore, loading, loadMore, setLoading, nextScrollThreshold, forwardScrollable]);
 
 
-    // useEffect(() => {
-    //     hasMore && items.length === 0 && loadMore(false);
-    // }, [hasMore, loadMore, items.length]);
-
     useEffect(() => {
         const parentNode = itemsEndRef.current && itemsEndRef.current.parentElement;
         if (parentNode && loading) {
@@ -122,20 +117,24 @@ function ScrollableContainer<T extends { id: string }>({
 
     useEffect(() => {
         if (items.length === 0) return;
-        if (!lastestId) {
+        if (!trackingId) {
+            const parentNode = itemsEndRef.current && itemsEndRef.current.parentElement;
             const element = focusItemRef.current || itemsEndRef.current;
-            if (element) {
+            const scrollHeight = parentNode?.scrollHeight || 0;
+            const clientHeight = parentNode?.clientHeight || 0;
+            // scroll begins, start tracking the first item
+            if (element && scrollHeight>clientHeight) {
                 element.scrollIntoView();
-                setLatestId(items[0].id!);
+                setTrackingId(items[0].id!);
             }
         }
-        else if (lastestId !== items[0].id && itemsEndRef.current) {
+        else if (trackingId !== items[0].id && itemsEndRef.current) {
             if (automaticallyScrollDown) {
+                setTrackingId(items[0].id!);
                 itemsEndRef.current.scrollIntoView({ behavior: "smooth" });
             }
-            setLatestId(items[0].id!);
         }
-    }, [items, automaticallyScrollDown, lastestId]);
+    }, [items, automaticallyScrollDown, trackingId]);
 
     return useMemo(() => (
         <React.Fragment>
@@ -151,7 +150,7 @@ function ScrollableContainer<T extends { id: string }>({
                 itemsEndRef.current?.scrollIntoView({ behavior: "smooth" });
             })}
         </React.Fragment>
-    ), [className, items, renderItem, hasItemNotSeen, renderNewItemNotification]);
+    ), [className, items, renderItem, hasItemNotSeen, renderNewItemNotification, focusItemId, listItemClassName]);
 }
 
 

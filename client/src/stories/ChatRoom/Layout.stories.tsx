@@ -24,7 +24,8 @@ const DummyLoader: React.FC<{
     children: (
         items: ItemType[],
         readMore: (forward?: boolean) => void,
-        hasMore: boolean
+        forwardScrollable: boolean,
+        backwardScrollable?:boolean
     ) => React.ReactElement,
     maxPageSize?: number,
     focus?: string,

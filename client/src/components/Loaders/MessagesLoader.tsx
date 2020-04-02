@@ -8,7 +8,8 @@ import { LoadingStatusType, LoadingStatus } from '../../constants';
 type Children = (
     messages: Message[],
     readMore: () => void,
-    hasMore: boolean
+    hasMore: boolean,
+    forwardScrollable?:boolean
 ) => React.ReactElement;
 
 const MessagesLoader: React.FC<{
@@ -23,15 +24,27 @@ const MessagesLoader: React.FC<{
     loading
 }) => {
         const [status, setStatus] = useState<LoadingStatusType>(LoadingStatus.Loading);
-        const [sentinel, setSentinel] = useState<Message>();
+        const [backwardSentinel, setBackwardSentinel] = useState<Message>();
+        const [forwardSentinel, setForwardSentinel] = useState<Message>();
         useEffect(() => {
             getMessages({
                 roomId,
                 limit: 1,
-                order: { key: 'date', direction: 'asc' },
+                order: { key: 'date', order: 'asc' },
                 onAdded: (items) => {
-                    items.length > 0 && setSentinel(items[0])
+                    items.length > 0 && setBackwardSentinel(items[0])
                     setStatus(LoadingStatus.Succeeded);
+                },
+                onFailed: () => {
+                    setStatus(LoadingStatus.Failed);
+                }
+            });
+            getMessages({
+                roomId,
+                limit: 1,
+                order: { key: 'date', order: 'desc' },
+                onAdded: (items) => {
+                    items.length > 0 && setForwardSentinel(items[0])
                 },
                 onFailed: () => {
                     setStatus(LoadingStatus.Failed);
@@ -71,7 +84,8 @@ const MessagesLoader: React.FC<{
 
         return <InfiniteSnapshotLoader
             children={children}
-            sentinel={sentinel!}
+            backwardSentinel={backwardSentinel!}
+            forwardSentinel={forwardSentinel}
             registSnapshotListener={registSnapshotListener}
         />
     }
