@@ -18,7 +18,9 @@ export function registMessagesListener(
         roomId,
         limit,
         order,
-        start,
+        startAfter,
+        startAt,
+        endAt,
         onAdded,
         onModified,
         onDeleted
@@ -26,7 +28,9 @@ export function registMessagesListener(
         roomId: string,
         limit?: number,
         order?: Order,
-        start?: any,
+        startAfter?: any,
+        startAt?:any,
+        endAt?:any,
         onAdded: MessagesTransfer,
         onModified: MessagesTransfer,
         onDeleted: MessagesTransfer,
@@ -40,11 +44,17 @@ export function registMessagesListener(
     if (order) {
         query = query.orderBy(order.key, order.order);
     }
-    if (start) {
-        query = query.startAfter(start);
+    if (startAfter) {
+        query = query.startAfter(startAfter);
+    }
+    if(startAt){
+        query = query.startAt(startAt);
     }
     if (limit) {
         query = query.limit(limit);
+    }
+    if(endAt){
+        query = query.endAt(endAt);
     }
     return query
         .onSnapshot(getCollectionListener<Message>(

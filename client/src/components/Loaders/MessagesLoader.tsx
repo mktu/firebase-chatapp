@@ -52,25 +52,15 @@ const MessagesLoader: React.FC<{
             });
             return () => {
                 setStatus(LoadingStatus.Loading);
+                setBackwardSentinel(undefined);
+                setForwardSentinel(undefined);
             }
         }, [roomId]);
 
-        const registSnapshotListener: SnapshotListenerRegister<Message> = useCallback(({
-            limit,
-            order,
-            start,
-            onAdded,
-            onModified,
-            onDeleted
-        }) => {
+        const registSnapshotListener: SnapshotListenerRegister<Message> = useCallback((args) => {
             return registMessagesListener({
                 roomId,
-                limit,
-                order,
-                start,
-                onAdded,
-                onModified,
-                onDeleted
+                ...args
             })
         }, [roomId]);
 
@@ -84,7 +74,7 @@ const MessagesLoader: React.FC<{
 
         return <InfiniteSnapshotLoader
             children={children}
-            backwardSentinel={backwardSentinel!}
+            backwardSentinel={backwardSentinel}
             forwardSentinel={forwardSentinel}
             registSnapshotListener={registSnapshotListener}
         />
