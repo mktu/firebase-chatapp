@@ -32,7 +32,9 @@ const RoomRoot: React.FC<any> = (props) => {
                             <Empty onMount={setEmpty} />
                         </Route>
                         <Route path='/rooms/:roomId'>
-                            {({ match }) => {
+                            {({ match, location }) => {
+                                const urlParams = new URLSearchParams(location.search);
+                                const messageId = urlParams.get('message') || undefined;
                                 return (
                                     <RoomLoader
                                         roomId={match?.params.roomId}
@@ -48,7 +50,7 @@ const RoomRoot: React.FC<any> = (props) => {
                                             <ProfileListLoader uids={room.users}>
                                                 {
                                                     (profiles)=>(
-                                                        <ChatRoom profiles={profiles} room={room} />
+                                                        <ChatRoom profiles={profiles} room={room} messageId={messageId}/>
                                                     )
                                                 }
                                             </ProfileListLoader>

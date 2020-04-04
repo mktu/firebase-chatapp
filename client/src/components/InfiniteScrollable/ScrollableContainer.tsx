@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import InfiniteScroll from 'react-infinite-scroller'
+
+type ScrollDownType = 'jumpable-to-bottom' | 'automatically-scroll-down' | 'disable';
 
 function ScrollableContainer<T extends { id: string }>({
     items,
@@ -8,43 +9,89 @@ function ScrollableContainer<T extends { id: string }>({
     hasMore,
     renderItem,
     className,
+    listItemClassName,
+    focusItemId,
+    forwardScrollable,
     autoScrollThreshold = 100,
+    nextScrollThreshold = 250,
     listComponent = 'div',
+    listItemComponent = 'div',
     renderNewItemNotification = () => (<div />)
 }: {
     items: T[],
     renderItem: (item: T) => React.ReactElement,
-    loadMore: () => void,
+    loadMore: (forward?: boolean) => void,
     hasMore: boolean,
+    forwardScrollable?: boolean,
+    focusItemId?: string,
     autoScrollThreshold?: number,
+    nextScrollThreshold?: number
     listComponent?: any,
-    className?:string,
-    renderNewItemNotification?: (show:boolean, onClickScrollToBottom: () => void) => React.ReactElement
+    listItemComponent?: any,
+    listItemClassName?: string,
+    className?: string,
+    renderNewItemNotification?: (show: boolean, onClickScrollToBottom: () => void) => React.ReactElement
 }) {
-    const itemsEndRef = useRef<any>(null);
-    const [lastestId, setLatestId] = useState<string>();
+    const itemsEndRef = useRef<HTMLDivElement | null>(null);
+    const focusItemRef = useRef<Element | null>(null);
+    const [trackingId, setTrackingId] = useState<string>();
     const StyledList = useMemo(() => styled(listComponent)`
         display:flex;
         flex-direction : column-reverse;
     `, [listComponent]);
-    const [automaticallyScrollDown, setAutomaticallyScrollDown] = useState(false);
-    const hasItemNotSeen = items.length>0 &&  lastestId !== items[0].id && !automaticallyScrollDown;
+    const [automaticallyScrollDown, setAutomaticallyScrollDown] = useState<ScrollDownType>('disable');
+    const [loading, setLoading] = useState<{
+        direction: 'forward' | 'none' | 'backward',
+        snapshot: {
+            scrollTop: number,
+            scrollHeight: number
+        }
+    }>();
+    const ListItemComponent = listItemComponent;
+
+    const newItemNavigatable = items.length > 0 && trackingId !== items[0].id && automaticallyScrollDown === 'jumpable-to-bottom';
+
     useEffect(() => {
         let enableAutomaticallyScrollDown = false;
+        let nextLoad: 'forward' | 'none' | 'backward' = 'none';
         let unmounted = false;
-        const parentNode = itemsEndRef.current && itemsEndRef.current.parentNode;
-        const onScroll = (event: any) => {
+        const parentNode = itemsEndRef.current && itemsEndRef.current.parentElement;
+        const onScroll = (event: Event) => {
             if (unmounted) return;
-            const node = event.target;
-            const margin = node.scrollHeight - (node.scrollTop + node.clientHeight);
-            if (margin < autoScrollThreshold) {
+            const node = event.target as HTMLElement;
+            const marginBottom = node.scrollHeight - (node.scrollTop + node.clientHeight);
+            const marginTop = node.scrollTop;
+            if (marginTop < nextScrollThreshold && nextLoad !== 'backward' && hasMore && !loading) {
+                nextLoad = 'backward';
+                parentNode && setLoading({
+                    direction: nextLoad,
+                    snapshot: {
+                        scrollHeight: parentNode.scrollHeight,
+                        scrollTop: parentNode.scrollTop
+                    }
+                });
+                loadMore(false);
+            }
+            else if (marginBottom < nextScrollThreshold && nextLoad !== 'forward' && forwardScrollable && !loading) {
+                nextLoad = 'forward';
+                parentNode && setLoading({
+                    direction: nextLoad,
+                    snapshot: {
+                        scrollHeight: parentNode.scrollHeight,
+                        scrollTop: parentNode.scrollTop
+                    }
+                });
+                loadMore(true);
+            }
+            // automatically scrolling down will be enabled after the most recent item has loaded
+            if (marginBottom < autoScrollThreshold && !forwardScrollable) {
                 if (!enableAutomaticallyScrollDown) {
-                    setAutomaticallyScrollDown(true);
+                    setAutomaticallyScrollDown('automatically-scroll-down');
                 }
                 enableAutomaticallyScrollDown = true;
             } else {
-                if (enableAutomaticallyScrollDown) {
-                    setAutomaticallyScrollDown(false);
+                if (enableAutomaticallyScrollDown) { // once reach to the bottom, the scroll position can return to the bottom again
+                    setAutomaticallyScrollDown('jumpable-to-bottom');
                 }
                 enableAutomaticallyScrollDown = false;
             }
@@ -54,43 +101,59 @@ function ScrollableContainer<T extends { id: string }>({
             unmounted = true;
             parentNode && parentNode.removeEventListener('scroll', onScroll);
         }
-    }, [autoScrollThreshold]);
+    }, [autoScrollThreshold, hasMore, loading, loadMore, setLoading, nextScrollThreshold, forwardScrollable]);
+
+
+    useEffect(() => {
+        const parentNode = itemsEndRef.current && itemsEndRef.current.parentElement;
+        if (parentNode && loading) {
+            const { snapshot, direction } = loading;
+            if (parentNode.scrollHeight !== snapshot.scrollHeight) {
+                if (direction === 'backward') {
+                    parentNode.scrollTop = parentNode.scrollHeight -
+                        snapshot.scrollHeight + snapshot.scrollTop;
+                }
+                setLoading(undefined);
+            }
+        }
+    }, [items.length, loading])
 
     useEffect(() => {
         if (items.length === 0) return;
-        if (itemsEndRef.current) {
-            if (!lastestId) {
-                itemsEndRef.current.scrollIntoView();
-                setLatestId(items[0].id!);
-            }
-            else if (lastestId !== items[0].id) {
-                if (automaticallyScrollDown) {
-                    setLatestId(items[0].id!);
-                    itemsEndRef.current.scrollIntoView({ behavior: "smooth" });
-                }
+        if (!trackingId) {
+            const parentNode = itemsEndRef.current && itemsEndRef.current.parentElement;
+            const element = focusItemRef.current || itemsEndRef.current;
+            const scrollHeight = parentNode?.scrollHeight || 0;
+            const clientHeight = parentNode?.clientHeight || 0;
+            // scroll begins, start tracking the first item
+            if (element && scrollHeight>clientHeight) {
+                element.scrollIntoView();
+                setTrackingId(items[0].id!);
             }
         }
-    }, [items, automaticallyScrollDown, lastestId]);
+        else if (trackingId !== items[0].id && itemsEndRef.current) {
+            if (automaticallyScrollDown==='automatically-scroll-down') {
+                setTrackingId(items[0].id!);
+                itemsEndRef.current.scrollIntoView({ behavior: "smooth" });
+            }
+        }
+    }, [items, automaticallyScrollDown, trackingId]);
 
     return useMemo(() => (
         <React.Fragment>
-            <InfiniteScroll
-                pageStart={0}
-                loadMore={loadMore}
-                hasMore={hasMore}
-                useWindow={false}
-                isReverse
-            >
-                <StyledList className={className}>
-                    {items.map(renderItem)}
-                </StyledList>
-            </InfiniteScroll>
+            <StyledList className={className}>
+                {items.map(item => (
+                    <ListItemComponent className={listItemClassName} key={item.id} ref={focusItemId === item.id ? focusItemRef : undefined}>
+                        {renderItem(item)}
+                    </ListItemComponent>
+                ))}
+            </StyledList>
             <div ref={itemsEndRef} />
-            {renderNewItemNotification(hasItemNotSeen, ()=>{
-                itemsEndRef.current.scrollIntoView({ behavior: "smooth" });
+            {renderNewItemNotification(newItemNavigatable, () => {
+                itemsEndRef.current?.scrollIntoView({ behavior: "smooth" });
             })}
         </React.Fragment>
-    ), [className, items, loadMore, hasMore, renderItem,hasItemNotSeen,renderNewItemNotification]);
+    ), [className, items, renderItem, newItemNavigatable, renderNewItemNotification, focusItemId, listItemClassName]);
 }
 
 

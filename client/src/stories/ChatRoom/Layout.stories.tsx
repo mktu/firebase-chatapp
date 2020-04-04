@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useMemo, useEffect } from 'react';
 import styled from 'styled-components';
 import { Room } from '../../../../types/room';
 import { JoinRequest } from '../../../../types/request';
@@ -23,30 +23,62 @@ const Wrapper = styled.div`
 const DummyLoader: React.FC<{
     children: (
         items: ItemType[],
-        readMore: () => void,
-        hasMore: boolean
+        readMore: (forward?: boolean) => void,
+        forwardScrollable: boolean,
+        backwardScrollable?:boolean
     ) => React.ReactElement,
     maxPageSize?: number,
+    focus?: string,
     latest?: ItemType[]
 }> = ({
     children,
+    focus,
     maxPageSize = MAX_PAGE_SIZE,
     latest = []
 }) => {
-        const [page, setPage] = useState(0);
-        const hasMore = page < maxPageSize;
-        const loadMore = () => {
-            if (hasMore) {
+        const [items, setItems] = useState<ItemType[]>([]);
+        const hasMore = items.length > 0 ? items[items.length - 1].id !== FULL_ITEMS[FULL_ITEMS.length - 1].id : true;
+        const forwardScrollable = items.length > 0 ? items[0].id !== FULL_ITEMS[0].id : false;
+        useEffect(() => {
+            setItems(prev=>{
+                const start = focus ? FULL_ITEMS.findIndex(el => el.id === focus) + 1 : 0;
+                const end = start + MAX_PAGE_SIZE < FULL_ITEMS.length ? start + MAX_PAGE_SIZE : FULL_ITEMS.length;
+                return [...prev, ...FULL_ITEMS.slice(start, end)];
+            })
+        }, [setItems,focus])
+        const loadMore = useCallback((forward) => {
+            if (hasMore && !forward) {
                 setTimeout(() => {
-                    setPage(i => i + 1);
+                    setItems(prev => {
+                        const lastId = prev.length > 0 ? prev[prev.length - 1].id : null;
+                        const start = lastId ? FULL_ITEMS.findIndex(el => el.id === lastId) + 1 : 0;
+                        const end = start + MAX_PAGE_SIZE < FULL_ITEMS.length ? start + MAX_PAGE_SIZE : FULL_ITEMS.length;
+                        return [...prev, ...FULL_ITEMS.slice(start, end)];
+                    });
                 }, 500);
             }
-        }
-        const items = [...latest, ...FULL_ITEMS.slice(0, maxPageSize * page)];
+            else if (forwardScrollable && forward) {
+                setTimeout(() => {
+                    console.log('forward')
+                    setItems(prev => {
+                        const firstId = prev.length > 0 ? prev[0].id : null;
+                        const end = firstId ? FULL_ITEMS.findIndex(el => el.id === firstId) : 0;
+                        const start = end - MAX_PAGE_SIZE > 0 ? end - MAX_PAGE_SIZE : 0;
+                        return [...FULL_ITEMS.slice(start, end), ...prev];
+                    });
+                }, 500);
+            }
+        }, [hasMore, forwardScrollable]);
+
+        const fullItems = useMemo(() => {
+            return [...latest, ...items];
+        }, [latest, items]);
+
         return children(
-            items,
+            fullItems,
             loadMore,
             hasMore,
+            forwardScrollable
         );
     }
 
@@ -60,9 +92,11 @@ const Container: React.FC<{
     className?: string,
     requests: JoinRequest[],
     maxPageSize?: number,
+    focus?: string
 }> = ({
     className,
     requests,
+    focus,
     maxPageSize = MAX_PAGE_SIZE
 }) => {
 
@@ -100,9 +134,11 @@ const Container: React.FC<{
             return (
                 <Messages
                     className={style}
+                    focusMessageId={focus}
                     loader={(onComplete) => (
                         <DummyLoader
                             maxPageSize={maxPageSize}
+                            focus={focus}
                         >
                             {onComplete}
                         </DummyLoader>)}
@@ -148,7 +184,10 @@ const Container: React.FC<{
 
 
 export const Default = () => <Container requests={[]} />;
-export const Empty = () => <Container requests={[]} maxPageSize={0}/>;
+export const FocusBottom = () => <Container focus={'0'} requests={[]} />;
+export const FocusMiddle = () => <Container focus={'5'} requests={[]} />;
+export const ForwardScroll = () => <Container focus={'90'} requests={[]} />;
+export const Empty = () => <Container requests={[]} maxPageSize={0} />;
 export const Requests = () => <Container requests={[
     { id: 'test1', nickName: 'First User', date: Date.now(), status: 'requesting', profileId: 'test1p' },
     { id: 'test2', nickName: 'Second User', date: Date.now(), status: 'requesting', profileId: 'test2p' },

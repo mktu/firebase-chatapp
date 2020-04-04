@@ -17,10 +17,12 @@ const Container: React.FC<{
     room: Room,
     profiles: Profile[],
     className?: string,
+    messageId?: string
 }> = ({
     className,
     profiles,
-    room
+    room,
+    messageId
 }) => {
         const { profileState } = useContext(ProfileContext);
         const { profile } = profileState;
@@ -52,6 +54,7 @@ const Container: React.FC<{
                         <MessagesLoader
                             roomId={room.id}
                             loading={loading}
+                            offsetMessageId={messageId}
                         >
                             {onComplete}
                         </MessagesLoader>)}
@@ -64,7 +67,7 @@ const Container: React.FC<{
                     />)}
                 />
             )
-        }, [room, profiles, profile]);
+        }, [room.id, profiles, profile, messageId]);
 
         const renderFooter = useCallback((style) => {
             return (

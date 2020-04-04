@@ -2,29 +2,36 @@ import firebase from './firebase';
 import {
     Message,
     MessagesTransfer,
+    MessageTransfer
 } from '../../../types/message';
 import { Notifier, ErrorHandler, consoleError } from '../utils';
 import { getCollectionListener } from './db';
 
 const db = firebase.firestore();
 
+export type Order = {
+    key: string,
+    order: firebase.firestore.OrderByDirection
+};
+
 export function registMessagesListener(
     {
         roomId,
         limit,
         order,
-        start,
+        startAfter,
+        startAt,
+        endAt,
         onAdded,
         onModified,
         onDeleted
     }: {
         roomId: string,
         limit?: number,
-        order?: {
-            key: string,
-            direction: firebase.firestore.OrderByDirection
-        }
-        start?: any,
+        order?: Order,
+        startAfter?: any,
+        startAt?:any,
+        endAt?:any,
         onAdded: MessagesTransfer,
         onModified: MessagesTransfer,
         onDeleted: MessagesTransfer,
@@ -36,13 +43,19 @@ export function registMessagesListener(
             .doc(roomId)
             .collection('messages');
     if (order) {
-        query = query.orderBy(order.key, order.direction);
+        query = query.orderBy(order.key, order.order);
     }
-    if (start) {
-        query = query.startAfter(start);
+    if (startAfter) {
+        query = query.startAfter(startAfter);
+    }
+    if(startAt){
+        query = query.startAt(startAt);
     }
     if (limit) {
         query = query.limit(limit);
+    }
+    if(endAt){
+        query = query.endAt(endAt);
     }
     return query
         .onSnapshot(getCollectionListener<Message>(
@@ -51,7 +64,35 @@ export function registMessagesListener(
             onDeleted,
         ))
 }
-
+export function getMessage({
+    roomId,
+    messageId,
+    onSucceeded,
+    onFailed = consoleError
+}:{
+    roomId : string,
+    messageId : string,
+    onSucceeded : MessageTransfer,
+    onFailed? : ErrorHandler
+}){
+    db.collection('rooms')
+    .doc(roomId)
+    .collection('messages')
+    .doc(messageId)
+    .get()
+    .then((data)=>{
+        if(data.exists){
+            onSucceeded({
+                id : messageId,
+                ...data.data()
+            } as Message );
+        }
+        else{
+            onFailed(Error(`room:${roomId},message:${messageId} does not exist`));
+        }
+    })
+    .catch(onFailed);
+}
 export function getMessages({
     roomId,
     limit,
@@ -62,7 +103,7 @@ export function getMessages({
 }: {
     roomId: string,
     limit: number,
-    order: firebase.firestore.OrderByDirection,
+    order: Order,
     cursor?: Message,
     onAdded: MessagesTransfer,
     onFailed?: ErrorHandler,
@@ -70,7 +111,7 @@ export function getMessages({
     let query = db.collection('rooms')
         .doc(roomId)
         .collection('messages')
-        .orderBy('date', order);
+        .orderBy(order.key, order.order);
     if (cursor) {
         query = query.startAfter(cursor.date);
     }
