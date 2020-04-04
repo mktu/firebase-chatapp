@@ -1,15 +1,32 @@
 import React, { useCallback } from 'react';
-import styled from 'styled-components';
+import styled, {keyframes} from 'styled-components';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import InfiniteScrollable from '../../InfiniteScrollable';
 import NewItemNotification from '../../InfiniteScrollable/NewItemNotification';
+
+const focusAnimation = keyframes`
+    0% {
+        background-color : rgba(0,0,0,0);
+    }
+    50% {
+        background-color : rgba(0,0,0,0.04);
+    }
+    100% {
+        background-color : rgba(0,0,0,0);
+    }
+`;
 
 const Wrapper = styled.div`
     position : relative;
     & > .messages-scrollable{
         overflow : auto;
         height : 100%;
+        > .messages-items{
+            > .focus-message{
+                animation: ${focusAnimation} 3s 0s both;
+            }
+        }
         > .messages-notification{
             position : absolute;
             left: 0;
@@ -53,11 +70,15 @@ function Presenter<T extends{
                 loadMore={readMore}
                 hasMore={hasMore}
                 items={messages}
+                classes={{
+                    'root' : 'messages-items',
+                    'list-item' : 'messages-item',
+                    'focus-item' : 'focus-message'
+                }}
                 focusItemId={focusMessageId}
                 listComponent={List}
                 listItemComponent={ListItem}
                 forwardScrollable={forwardScrollable}
-                listItemClassName='messages-item'
                 renderNewItemNotification={(show, onClick) => (
                     <NewItemNotification className='messages-notification' show={show} onClick={onClick} />)}
                 renderItem={renderMessage}

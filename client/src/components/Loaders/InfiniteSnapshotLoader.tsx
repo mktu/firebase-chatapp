@@ -206,6 +206,7 @@ function BackwardItemLoader<T extends ItemTypeBase>(
             direction : 'backward'
         });
     }, [startDate, readItems]);
+
     const allItems = useMemo(() => {
         return forwardListenable ? loaded : [...items, ...loaded];
     }, [items, loaded, forwardListenable]);
@@ -237,12 +238,14 @@ function LatestItemLoader<T extends ItemTypeBase>(
         start,
         backwardSentinel,
         forwardSentinel,
-        registSnapshotListener
+        registSnapshotListener,
+        limit=10
     }: {
         children: Children<T>,
         backwardSentinel?: T,
         forwardSentinel?: T,
         start?: T,
+        limit?: number
         registSnapshotListener: SnapshotListenerRegister<T>
     }
 ) {
@@ -275,7 +278,7 @@ function LatestItemLoader<T extends ItemTypeBase>(
         backwardSentinel={backwardSentinel}
         forwardSentinel={forwardSentinel}
         startDate={start?start.date:startDate}
-        limit={10}
+        limit={limit}
         registSnapshotListener={registSnapshotListener}
     />;
 }

@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 type ScrollDownType = 'jumpable-to-bottom' | 'automatically-scroll-down' | 'disable';
+export type Classes = 'root' | 'list-item' | 'focus-item';
 
 function ScrollableContainer<T extends { id: string }>({
     items,
@@ -9,13 +10,13 @@ function ScrollableContainer<T extends { id: string }>({
     hasMore,
     renderItem,
     className,
-    listItemClassName,
     focusItemId,
     forwardScrollable,
     autoScrollThreshold = 100,
     nextScrollThreshold = 250,
     listComponent = 'div',
     listItemComponent = 'div',
+    classes = {},
     renderNewItemNotification = () => (<div />)
 }: {
     items: T[],
@@ -28,12 +29,14 @@ function ScrollableContainer<T extends { id: string }>({
     nextScrollThreshold?: number
     listComponent?: any,
     listItemComponent?: any,
-    listItemClassName?: string,
     className?: string,
+    classes?:{
+        [key in Classes]? : string
+    }
     renderNewItemNotification?: (show: boolean, onClickScrollToBottom: () => void) => React.ReactElement
 }) {
     const itemsEndRef = useRef<HTMLDivElement | null>(null);
-    const focusItemRef = useRef<Element | null>(null);
+    const focusItemRef = useRef<HTMLElement | null>(null);
     const [trackingId, setTrackingId] = useState<string>();
     const StyledList = useMemo(() => styled(listComponent)`
         display:flex;
@@ -139,11 +142,19 @@ function ScrollableContainer<T extends { id: string }>({
         }
     }, [items, automaticallyScrollDown, trackingId]);
 
+    useEffect(()=>{
+        focusItemRef.current && focusItemRef.current.focus();
+    },[items.length>0]);
+
+    const rootClass = className || classes['root'];
+    const listItemClass = classes['list-item'];
+    const focusItemClass = classes['focus-item'];
+
     return useMemo(() => (
         <React.Fragment>
-            <StyledList className={className}>
+            <StyledList className={rootClass}>
                 {items.map(item => (
-                    <ListItemComponent className={listItemClassName} key={item.id} ref={focusItemId === item.id ? focusItemRef : undefined}>
+                    <ListItemComponent className={focusItemId === item.id ? `${listItemClass} ${focusItemClass}` : listItemClass} key={item.id} ref={focusItemId === item.id ? focusItemRef : undefined}>
                         {renderItem(item)}
                     </ListItemComponent>
                 ))}
@@ -153,7 +164,7 @@ function ScrollableContainer<T extends { id: string }>({
                 itemsEndRef.current?.scrollIntoView({ behavior: "smooth" });
             })}
         </React.Fragment>
-    ), [className, items, renderItem, newItemNavigatable, renderNewItemNotification, focusItemId, listItemClassName]);
+    ), [rootClass, listItemClass, focusItemClass, items, renderItem, newItemNavigatable, renderNewItemNotification, focusItemId]);
 }
 
 

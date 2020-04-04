@@ -50,6 +50,7 @@ const Container: React.FC<{
             return (
                 <Messages
                     className={style}
+                    focusMessageId={messageId}
                     loader={(onComplete, loading) => (
                         <MessagesLoader
                             roomId={room.id}
