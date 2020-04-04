@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
+type ScrollDownType = 'jumpable-to-bottom' | 'automatically-scroll-down' | 'disable';
+
 function ScrollableContainer<T extends { id: string }>({
     items,
     loadMore,
@@ -37,7 +39,7 @@ function ScrollableContainer<T extends { id: string }>({
         display:flex;
         flex-direction : column-reverse;
     `, [listComponent]);
-    const [automaticallyScrollDown, setAutomaticallyScrollDown] = useState(false);
+    const [automaticallyScrollDown, setAutomaticallyScrollDown] = useState<ScrollDownType>('disable');
     const [loading, setLoading] = useState<{
         direction: 'forward' | 'none' | 'backward',
         snapshot: {
@@ -47,7 +49,8 @@ function ScrollableContainer<T extends { id: string }>({
     }>();
     const ListItemComponent = listItemComponent;
 
-    const hasItemNotSeen = items.length > 0 && trackingId !== items[0].id && !automaticallyScrollDown;
+    const newItemNavigatable = items.length > 0 && trackingId !== items[0].id && automaticallyScrollDown === 'jumpable-to-bottom';
+
     useEffect(() => {
         let enableAutomaticallyScrollDown = false;
         let nextLoad: 'forward' | 'none' | 'backward' = 'none';
@@ -83,12 +86,12 @@ function ScrollableContainer<T extends { id: string }>({
             // automatically scrolling down will be enabled after the most recent item has loaded
             if (marginBottom < autoScrollThreshold && !forwardScrollable) {
                 if (!enableAutomaticallyScrollDown) {
-                    setAutomaticallyScrollDown(true);
+                    setAutomaticallyScrollDown('automatically-scroll-down');
                 }
                 enableAutomaticallyScrollDown = true;
             } else {
-                if (enableAutomaticallyScrollDown) {
-                    setAutomaticallyScrollDown(false);
+                if (enableAutomaticallyScrollDown) { // once reach to the bottom, the scroll position can return to the bottom again
+                    setAutomaticallyScrollDown('jumpable-to-bottom');
                 }
                 enableAutomaticallyScrollDown = false;
             }
@@ -129,7 +132,7 @@ function ScrollableContainer<T extends { id: string }>({
             }
         }
         else if (trackingId !== items[0].id && itemsEndRef.current) {
-            if (automaticallyScrollDown) {
+            if (automaticallyScrollDown==='automatically-scroll-down') {
                 setTrackingId(items[0].id!);
                 itemsEndRef.current.scrollIntoView({ behavior: "smooth" });
             }
@@ -146,11 +149,11 @@ function ScrollableContainer<T extends { id: string }>({
                 ))}
             </StyledList>
             <div ref={itemsEndRef} />
-            {renderNewItemNotification(hasItemNotSeen, () => {
+            {renderNewItemNotification(newItemNavigatable, () => {
                 itemsEndRef.current?.scrollIntoView({ behavior: "smooth" });
             })}
         </React.Fragment>
-    ), [className, items, renderItem, hasItemNotSeen, renderNewItemNotification, focusItemId, listItemClassName]);
+    ), [className, items, renderItem, newItemNavigatable, renderNewItemNotification, focusItemId, listItemClassName]);
 }
 
 

@@ -2,6 +2,7 @@ import firebase from './firebase';
 import {
     Message,
     MessagesTransfer,
+    MessageTransfer
 } from '../../../types/message';
 import { Notifier, ErrorHandler, consoleError } from '../utils';
 import { getCollectionListener } from './db';
@@ -63,7 +64,35 @@ export function registMessagesListener(
             onDeleted,
         ))
 }
-
+export function getMessage({
+    roomId,
+    messageId,
+    onSucceeded,
+    onFailed = consoleError
+}:{
+    roomId : string,
+    messageId : string,
+    onSucceeded : MessageTransfer,
+    onFailed? : ErrorHandler
+}){
+    db.collection('rooms')
+    .doc(roomId)
+    .collection('messages')
+    .doc(messageId)
+    .get()
+    .then((data)=>{
+        if(data.exists){
+            onSucceeded({
+                id : messageId,
+                ...data.data()
+            } as Message );
+        }
+        else{
+            onFailed(Error(`room:${roomId},message:${messageId} does not exist`));
+        }
+    })
+    .catch(onFailed);
+}
 export function getMessages({
     roomId,
     limit,

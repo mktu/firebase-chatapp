@@ -20,7 +20,7 @@ export type SnapshotListenerRegister<T> = (
         order,
         startAfter,
         startAt,
-        end,
+        endAt,
         onAdded,
         onModified,
         onDeleted
@@ -30,7 +30,7 @@ export type SnapshotListenerRegister<T> = (
             order: Order,
             startAfter?: number,
             startAt?: number,
-            end?: number
+            endAt?: number
             onAdded: (results: T[]) => void,
             onModified: (results: T[]) => void,
             onDeleted: (results: T[]) => void,
@@ -90,14 +90,14 @@ function useInfiniteSnapshotListener<T extends ItemTypeBase>({
         startAt?: number,
         startAfter?: number,
     }) => {
-        const end = direction === 'forward' ? forwardSentinel?.date : undefined;
+        const endAt = direction === 'forward' ? forwardSentinel?.date : undefined;
         const unsubscribe = registSnapshotListener(
             {
                 limit,
                 order: calcOrder(direction, order),
                 startAfter,
                 startAt,
-                end,
+                endAt,
                 onAdded: (results) => {
                     if (results.length > 0) {
                         if (direction === 'backward') {
@@ -109,9 +109,9 @@ function useInfiniteSnapshotListener<T extends ItemTypeBase>({
                         }
                         else {
                             if (order.order === 'desc') {
-                                setMessages(prev => [...results, ...prev])
+                                setMessages(prev => [...results.reverse(), ...prev])
                             } else {
-                                setMessages(prev => [...prev, ...results]);
+                                setMessages(prev => [...prev, ...results.reverse()]);
                             }
                         }
                     }
@@ -200,17 +200,15 @@ function BackwardItemLoader<T extends ItemTypeBase>(
         forwardSentinel,
         registSnapshotListener
     })
-
     useEffect(() => {
         readItems({
             startAt : startDate,
             direction : 'backward'
         });
     }, [startDate, readItems]);
-
     const allItems = useMemo(() => {
-        return [...items, ...loaded];
-    }, [items, loaded]);
+        return forwardListenable ? loaded : [...items, ...loaded];
+    }, [items, loaded, forwardListenable]);
 
     const handleReadMore = useCallback((forward?: boolean) => {
         if (allItems.length > 0) {
@@ -260,7 +258,6 @@ function LatestItemLoader<T extends ItemTypeBase>(
         backwardSentinel,
         registSnapshotListener
     })
-
     useEffect(() => {
         readItems({
             startAfter : startDate, 
@@ -277,7 +274,7 @@ function LatestItemLoader<T extends ItemTypeBase>(
         items={loaded}
         backwardSentinel={backwardSentinel}
         forwardSentinel={forwardSentinel}
-        startDate={startDate}
+        startDate={start?start.date:startDate}
         limit={10}
         registSnapshotListener={registSnapshotListener}
     />;
