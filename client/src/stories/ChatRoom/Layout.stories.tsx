@@ -1,87 +1,27 @@
-import React, { useCallback, useState, useMemo, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { Room } from '../../../../types/room';
 import { JoinRequest } from '../../../../types/request';
+import { Message } from '../../../../types/message';
 import { modifyRoom } from '../../services/room';
 import HeaderContainer from '../../components/ChatRoom/Header';
 import Messages from '../../components/ChatRoom/Messages';
-import SingleMessageContainer from '../../components/ChatRoom/SingleMessage';
 import InputContainer from '../../components/ChatRoom/Input';
 import { Presenter } from '../../components/ChatRoom/';
 import { action } from '@storybook/addon-actions';
 
-type ItemType = { id: string, date: number };
-
 const MAX_PAGE_SIZE = 10;
 const ITEM_MAX_IN_PAGE = 20;
-const FULL_ITEMS = [...Array(ITEM_MAX_IN_PAGE * MAX_PAGE_SIZE).keys()].map(i => ({ id: i.toString(), date: Date.now() + i }));
+const FULL_ITEMS: Message[] = [...Array(ITEM_MAX_IN_PAGE * MAX_PAGE_SIZE).keys()].map(i => ({
+    id: i.toString(),
+    date: Date.now() + i,
+    message: `this is ${i}`,
+    profileId: 'test1'
+}));
 
 const Wrapper = styled.div`
     height : 100vh;
 `;
-
-const DummyLoader: React.FC<{
-    children: (
-        items: ItemType[],
-        readMore: (forward?: boolean) => void,
-        forwardScrollable: boolean,
-        backwardScrollable?:boolean
-    ) => React.ReactElement,
-    maxPageSize?: number,
-    focus?: string,
-    latest?: ItemType[]
-}> = ({
-    children,
-    focus,
-    maxPageSize = MAX_PAGE_SIZE,
-    latest = []
-}) => {
-        const [items, setItems] = useState<ItemType[]>([]);
-        const hasMore = items.length > 0 ? items[items.length - 1].id !== FULL_ITEMS[FULL_ITEMS.length - 1].id : true;
-        const forwardScrollable = items.length > 0 ? items[0].id !== FULL_ITEMS[0].id : false;
-        useEffect(() => {
-            setItems(prev=>{
-                const start = focus ? FULL_ITEMS.findIndex(el => el.id === focus) + 1 : 0;
-                const end = start + MAX_PAGE_SIZE < FULL_ITEMS.length ? start + MAX_PAGE_SIZE : FULL_ITEMS.length;
-                return [...prev, ...FULL_ITEMS.slice(start, end)];
-            })
-        }, [setItems,focus])
-        const loadMore = useCallback((forward) => {
-            if (hasMore && !forward) {
-                setTimeout(() => {
-                    setItems(prev => {
-                        const lastId = prev.length > 0 ? prev[prev.length - 1].id : null;
-                        const start = lastId ? FULL_ITEMS.findIndex(el => el.id === lastId) + 1 : 0;
-                        const end = start + MAX_PAGE_SIZE < FULL_ITEMS.length ? start + MAX_PAGE_SIZE : FULL_ITEMS.length;
-                        return [...prev, ...FULL_ITEMS.slice(start, end)];
-                    });
-                }, 500);
-            }
-            else if (forwardScrollable && forward) {
-                setTimeout(() => {
-                    console.log('forward')
-                    setItems(prev => {
-                        const firstId = prev.length > 0 ? prev[0].id : null;
-                        const end = firstId ? FULL_ITEMS.findIndex(el => el.id === firstId) : 0;
-                        const start = end - MAX_PAGE_SIZE > 0 ? end - MAX_PAGE_SIZE : 0;
-                        return [...FULL_ITEMS.slice(start, end), ...prev];
-                    });
-                }, 500);
-            }
-        }, [hasMore, forwardScrollable]);
-
-        const fullItems = useMemo(() => {
-            return [...latest, ...items];
-        }, [latest, items]);
-
-        return children(
-            fullItems,
-            loadMore,
-            hasMore,
-            forwardScrollable
-        );
-    }
-
 
 export default {
     title: 'ChatRoom/Layout',
@@ -92,12 +32,13 @@ const Container: React.FC<{
     className?: string,
     requests: JoinRequest[],
     maxPageSize?: number,
-    focus?: string
+    focus?: string,
+    items?:Message[]
 }> = ({
     className,
     requests,
     focus,
-    maxPageSize = MAX_PAGE_SIZE
+    items = FULL_ITEMS
 }) => {
 
         const owenr = true;
@@ -135,25 +76,71 @@ const Container: React.FC<{
                 <Messages
                     className={style}
                     focusMessageId={focus}
-                    loader={(onComplete) => (
-                        <DummyLoader
-                            maxPageSize={maxPageSize}
-                            focus={focus}
-                        >
-                            {onComplete}
-                        </DummyLoader>)}
-                    renderMessage={(message: ItemType) => (<SingleMessageContainer
-                        roomId={room.id}
-                        profile={profile!}
-                        message={{
-                            id: message.id,
-                            message: message.id,
-                            profileId: message.id,
-                            date: message.date
-                        }}
-                        profiles={profiles}
-                        addReaction={action('add reaction')}
-                    />)}
+                    roomId={room.id}
+                    profiles={profiles}
+                    profile={profile}
+                    addReaction={action('add reaction')}
+                    getMessages={({
+                        roomId,
+                        limit,
+                        order,
+                        onAdded
+                    }) => {
+                        if (order.order === 'desc') {
+                            setTimeout(() => {
+                                items.length > 0 && onAdded([items[items.length - 1]]);
+                            }, 500);
+                        } else {
+                            setTimeout(() => {
+                                items.length > 0 && onAdded([items[0]]);
+                            }, 500);
+                        }
+                    }}
+                    getMessage={({
+                        roomId,
+                        messageId,
+                        onSucceeded
+                    }) => {
+                        setTimeout(() => {
+                            const item = items.find(item=>item.id===messageId);
+                            item && onSucceeded(item);
+                        }, 500);
+                    }}
+                    messageListenerRegister={({
+                        limit,
+                        order,
+                        startAfter,
+                        startAt,
+                        endAt,
+                        onAdded,
+                        onModified,
+                        onDeleted
+                    }) => {
+                        const target = order.order === 'desc' ? items.slice().reverse() : items;
+                        let startIndex = -1;
+                        let endIndex = - 1;
+                        if (startAfter) {
+                            startIndex = target.findIndex(item=>order.order === 'desc' ? item.date<startAfter : item.date>startAfter);
+                        }
+                        if (startAt) {
+                            startIndex = target.findIndex(item=>order.order === 'desc' ? item.date<=startAt : item.date>=startAt);
+                        }
+                        
+                        if (limit) {
+                            endIndex = startIndex + limit;
+                        }
+                        if (endAt) {
+                            const end = target.findIndex(item=>order.order === 'desc' ? item.date<=endAt : item.date>=endAt);
+                            console.log(end)
+                        }
+                        console.log(`${startIndex},${endIndex},${order.order},${endAt}`)
+                        startIndex > -1 && endIndex > -1 && setTimeout(() => {
+                            const values = target.slice(startIndex, endIndex);
+                            console.log(values)
+                            onAdded(values);
+                        }, 500);
+                        return () => { };
+                    }}
                 />
             )
         }, [room, profiles, profile]);
@@ -184,10 +171,10 @@ const Container: React.FC<{
 
 
 export const Default = () => <Container requests={[]} />;
-export const FocusBottom = () => <Container focus={'0'} requests={[]} />;
-export const FocusMiddle = () => <Container focus={'5'} requests={[]} />;
-export const ForwardScroll = () => <Container focus={'90'} requests={[]} />;
-export const Empty = () => <Container requests={[]} maxPageSize={0} />;
+export const FocusTop = () => <Container focus={'0'} requests={[]} />;
+export const FocusMiddle = () => <Container focus={'50'} requests={[]} />;
+export const FocusBottom = () => <Container focus={'199'} requests={[]} />;
+export const Empty = () => <Container requests={[]} items={[]} />;
 export const Requests = () => <Container requests={[
     { id: 'test1', nickName: 'First User', date: Date.now(), status: 'requesting', profileId: 'test1p' },
     { id: 'test2', nickName: 'Second User', date: Date.now(), status: 'requesting', profileId: 'test2p' },

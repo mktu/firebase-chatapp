@@ -1,9 +1,9 @@
-import React, { useCallback } from 'react';
-import styled, {keyframes} from 'styled-components';
+import React from 'react';
+import styled, { keyframes } from 'styled-components';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import InfiniteScrollable from '../../InfiniteScrollable';
-import NewItemNotification from '../../InfiniteScrollable/NewItemNotification';
+import { Classes } from '../../InfiniteScrollable/ScrollableContainer';
+import { LoadingStatusType } from '../../../constants';
 
 const focusAnimation = keyframes`
     0% {
@@ -36,62 +36,39 @@ const Wrapper = styled.div`
     }
 `;
 
-export type OnLoadCompleted<T> = (
-    messages: T[],
-    readMore: () => void,
-    hasMore: boolean,
-    forwardScrollable?: boolean
-) => React.ReactElement;
-
-export type OnLoading = () => React.ReactElement;
-
-function Presenter<T extends{
-    id: string
-}>({
+function Presenter({
     className,
-    loader,
-    renderMessage,
-    focusMessageId
+    children,
+    loadingStatus
 }: {
     className?: string,
-    focusMessageId?:string
-    loader: (
-        onLoadCompleted: OnLoadCompleted<T>,
-        onLoading: OnLoading
+    loadingStatus : LoadingStatusType,
+    children: (
+        args: {
+            listComponent: any,
+            listItemComponent: any,
+            classes: {[key in Classes]? : string}
+        }
     ) => React.ReactElement,
-    renderMessage: (message: T) => React.ReactElement
 }) {
-    const loading: OnLoading = useCallback(() => {
+    if(loadingStatus==='loading'){
         return (<div>loading messages...</div>);
-    }, [])
-    const onLoadCompleted: OnLoadCompleted<T> = useCallback((messages, readMore, hasMore, forwardScrollable) => {
-        return (
-            <InfiniteScrollable
-                loadMore={readMore}
-                hasMore={hasMore}
-                items={messages}
-                classes={{
-                    'root' : 'messages-items',
-                    'list-item' : 'messages-item',
-                    'focus-item' : 'focus-message'
-                }}
-                focusItemId={focusMessageId}
-                listComponent={List}
-                listItemComponent={ListItem}
-                forwardScrollable={forwardScrollable}
-                renderNewItemNotification={(show, onClick) => (
-                    <NewItemNotification className='messages-notification' show={show} onClick={onClick} />)}
-                renderItem={renderMessage}
-            />
-        )
-    }, [renderMessage, focusMessageId]);
+    }
+    if(loadingStatus==='failed'){
+        return (<div>loading error</div>);
+    }
     return (
         <Wrapper className={className} >
             <div className='messages-scrollable'>
-                {loader(
-                    onLoadCompleted,
-                    loading
-                )}
+                {children({
+                    listComponent: List,
+                    listItemComponent: ListItem,
+                    classes : {
+                        'root': 'messages-items',
+                        'list-item': 'messages-item',
+                        'focus-item': 'focus-message'
+                    }
+                })}
             </div>
         </Wrapper >
     )

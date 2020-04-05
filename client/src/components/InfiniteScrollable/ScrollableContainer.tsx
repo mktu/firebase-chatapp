@@ -7,11 +7,11 @@ export type Classes = 'root' | 'list-item' | 'focus-item';
 function ScrollableContainer<T extends { id: string }>({
     items,
     loadMore,
-    hasMore,
+    hasOlderItems,
     renderItem,
     className,
     focusItemId,
-    forwardScrollable,
+    hasNewerItems,
     autoScrollThreshold = 100,
     nextScrollThreshold = 250,
     listComponent = 'div',
@@ -21,9 +21,9 @@ function ScrollableContainer<T extends { id: string }>({
 }: {
     items: T[],
     renderItem: (item: T) => React.ReactElement,
-    loadMore: (forward?: boolean) => void,
-    hasMore: boolean,
-    forwardScrollable?: boolean,
+    loadMore: (toNewer?: boolean) => void,
+    hasOlderItems: boolean,
+    hasNewerItems?: boolean,
     focusItemId?: string,
     autoScrollThreshold?: number,
     nextScrollThreshold?: number
@@ -44,19 +44,19 @@ function ScrollableContainer<T extends { id: string }>({
     `, [listComponent]);
     const [automaticallyScrollDown, setAutomaticallyScrollDown] = useState<ScrollDownType>('disable');
     const [loading, setLoading] = useState<{
-        direction: 'forward' | 'none' | 'backward',
+        direction: 'newer' | 'none' | 'older',
         snapshot: {
             scrollTop: number,
             scrollHeight: number
         }
     }>();
+    const hasItem = items.length>0;
     const ListItemComponent = listItemComponent;
 
     const newItemNavigatable = items.length > 0 && trackingId !== items[0].id && automaticallyScrollDown === 'jumpable-to-bottom';
-
     useEffect(() => {
         let enableAutomaticallyScrollDown = false;
-        let nextLoad: 'forward' | 'none' | 'backward' = 'none';
+        let nextLoad: 'newer' | 'none' | 'older' = 'none';
         let unmounted = false;
         const parentNode = itemsEndRef.current && itemsEndRef.current.parentElement;
         const onScroll = (event: Event) => {
@@ -64,8 +64,8 @@ function ScrollableContainer<T extends { id: string }>({
             const node = event.target as HTMLElement;
             const marginBottom = node.scrollHeight - (node.scrollTop + node.clientHeight);
             const marginTop = node.scrollTop;
-            if (marginTop < nextScrollThreshold && nextLoad !== 'backward' && hasMore && !loading) {
-                nextLoad = 'backward';
+            if (marginTop < nextScrollThreshold && nextLoad !== 'older' && hasOlderItems && !loading) {
+                nextLoad = 'older';
                 parentNode && setLoading({
                     direction: nextLoad,
                     snapshot: {
@@ -75,8 +75,8 @@ function ScrollableContainer<T extends { id: string }>({
                 });
                 loadMore(false);
             }
-            else if (marginBottom < nextScrollThreshold && nextLoad !== 'forward' && forwardScrollable && !loading) {
-                nextLoad = 'forward';
+            else if (marginBottom < nextScrollThreshold && nextLoad !== 'newer' && hasNewerItems && !loading) {
+                nextLoad = 'newer';
                 parentNode && setLoading({
                     direction: nextLoad,
                     snapshot: {
@@ -87,7 +87,7 @@ function ScrollableContainer<T extends { id: string }>({
                 loadMore(true);
             }
             // automatically scrolling down will be enabled after the most recent item has loaded
-            if (marginBottom < autoScrollThreshold && !forwardScrollable) {
+            if (marginBottom < autoScrollThreshold && !hasNewerItems) {
                 if (!enableAutomaticallyScrollDown) {
                     setAutomaticallyScrollDown('automatically-scroll-down');
                 }
@@ -104,15 +104,27 @@ function ScrollableContainer<T extends { id: string }>({
             unmounted = true;
             parentNode && parentNode.removeEventListener('scroll', onScroll);
         }
-    }, [autoScrollThreshold, hasMore, loading, loadMore, setLoading, nextScrollThreshold, forwardScrollable]);
+    }, [autoScrollThreshold, hasOlderItems, loading, loadMore, setLoading, nextScrollThreshold, hasNewerItems]);
 
+    // ScrollHeight may not exceed clientHeight when focusing on old items.
+    // In this case, scrolling cannot be performed and newer items cannot be read.
+    // So the next new item needs to be loaded programmatically.
+    useEffect(()=>{
+        const parentNode = itemsEndRef.current && itemsEndRef.current.parentElement;
+        const scrollHeight = parentNode?.scrollHeight || 0;
+        const clientHeight = parentNode?.clientHeight || 0;
+        if (scrollHeight===clientHeight && 
+            hasNewerItems && focusItemId && hasItem) {
+            loadMore(true);
+        }
+    }, [loadMore,hasNewerItems,focusItemId, hasItem])
 
     useEffect(() => {
         const parentNode = itemsEndRef.current && itemsEndRef.current.parentElement;
         if (parentNode && loading) {
             const { snapshot, direction } = loading;
             if (parentNode.scrollHeight !== snapshot.scrollHeight) {
-                if (direction === 'backward') {
+                if (direction === 'older') {
                     parentNode.scrollTop = parentNode.scrollHeight -
                         snapshot.scrollHeight + snapshot.scrollTop;
                 }
@@ -143,8 +155,8 @@ function ScrollableContainer<T extends { id: string }>({
     }, [items, automaticallyScrollDown, trackingId]);
 
     useEffect(()=>{
-        focusItemRef.current && focusItemRef.current.focus();
-    },[items.length>0]);
+        hasItem && focusItemRef.current && focusItemRef.current.focus();
+    },[hasItem]);
 
     const rootClass = className || classes['root'];
     const listItemClass = classes['list-item'];
