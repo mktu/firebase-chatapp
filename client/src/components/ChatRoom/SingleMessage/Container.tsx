@@ -3,17 +3,19 @@ import * as Presenters from './Presenter';
 import { Profile } from '../../../../../types/profile';
 import { Message } from '../../../../../types/message';
 
+export type AddReaction = (
+    roomId: string,
+    messageId: string,
+    reactionId: string,
+    profileId: string,
+) => void;
+
 const Container: React.FC<{
     roomId: string,
     profiles: Profile[],
     profile: Profile,
     message: Message,
-    addReaction: (
-        roomId: string,
-        messageId: string,
-        reactionId: string,
-        profileId: string,
-    ) => void
+    addReaction: AddReaction
 }> = ({
     profiles,
     profile,

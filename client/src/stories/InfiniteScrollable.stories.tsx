@@ -68,7 +68,7 @@ export const Default = () => {
                         (hasMore, loadMore, items) => (
                             <InfiniteScrollable 
                                 items={items} 
-                                hasMore={hasMore} 
+                                hasOlderItems={hasMore} 
                                 loadMore={loadMore} 
                                 renderNewItemNotification={(show, onClick)=>{
                                     return <NewItemNotification className='notification' show={show} onClick={onClick} />

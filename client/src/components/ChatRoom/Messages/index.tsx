@@ -1,4 +1,5 @@
 import MessagesPresenter from './Presenter';
+import Container from './Container';
 
-export default MessagesPresenter;
+export default Container;
 export {MessagesPresenter};

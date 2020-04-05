@@ -2,15 +2,13 @@ import React, { useCallback, useContext } from 'react';
 import ProfileContext from '../../contexts/ProfileContext';
 import { Room } from '../../../../types/room';
 import { Profile } from '../../../../types/profile';
-import { Message } from '../../../../types/message';
 import { modifyRoom } from '../../services/room';
-import { addReaction, createMessage } from '../../services/message';
+import { addReaction, createMessage, registMessagesListener, getMessage, getMessages } from '../../services/message';
 import { updateRequest } from '../../services/request';
 import HeaderContainer from './Header';
 import Messages from './Messages';
-import SingleMessageContainer from './SingleMessage';
 import InputContainer from './Input';
-import { RequestsLoader, MessagesLoader } from '../Loaders';
+import { RequestsLoader } from '../Loaders';
 import Presenter from './Presenter';
 
 const Container: React.FC<{
@@ -50,22 +48,14 @@ const Container: React.FC<{
             return (
                 <Messages
                     className={style}
+                    roomId={room.id}
                     focusMessageId={messageId}
-                    loader={(onComplete, loading) => (
-                        <MessagesLoader
-                            roomId={room.id}
-                            loading={loading}
-                            offsetMessageId={messageId}
-                        >
-                            {onComplete}
-                        </MessagesLoader>)}
-                    renderMessage={(message:Message) => (<SingleMessageContainer
-                        roomId={room.id}
-                        profile={profile!}
-                        message={message}
-                        profiles={profiles}
-                        addReaction={addReaction}
-                    />)}
+                    profile={profile!}
+                    profiles={profiles}
+                    addReaction={addReaction}
+                    messageListenerRegister={registMessagesListener}
+                    getMessage={getMessage}
+                    getMessages={getMessages}
                 />
             )
         }, [room.id, profiles, profile, messageId]);
