@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
 import { Message } from '../../../../../types/message';
 import { Profile } from '../../../../../types/profile';
 import InfiniteSnapshotLoader, { SnapshotListenerRegister } from '../../Loaders/InfiniteSnapshotLoader';
@@ -7,18 +9,18 @@ import Presenter from './Presenter';
 import InfiniteScrollable from '../../InfiniteScrollable';
 import NewItemNotification from '../../InfiniteScrollable/NewItemNotification';
 import SingleMessageContainer from '../SingleMessage';
-import {MessageListenerRegister, GetMessages, GetMessage, AddReaction} from '../types';
+import { MessageListenerRegister, GetMessages, GetMessage, AddReaction } from '../types';
 
 const Container: React.FC<{
     roomId: string,
     focusMessageId?: string,
-    className?:string,
+    className?: string,
     messageListenerRegister: MessageListenerRegister,
     getMessages: GetMessages,
     getMessage: GetMessage,
-    addReaction : AddReaction,
-    profiles : Profile[],
-    profile : Profile,
+    addReaction: AddReaction,
+    profiles: Profile[],
+    profile: Profile,
 }> = ({
     roomId,
     className,
@@ -83,13 +85,13 @@ const Container: React.FC<{
         }, [roomId, focusMessageId, getMessage, getMessages]);
 
         // loading timeout
-        useEffect(()=>{
+        useEffect(() => {
             status === 'loading' && setTimeout(() => {
-                setStatus(prev=>{
-                    return prev==='loading' ? 'succeeded' : prev;
+                setStatus(prev => {
+                    return prev === 'loading' ? 'succeeded' : prev;
                 })
             }, 3000);
-        },[status]);
+        }, [status]);
 
         const registSnapshotListener: SnapshotListenerRegister<Message> = useCallback((args) => {
             return messageListenerRegister({
@@ -100,47 +102,44 @@ const Container: React.FC<{
 
         return <Presenter className={className} loadingStatus={status}>
             {
-                ({
-                    listComponent,
-                    listItemComponent,
-                    classes
-                }) => (
-                        <InfiniteSnapshotLoader
-                            start={start}
-                            backwardSentinel={backwardSentinel}
-                            forwardSentinel={forwardSentinel}
-                            registSnapshotListener={registSnapshotListener}
-                        >
-                            {
-                                (
-                                    messages,
-                                    readMore,
-                                    hasOlderItems,
-                                    hasNewerItems
-                                ) => (
-                                        <InfiniteScrollable
-                                            loadMore={readMore}
-                                            hasOlderItems={hasOlderItems}
-                                            items={messages}
-                                            classes={classes}
-                                            focusItemId={focusMessageId}
-                                            listComponent={listComponent}
-                                            listItemComponent={listItemComponent}
-                                            hasNewerItems={hasNewerItems}
-                                            renderNewItemNotification={(show, onClick) => (
-                                                <NewItemNotification className='messages-notification' show={show} onClick={onClick} />)}
-                                            renderItem={(message: Message) => (<SingleMessageContainer
+                ({ classes }) => (
+                    <InfiniteSnapshotLoader
+                        start={start}
+                        backwardSentinel={backwardSentinel}
+                        forwardSentinel={forwardSentinel}
+                        registSnapshotListener={registSnapshotListener}
+                    >
+                        {
+                            (
+                                messages,
+                                readMore,
+                                hasOlderItems,
+                                hasNewerItems
+                            ) => (
+                                    <InfiniteScrollable
+                                        classes={classes}
+                                        loadMore={readMore}
+                                        hasOlderItems={hasOlderItems}
+                                        hasNewerItems={hasNewerItems}
+                                        items={messages}
+                                        focusItemId={focusMessageId}
+                                        listComponent={List}
+                                        listItemComponent={ListItem}
+                                        notificationComponent={NewItemNotification}
+                                    >
+                                        {(message: Message) => (
+                                            <SingleMessageContainer
                                                 roomId={roomId}
                                                 profile={profile!}
                                                 message={message}
                                                 profiles={profiles}
                                                 addReaction={addReaction}
                                             />)}
-                                        />
-                                    )
-                            }
-                        </InfiniteSnapshotLoader>
-                    )
+                                    </InfiniteScrollable>
+                                )
+                        }
+                    </InfiniteSnapshotLoader>
+                )
             }
         </Presenter>
 

@@ -2,25 +2,25 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 type ScrollDownType = 'jumpable-to-bottom' | 'automatically-scroll-down' | 'disable';
-export type Classes = 'root' | 'list-item' | 'focus-item';
+export type Classes = 'root' | 'list-item' | 'focus-item' | 'notification';
 
 function ScrollableContainer<T extends { id: string }>({
     items,
     loadMore,
     hasOlderItems,
-    renderItem,
+    children,
     className,
     focusItemId,
     hasNewerItems,
+    notificationComponent,
     autoScrollThreshold = 100,
     nextScrollThreshold = 250,
     listComponent = 'div',
     listItemComponent = 'div',
     classes = {},
-    renderNewItemNotification = () => (<div />)
 }: {
     items: T[],
-    renderItem: (item: T) => React.ReactElement,
+    children: (item: T) => React.ReactElement,
     loadMore: (toNewer?: boolean) => void,
     hasOlderItems: boolean,
     hasNewerItems?: boolean,
@@ -29,6 +29,7 @@ function ScrollableContainer<T extends { id: string }>({
     nextScrollThreshold?: number
     listComponent?: any,
     listItemComponent?: any,
+    notificationComponent?: any,
     className?: string,
     classes?:{
         [key in Classes]? : string
@@ -52,6 +53,7 @@ function ScrollableContainer<T extends { id: string }>({
     }>();
     const hasItem = items.length>0;
     const ListItemComponent = listItemComponent;
+    const NotificationComponent = notificationComponent;
 
     const newItemNavigatable = items.length > 0 && trackingId !== items[0].id && automaticallyScrollDown === 'jumpable-to-bottom';
     useEffect(() => {
@@ -161,22 +163,25 @@ function ScrollableContainer<T extends { id: string }>({
     const rootClass = className || classes['root'];
     const listItemClass = classes['list-item'];
     const focusItemClass = classes['focus-item'];
+    const notificationClass = classes['notification'];
 
     return useMemo(() => (
         <React.Fragment>
             <StyledList className={rootClass}>
                 {items.map(item => (
                     <ListItemComponent className={focusItemId === item.id ? `${listItemClass} ${focusItemClass}` : listItemClass} key={item.id} ref={focusItemId === item.id ? focusItemRef : undefined}>
-                        {renderItem(item)}
+                        {children(item)}
                     </ListItemComponent>
                 ))}
             </StyledList>
             <div ref={itemsEndRef} />
-            {renderNewItemNotification(newItemNavigatable, () => {
-                itemsEndRef.current?.scrollIntoView({ behavior: "smooth" });
-            })}
+            {NotificationComponent && (
+                <NotificationComponent className={notificationClass} show={newItemNavigatable} onClick={()=>{
+                    itemsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+                }}/>
+            )}
         </React.Fragment>
-    ), [rootClass, listItemClass, focusItemClass, items, renderItem, newItemNavigatable, renderNewItemNotification, focusItemId]);
+    ), [rootClass, listItemClass, notificationClass, focusItemClass, items, children, newItemNavigatable, NotificationComponent, focusItemId]);
 }
 
 

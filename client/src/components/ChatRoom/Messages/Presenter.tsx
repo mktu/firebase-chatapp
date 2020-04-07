@@ -1,7 +1,5 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
 import { Classes } from '../../InfiniteScrollable/ScrollableContainer';
 import { LoadingStatusType } from '../../../constants';
 
@@ -45,8 +43,6 @@ function Presenter({
     loadingStatus : LoadingStatusType,
     children: (
         args: {
-            listComponent: any,
-            listItemComponent: any,
             classes: {[key in Classes]? : string}
         }
     ) => React.ReactElement,
@@ -61,12 +57,11 @@ function Presenter({
         <Wrapper className={className} >
             <div className='messages-scrollable'>
                 {children({
-                    listComponent: List,
-                    listItemComponent: ListItem,
                     classes : {
                         'root': 'messages-items',
                         'list-item': 'messages-item',
-                        'focus-item': 'focus-message'
+                        'focus-item': 'focus-message',
+                        'notification' : 'messages-notification'
                     }
                 })}
             </div>

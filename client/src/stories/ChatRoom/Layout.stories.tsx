@@ -174,6 +174,7 @@ export const Default = () => <Container requests={[]} />;
 export const FocusTop = () => <Container focus={'0'} requests={[]} />;
 export const FocusMiddle = () => <Container focus={'50'} requests={[]} />;
 export const FocusBottom = () => <Container focus={'199'} requests={[]} />;
+export const FewItems = () => <Container items={FULL_ITEMS.slice(0,1)} requests={[]}/>;
 export const Empty = () => <Container requests={[]} items={[]} />;
 export const Requests = () => <Container requests={[
     { id: 'test1', nickName: 'First User', date: Date.now(), status: 'requesting', profileId: 'test1p' },

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import InfiniteScrollable, {NewItemNotification} from '../components/InfiniteScrollable';
+import InfiniteScrollable, { NewItemNotification } from '../components/InfiniteScrollable';
 
-type ItemType = {id:string};
+type ItemType = { id: string };
 
 const MAX_PAGE_SIZE = 10;
 const ITEM_MAX_IN_PAGE = 20;
@@ -35,7 +35,7 @@ const DummyLoader: React.FC<{
         readMore: () => void,
         items: ItemType[]
     ) => React.ReactElement,
-    latest ?: ItemType[]
+    latest?: ItemType[]
 }> = ({
     children,
     latest = []
@@ -49,7 +49,7 @@ const DummyLoader: React.FC<{
                 }, 500);
             }
         }
-        const items = [...latest,...FULL_ITEMS.slice(0, MAX_PAGE_SIZE * page)];
+        const items = [...latest, ...FULL_ITEMS.slice(0, MAX_PAGE_SIZE * page)];
         return children(
             hasMore,
             loadMore,
@@ -58,31 +58,34 @@ const DummyLoader: React.FC<{
     }
 
 export const Default = () => {
-    const [count,setCount] = useState(0);
-    const latest = [...Array(count).keys()].map(i => ({ id: (-1*(i+1)).toString() })).reverse();
+    const [count, setCount] = useState(0);
+    const latest = [...Array(count).keys()].map(i => ({ id: (-1 * (i + 1)).toString() })).reverse();
     return (
         <Wrapper>
             <div className='loader'>
                 <DummyLoader latest={latest}>
                     {
                         (hasMore, loadMore, items) => (
-                            <InfiniteScrollable 
-                                items={items} 
-                                hasOlderItems={hasMore} 
-                                loadMore={loadMore} 
-                                renderNewItemNotification={(show, onClick)=>{
-                                    return <NewItemNotification className='notification' show={show} onClick={onClick} />
+                            <InfiniteScrollable
+                                classes={{
+                                    'notification': 'notification'
                                 }}
-                                renderItem={(item) => {
-                                return <div key={item.id}>{item.id}</div>
-                            }} />
+                                items={items}
+                                hasOlderItems={hasMore}
+                                loadMore={loadMore}
+                                notificationComponent={NewItemNotification}
+                            >
+                                {(item) => {
+                                    return <div key={item.id}>{item.id}</div>
+                                }}
+                            </InfiniteScrollable>
                         )
                     }
                 </DummyLoader>
             </div>
             <div>
-                <button onClick={()=>{
-                    setCount(i=>i+1);
+                <button onClick={() => {
+                    setCount(i => i + 1);
                 }}>add</button>
             </div>
         </Wrapper>
