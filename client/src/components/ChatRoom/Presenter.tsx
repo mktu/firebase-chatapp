@@ -10,7 +10,7 @@ const Wrapper = styled.div`
         padding : ${({ theme }) => `${theme.spacing(1)}px`};
     }
     & > .room-messages {
-        height : 100%;
+        max-height :75vh;
         width : 100%;
         padding : 2px;
         box-sizing: border-box;
