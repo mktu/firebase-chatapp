@@ -152,7 +152,7 @@ const Container: React.FC<{
                     profiles={profiles}
                     profile={profile!}
                     roomId={room.id}
-                    createMessage={action('createMessage')}
+                    submitMessage={action('createMessage')}
                 />
             )
         }, [room, profiles, profile]);

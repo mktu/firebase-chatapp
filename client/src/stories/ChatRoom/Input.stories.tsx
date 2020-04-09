@@ -18,6 +18,6 @@ export const Default = () => <Input
         { id: 'test5', nickname: 'Fifth User', uid: 'test5' },
         { id: 'test6', nickname: 'Sixth User', uid: 'test6' },
     ]} 
-    createMessage={(action('create message'))}
+    submitMessage={(action('create message'))}
     />;
 

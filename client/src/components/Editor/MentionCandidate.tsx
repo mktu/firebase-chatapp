@@ -4,7 +4,7 @@ import { ContentBlock } from 'draft-js';
 import { MENTION_REGEX, MENTION_TRIGGER } from '../../constants';
 import { StrategyCallback, findWithRegex } from './common';
 
-export type UpdateMentionCandidate = (
+export type OnChangeMentionCandidate = (
     text: string,
     start: number,
     end: number,
@@ -83,7 +83,7 @@ const MentionText = styled.span`
     display : inline-block;
 `;
 
-export const createMentionCandidateComponent = (onUpdate: UpdateMentionCandidate) => {
+export const createMentionCandidateComponent = (onChangeMentionCandidate: OnChangeMentionCandidate) => {
     const Mention: React.FC<{
         decoratedText: string,
         start: number,
@@ -102,9 +102,9 @@ export const createMentionCandidateComponent = (onUpdate: UpdateMentionCandidate
                     domRect = calcRelativePosition(portalRef.current, getRelativeParent(portalRef.current));
                 }
                 const mentionIndex = decoratedText.lastIndexOf(MENTION_TRIGGER);
-                onUpdate(decoratedText, mentionIndex + 1, end, true, domRect);
+                onChangeMentionCandidate(decoratedText, mentionIndex + 1, end, true, domRect);
                 return () => {
-                    onUpdate('', 0, 0, false);
+                    onChangeMentionCandidate('', 0, 0, false);
                 }
             }, [decoratedText, start, end]);
 

@@ -1,11 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import ChatEditor, {
-    KeyEvent,
-    TextInserter,
-    TextInitializer,
-    MentionReplacer,
-    Focuser
-} from '../../Editor';
+import ChatEditor, { KeyEvent, EditorModifier } from '../../Editor';
 import { Profile } from '../../../../../types/profile';
 import Presenter from './Presenter';
 
@@ -27,13 +21,13 @@ const Container = ({
     roomId,
     profile,
     profiles,
-    createMessage
+    submitMessage
 }: {
     className?: string,
     roomId: string,
     profile: Profile,
     profiles: Profile[],
-    createMessage: (
+    submitMessage: (
         roomId: string,
         inputMessage: string,
         profileId: string,
@@ -43,53 +37,36 @@ const Container = ({
 
     const [inputMessage, setInputMessage] = useState<string>('');
     const [mentions, setMentions] = useState<string[]>([]);
-    const [editorCommands, setEditorCommands] = useState<{
-        inserter: TextInserter,
-        initializer: TextInitializer,
-        mentionReplacer: MentionReplacer,
-        focuser : Focuser
-    }>({
-        inserter: () => { }, initializer: () => { }, mentionReplacer: () => { }, focuser : ()=>{}
-    });
+    const [modifier, setModifier] = useState<EditorModifier>();
     const [suggestion, setSuggestion] = useState<SuggestionType>();
-    const [focusSuggestion,setFocusSuggestion] = useState(false);
+    const [focusSuggestion, setFocusSuggestion] = useState(false);
 
-    const handleChangeInput = useCallback((text: string) => {
+    const onChangeText = useCallback((text: string) => {
         setInputMessage(text);
     }, []);
 
 
     const handleSubmitMessage = useCallback(() => {
         if (inputMessage !== '') {
-            createMessage(
+            submitMessage(
                 roomId,
                 inputMessage,
                 profile!.id,
                 mentions
             );
-            editorCommands.initializer();
+            modifier?.initialize();
         }
-    },[inputMessage,editorCommands,createMessage,mentions,profile,roomId])
+    }, [inputMessage, modifier, submitMessage, mentions, profile, roomId])
 
     const onSelectEmoji = (emoji: string) => {
-        editorCommands.inserter(emoji);
+        modifier?.insert(emoji);
     }
 
-    const onEditorMounted = useCallback((
-        inserter: TextInserter,
-        initializer: TextInitializer,
-        mentionReplacer: MentionReplacer,
-        focuser : Focuser
-    ) => {
-        setEditorCommands({
-            inserter,
-            initializer,
-            mentionReplacer,
-            focuser
-        });
-    }, [setEditorCommands]);
+    const attachModifier = useCallback((modifier: EditorModifier) => {
+        setModifier(modifier);
+    }, [setModifier]);
 
-    const updateMentionCandidate = useCallback((text: string, start: number, end: number, mounted: boolean, rect?: PortalRectType) => {
+    const onChangeMentionCandidate = useCallback((text: string, start: number, end: number, mounted: boolean, rect?: PortalRectType) => {
         if (!mounted) {
             setSuggestion(undefined);
             setFocusSuggestion(false);
@@ -111,10 +88,10 @@ const Container = ({
     }, [profiles]);
 
     const handleSelectMention = useCallback((profile: Profile) => {
-        editorCommands.mentionReplacer(profile.nickname, profile.id);
-    }, [editorCommands]);
+        modifier?.setMention(profile.nickname, profile.id);
+    }, [modifier]);
 
-    const onMountedMention = useCallback((profileId: string, unmounted = false) => {
+    const onMountMention = useCallback((profileId: string, unmounted = false) => {
         if (unmounted) {
             setMentions(ids => ids.filter(id => id !== profileId));
         }
@@ -123,34 +100,34 @@ const Container = ({
         }
     }, []);
 
-    const onKeyPress = useCallback((key:KeyEvent)=>{
-        if(key==='CtrlEnter'){
+    const onKeyPress = useCallback((key: KeyEvent) => {
+        if (key === 'CtrlEnter') {
             handleSubmitMessage();
         }
-        if(suggestion){
-            if(key==='UpArrow'){
+        if (suggestion) {
+            if (key === 'UpArrow') {
                 setFocusSuggestion(true);
             }
         }
-    },[suggestion,setFocusSuggestion,handleSubmitMessage]);
+    }, [suggestion, setFocusSuggestion, handleSubmitMessage]);
 
-    const onLeaveSuggenstionFocus = useCallback(()=>{
+    const onLeaveSuggenstionFocus = useCallback(() => {
         setSuggestion(undefined);
         setFocusSuggestion(false);
-        editorCommands.focuser();
-    },[setFocusSuggestion,editorCommands]);
+        modifier?.focus();
+    }, [setFocusSuggestion, modifier]);
 
     const renderRichEditor = useCallback(() => {
         return (
             <ChatEditor
-                notifyTextChanged={handleChangeInput}
-                onMounted={onEditorMounted}
-                onMountedMention={onMountedMention}
-                updateMentionCandidate={updateMentionCandidate}
+                attachModifier={attachModifier}
+                onChangeText={onChangeText}
+                onMountMention={onMountMention}
+                onChangeMentionCandidate={onChangeMentionCandidate}
                 onKeyPress={onKeyPress}
             />
         )
-    }, [handleChangeInput, onEditorMounted, onMountedMention, updateMentionCandidate, onKeyPress])
+    }, [onChangeText, attachModifier, onMountMention, onChangeMentionCandidate, onKeyPress])
     return (
         <Presenter
             className={className}
