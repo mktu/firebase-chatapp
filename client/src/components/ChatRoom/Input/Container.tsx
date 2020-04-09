@@ -128,6 +128,7 @@ const Container = ({
             />
         )
     }, [onChangeText, attachModifier, onMountMention, onChangeMentionCandidate, onKeyPress])
+
     return (
         <Presenter
             className={className}

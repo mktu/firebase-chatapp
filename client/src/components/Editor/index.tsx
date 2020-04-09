@@ -28,13 +28,15 @@ const ChatEditor: React.FC<{
     onMountMention: (profileId: string) => void,
     onKeyPress?: (key: KeyEvent) => void,
     placeholder?: string,
+    initText?: string
 }> = ({
     onChangeText,
     attachModifier,
     onChangeMentionCandidate,
     onMountMention,
     onKeyPress,
-    placeholder
+    placeholder,
+    initText
 }) => {
         const editorRef = useRef<Editor | null>(null);
         const constructDecorator = useCallback(() => {
@@ -64,10 +66,13 @@ const ChatEditor: React.FC<{
         useEffect(() => {
             attachModifier({
                 insert: (characters: string) => {
-                    const selectionState = editorState.getSelection();
-                    const newContentState = Modifier.insertText(editorState.getCurrentContent(), selectionState, characters);
-                    const newEditorState = EditorState.set(editorState, { currentContent: newContentState });
-                    setEditorState(newEditorState);
+                    setEditorState( prev => {
+                        const selectionState = prev.getSelection();
+                        const newContentState = Modifier.insertText(prev.getCurrentContent(), selectionState, characters);
+                        const newEditorState = EditorState.set(prev, { currentContent: newContentState });
+                        return newEditorState;
+                    });
+
                 },
                 initialize: () => {
                     setEditorState(EditorState.createEmpty(constructDecorator()));
@@ -75,13 +80,22 @@ const ChatEditor: React.FC<{
                 focus: () => {
                     editorRef.current?.focus();
                 },
-                setMention: getMentionReplacer(editorState, setEditorState)
+                setMention: getMentionReplacer(setEditorState)
             })
-        }, [attachModifier, setEditorState, editorState, constructDecorator]);
+        }, [attachModifier, setEditorState, constructDecorator]);
 
         useEffect(() => {
             onChangeText(plainText);
         }, [plainText, onChangeText])
+
+        useEffect(()=>{
+            initText && setEditorState( prev => {
+                const selectionState = prev.getSelection();
+                const newContentState = Modifier.insertText(prev.getCurrentContent(), selectionState, initText);
+                const newEditorState = EditorState.set(prev, { currentContent: newContentState });
+                return newEditorState;
+            });
+        },[initText,setEditorState])
 
         const handleKeyEvent = useCallback((key: KeyEvent) => () => {
             onKeyPress && onKeyPress(key);
