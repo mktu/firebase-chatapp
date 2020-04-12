@@ -80,6 +80,7 @@ const Container: React.FC<{
                     profiles={profiles}
                     profile={profile}
                     addReaction={action('add reaction')}
+                    editMessage={action('edit message')}
                     getMessages={({
                         roomId,
                         limit,

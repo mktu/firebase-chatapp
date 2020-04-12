@@ -1,33 +1,31 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import * as Presenters from './Presenter';
+import * as Presenters from './Presenters';
 import { Profile } from '../../../../../types/profile';
 import { Message } from '../../../../../types/message';
-
-export type AddReaction = (
-    roomId: string,
-    messageId: string,
-    reactionId: string,
-    profileId: string,
-) => void;
+import Input, { EditMessagePresenter } from '../Input';
+import {EditMessage,AddReaction} from '../types';
 
 const Container: React.FC<{
     roomId: string,
     profiles: Profile[],
     profile: Profile,
     message: Message,
-    addReaction: AddReaction
+    addReaction: AddReaction,
+    editMessage : EditMessage
 }> = ({
     profiles,
     profile,
     message,
     roomId,
-    addReaction
+    addReaction,
+    editMessage
 }) => {
         const sender = profiles.find(p => p.id === message.profileId);
         const amISender = sender?.id === profile!.id;
         const date = new Date(message.date);
         const time = `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
         const [showEmoAction, setShowEmoAction] = useState(false);
+        const [editable, setEditable] = useState(false);
 
         const onHoverReceivedMessage = useCallback(() => {
             setShowEmoAction(true);
@@ -43,7 +41,7 @@ const Container: React.FC<{
                 reactionId,
                 profile!.id,
             )
-        }, [roomId, message.id, profile,addReaction]);
+        }, [roomId, message.id, profile, addReaction]);
 
         const reactions: { [s: string]: string[] } = useMemo(() => {
             const reactionsBase = message.reactions || {};
@@ -59,41 +57,50 @@ const Container: React.FC<{
             }, {});
         }, [message.reactions, profiles]);
 
-        return useMemo(() =>
-            (
-                <React.Fragment >
-                    {amISender ? (
-                        <Presenters.SentMessage
+        if (editable) {
+            return (
+                <Presenters.EditMessage>
+                    <Input
+                        roomId={roomId}
+                        profiles={profiles}
+                        profile={profile}
+                        submitMessage={(roomId,messageText,profileId,mentions) => { 
+                            editMessage(roomId,message.id,messageText,profileId,mentions);
+                            setEditable(false);
+                        }}
+                        onCancel={() => { setEditable(false) }}
+                        presenter={EditMessagePresenter}
+                        initText={message.message}
+                    />
+                </Presenters.EditMessage>
+            )
+        }
+
+        return (
+            <React.Fragment >
+                {amISender ? (
+                    <Presenters.SentMessage
+                        time={time}
+                        handleAddReaction={handleAddReaction}
+                        sender={sender!.nickname}
+                        message={message.message}
+                        reactions={reactions}
+                        onClickEdit={() => { setEditable(true) }}
+                    />
+                ) : (
+                        <Presenters.ReceivedMessage
                             time={time}
+                            onHoverReceivedMessage={onHoverReceivedMessage}
+                            onLeaveReceivedMessage={onLeaveReceivedMessage}
                             handleAddReaction={handleAddReaction}
-                            sender={sender!.nickname}
+                            sender={sender?.nickname || 'Unknown'}
                             message={message.message}
                             reactions={reactions}
+                            showEmoAction={showEmoAction}
                         />
-                    ) : (
-                            <Presenters.ReceivedMessage
-                                time={time}
-                                onHoverReceivedMessage={onHoverReceivedMessage}
-                                onLeaveReceivedMessage={onLeaveReceivedMessage}
-                                handleAddReaction={handleAddReaction}
-                                sender={sender?.nickname || 'Unknown'}
-                                message={message.message}
-                                reactions={reactions}
-                                showEmoAction={showEmoAction}
-                            />
-                        )}
-                </React.Fragment >
-            ), [
-            message,
-            amISender,
-            reactions,
-            onHoverReceivedMessage,
-            onLeaveReceivedMessage,
-            showEmoAction,
-            handleAddReaction,
-            time,
-            sender,
-        ])
+                    )}
+            </React.Fragment >
+        )
     };
 
 export default Container;

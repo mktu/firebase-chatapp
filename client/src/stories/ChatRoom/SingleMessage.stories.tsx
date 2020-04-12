@@ -19,6 +19,7 @@ export const Received = () => <ReceivedMessage
 />;
 
 export const Sent = () => <SentMessage 
+    onClickEdit={action('edit')}
     time='2020/10/10 16:00'
     message='This is simple message'
     sender='Test User'
@@ -27,6 +28,7 @@ export const Sent = () => <SentMessage
 />;
 
 export const Mention = () => <SentMessage 
+    onClickEdit={action('edit')}
     time='2020/10/10 16:00'
     message='@Target This is simple message'
     sender='Test User'

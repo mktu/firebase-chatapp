@@ -153,6 +153,29 @@ export function createMessage(
         .catch(onFailed);
 }
 
+export function editMessage(
+    roomId: string,
+    messageId: string,
+    message: string,
+    profileId: string,
+    mentions?: string[],
+    onSucceeded?: Notifier,
+    onFailed: ErrorHandler = consoleError
+){
+    db.collection('rooms')
+        .doc(roomId)
+        .collection('messages')
+        .doc(messageId)
+        .set({
+            message,
+            profileId,
+            mentions,
+            update: Date.now()
+        },{ merge: true })
+        .then(onSucceeded)
+        .catch(onFailed)
+}
+
 export function addReaction(
     roomId: string,
     messageId: string,

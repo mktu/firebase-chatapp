@@ -3,8 +3,9 @@ import styled from 'styled-components';
 import 'emoji-mart/css/emoji-mart.css';
 import IconButton from '@material-ui/core/IconButton';
 import { Send } from '@material-ui/icons';
-import { EmojiPicker } from '../../Emoji';
-import Suggestion from './Suggestion';
+import { EmojiPicker } from '../../../Emoji';
+import Suggestion from '../Suggestion';
+import { Props } from './types';
 
 const Wrapper = styled.div`
     display : grid;
@@ -48,23 +49,7 @@ function Presenter<T extends {
     handleSelectMention,
     focusSuggestion,
     onLeaveSuggenstionFocus
-}: {
-    className?: string,
-    suggestion?: {
-        rect: {
-            left: number,
-            bottom: number,
-            height: number
-        },
-        profiles: T[]
-    },
-    focusSuggestion: boolean,
-    onLeaveSuggenstionFocus: () => void,
-    handleSelectMention: (profile: T) => void,
-    handleSubmitMessage: () => void,
-    onSelectEmoji: (emoji: string) => void,
-    renderRichEditor: () => React.ReactElement
-}) {
+}: Props<T> ) {
     return (
         <Wrapper className={className} >
             <div className='input-options'>

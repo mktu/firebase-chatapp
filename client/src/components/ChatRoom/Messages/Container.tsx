@@ -9,7 +9,7 @@ import Presenter from './Presenter';
 import InfiniteScrollable from '../../InfiniteScrollable';
 import NewItemNotification from '../../InfiniteScrollable/NewItemNotification';
 import SingleMessageContainer from '../SingleMessage';
-import { MessageListenerRegister, GetMessages, GetMessage, AddReaction } from '../types';
+import { MessageListenerRegister, GetMessages, GetMessage, AddReaction, EditMessage } from '../types';
 
 const Container: React.FC<{
     roomId: string,
@@ -19,6 +19,7 @@ const Container: React.FC<{
     getMessages: GetMessages,
     getMessage: GetMessage,
     addReaction: AddReaction,
+    editMessage : EditMessage,
     profiles: Profile[],
     profile: Profile,
 }> = ({
@@ -28,6 +29,7 @@ const Container: React.FC<{
     getMessages,
     getMessage,
     addReaction,
+    editMessage,
     profiles,
     profile,
     focusMessageId,
@@ -134,6 +136,7 @@ const Container: React.FC<{
                                                 message={message}
                                                 profiles={profiles}
                                                 addReaction={addReaction}
+                                                editMessage={editMessage}
                                             />)}
                                     </InfiniteScrollable>
                                 )

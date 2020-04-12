@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import ChatEditor, { KeyEvent, EditorModifier } from '../../Editor';
 import { Profile } from '../../../../../types/profile';
-import Presenter from './Presenter';
+import DefaultPresenter, { types } from './Presenters';
 
 type PortalRectType = {
     top: number,
@@ -15,13 +15,16 @@ type SuggestionType = {
     profiles: Profile[],
     rect: PortalRectType
 }
-
+// refactor roomId, profile is not necessary
 const Container = ({
     className,
     roomId,
     profile,
     profiles,
-    submitMessage
+    submitMessage,
+    onCancel,
+    initText,
+    presenter = DefaultPresenter
 }: {
     className?: string,
     roomId: string,
@@ -32,7 +35,10 @@ const Container = ({
         inputMessage: string,
         profileId: string,
         mentions: string[]
-    ) => void
+    ) => void,
+    onCancel?: () => void,
+    initText?:string
+    presenter?: React.FC<types.Props<Profile>>
 }) => {
 
     const [inputMessage, setInputMessage] = useState<string>('');
@@ -45,6 +51,10 @@ const Container = ({
         setInputMessage(text);
     }, []);
 
+    const onCancelInput = useCallback(() => {
+        modifier?.initialize();
+        onCancel&&onCancel();
+    }, [modifier,onCancel]);
 
     const handleSubmitMessage = useCallback(() => {
         if (inputMessage !== '') {
@@ -125,10 +135,12 @@ const Container = ({
                 onMountMention={onMountMention}
                 onChangeMentionCandidate={onChangeMentionCandidate}
                 onKeyPress={onKeyPress}
+                initText={initText}
             />
         )
-    }, [onChangeText, attachModifier, onMountMention, onChangeMentionCandidate, onKeyPress])
+    }, [onChangeText, attachModifier, onMountMention, onChangeMentionCandidate, onKeyPress, initText])
 
+    const Presenter = presenter;
     return (
         <Presenter
             className={className}
@@ -139,6 +151,7 @@ const Container = ({
             suggestion={suggestion}
             focusSuggestion={focusSuggestion}
             onLeaveSuggenstionFocus={onLeaveSuggenstionFocus}
+            onCancel={onCancelInput}
         />
     )
 };
