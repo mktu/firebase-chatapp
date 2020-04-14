@@ -49,8 +49,20 @@ const Container = ({
     const [modifier, setModifier] = useState<EditorModifier>();
     const [suggestion, setSuggestion] = useState<SuggestionType>();
     const [focusSuggestion, setFocusSuggestion] = useState(false);
+    const hasText = inputMessage && inputMessage !=='';
 
-
+    useEffect(()=>{
+        if(hasText && initMentions.length > 0){
+            const mentions = initMentions.map(mention=>{
+                const profile = profiles.find(p=>p.id===mention);
+                return profile && {
+                    mention : profile.nickname,
+                    profileId : mention
+                }
+            }).filter(Boolean).map(m=>m!);
+            modifier?.initMention(mentions);
+        }
+    },[hasText,initMentions,modifier,profiles]);
 
     const onChangeText = useCallback((text: string) => {
         setInputMessage(text);

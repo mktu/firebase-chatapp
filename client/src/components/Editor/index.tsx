@@ -9,7 +9,7 @@ import {
 } from 'draft-js';
 import { findLinkStrategy, createLinkComponent } from './Link';
 import { findMentionCandidateStrategy, createMentionCandidateComponent, OnChangeMentionCandidate as OnChangeMentionCandidateAlias } from './MentionCandidate';
-import { getMentionReplacer, findMentionStrategy, createMentionComponent } from './Mention';
+import { getMentionInitializer, getMentionReplacer, findMentionStrategy, createMentionComponent, Mention } from './Mention';
 
 export type OnChangeMentionCandidate = OnChangeMentionCandidateAlias;
 export type KeyEvent = 'DownArrow' | 'UpArrow' | 'LeftArrow' | 'RightArrow' | 'CtrlEnter';
@@ -18,6 +18,7 @@ export type EditorModifier = {
     insert: (characters: string) => void,
     initialize: () => void;
     setMention: (mention: string, profileId: string) => void,
+    initMention: (mentions:Mention[]) =>void,
     focus: () => void
 }
 
@@ -80,7 +81,8 @@ const ChatEditor: React.FC<{
                 focus: () => {
                     editorRef.current?.focus();
                 },
-                setMention: getMentionReplacer(setEditorState)
+                setMention: getMentionReplacer(setEditorState),
+                initMention: getMentionInitializer(setEditorState),
             })
         }, [attachModifier, setEditorState, constructDecorator]);
 

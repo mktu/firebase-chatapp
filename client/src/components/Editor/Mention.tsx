@@ -4,16 +4,58 @@ import {
     EditorState,
     ContentState,
     ContentBlock,
+    SelectionState,
     Modifier
 } from 'draft-js';
-import { StrategyCallback } from './common';
+import { StrategyCallback, serach } from './common';
 import { MENTION_TRIGGER } from '../../constants'
 
-type SetEditorState = (prev: EditorState)=>EditorState;
+type SetEditorState = (prev: EditorState) => EditorState;
+export type Mention = {
+    mention: string, profileId: string
+};
 
-export const getMentionReplacer = (setEditorState: ( action : SetEditorState ) => void) =>
+export const getMentionInitializer = (setEditorState: (action: SetEditorState) => void) =>
+    (mentions: Mention[]) => {
+        setEditorState(editorState => {
+            const extendedMentions = mentions.reduce((acc, cur) => {
+                const selectionStates = serach(editorState, new RegExp(`${MENTION_TRIGGER}${cur.mention}`,'g'));
+                return [...acc, {
+                    selectionStates,
+                    mention: cur
+                }];
+            }, [] as {
+                selectionStates: SelectionState[],
+                mention: Mention
+            }[])
+
+            let contentState = editorState.getCurrentContent();
+            for (const extendedMention of extendedMentions) {
+                const contentStateWithEntity = editorState
+                    .getCurrentContent()
+                    .createEntity('mention', 'IMMUTABLE', extendedMention.mention);
+                const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+                for (const selectionState of extendedMention.selectionStates) {
+                    contentState = Modifier.replaceText(
+                        contentState,
+                        selectionState,
+                        `${MENTION_TRIGGER}${extendedMention.mention.mention}`,
+                        undefined,
+                        entityKey
+                    )
+                }
+            }
+            return EditorState.push(
+                editorState,
+                contentState,
+                'change-block-data'
+            )
+        });
+    }
+
+export const getMentionReplacer = (setEditorState: (action: SetEditorState) => void) =>
     (mention: string, profileId: string) => {
-        setEditorState( editorState => {
+        setEditorState(editorState => {
             const contentStateWithEntity = editorState
                 .getCurrentContent()
                 .createEntity('mention', 'IMMUTABLE', {

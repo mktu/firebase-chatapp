@@ -75,6 +75,7 @@ const Container: React.FC<{
                             onCancel={() => { setEditable(false) }}
                             presenter={EditMessagePresenter}
                             initText={message.message}
+                            initMentions={message.mentions}
                             suggestionPlacement='below'
                         />
                     </Presenters.EditMessage>
