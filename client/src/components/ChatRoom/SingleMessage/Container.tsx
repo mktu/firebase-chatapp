@@ -1,9 +1,10 @@
 import React, { useMemo, useState, useCallback } from 'react';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import * as Presenters from './Presenters';
 import { Profile } from '../../../../../types/profile';
 import { Message } from '../../../../../types/message';
 import Input, { EditMessagePresenter } from '../Input';
-import {EditMessage,AddReaction} from '../types';
+import { EditMessage, AddReaction } from '../types';
 
 const Container: React.FC<{
     roomId: string,
@@ -11,7 +12,7 @@ const Container: React.FC<{
     profile: Profile,
     message: Message,
     addReaction: AddReaction,
-    editMessage : EditMessage
+    editMessage: EditMessage
 }> = ({
     profiles,
     profile,
@@ -59,20 +60,25 @@ const Container: React.FC<{
 
         if (editable) {
             return (
-                <Presenters.EditMessage>
-                    <Input
-                        roomId={roomId}
-                        profiles={profiles}
-                        profile={profile}
-                        submitMessage={(roomId,messageText,profileId,mentions) => { 
-                            editMessage(roomId,message.id,messageText,profileId,mentions);
-                            setEditable(false);
-                        }}
-                        onCancel={() => { setEditable(false) }}
-                        presenter={EditMessagePresenter}
-                        initText={message.message}
-                    />
-                </Presenters.EditMessage>
+                <ClickAwayListener onClickAway={() => {
+                    setEditable(false);
+                }}>
+                    <Presenters.EditMessage>
+                        <Input
+                            roomId={roomId}
+                            profiles={profiles}
+                            profile={profile}
+                            submitMessage={(roomId, messageText, profileId, mentions) => {
+                                editMessage(roomId, message.id, messageText, profileId, mentions);
+                                setEditable(false);
+                            }}
+                            onCancel={() => { setEditable(false) }}
+                            presenter={EditMessagePresenter}
+                            initText={message.message}
+                            suggestionPlacement='below'
+                        />
+                    </Presenters.EditMessage>
+                </ClickAwayListener>
             )
         }
 

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import ChatEditor, { KeyEvent, EditorModifier } from '../../Editor';
 import { Profile } from '../../../../../types/profile';
 import DefaultPresenter, { types } from './Presenters';
@@ -24,7 +24,9 @@ const Container = ({
     submitMessage,
     onCancel,
     initText,
-    presenter = DefaultPresenter
+    presenter = DefaultPresenter,
+    initMentions=[],
+    suggestionPlacement = 'above'
 }: {
     className?: string,
     roomId: string,
@@ -37,15 +39,18 @@ const Container = ({
         mentions: string[]
     ) => void,
     onCancel?: () => void,
-    initText?:string
-    presenter?: React.FC<types.Props<Profile>>
+    initText?:string,
+    initMentions?:string[],
+    presenter?: React.FC<types.Props<Profile>>,
+    suggestionPlacement?: 'above' | 'below'
 }) => {
-
-    const [inputMessage, setInputMessage] = useState<string>('');
+    const [inputMessage, setInputMessage] = useState<string>();
     const [mentions, setMentions] = useState<string[]>([]);
     const [modifier, setModifier] = useState<EditorModifier>();
     const [suggestion, setSuggestion] = useState<SuggestionType>();
     const [focusSuggestion, setFocusSuggestion] = useState(false);
+
+
 
     const onChangeText = useCallback((text: string) => {
         setInputMessage(text);
@@ -57,7 +62,7 @@ const Container = ({
     }, [modifier,onCancel]);
 
     const handleSubmitMessage = useCallback(() => {
-        if (inputMessage !== '') {
+        if (inputMessage) {
             submitMessage(
                 roomId,
                 inputMessage,
@@ -115,17 +120,23 @@ const Container = ({
             handleSubmitMessage();
         }
         if (suggestion) {
-            if (key === 'UpArrow') {
+            if (suggestionPlacement === 'above' && key === 'UpArrow') {
+                setFocusSuggestion(true);
+            }
+            else if (suggestionPlacement === 'below' && key === 'DownArrow'){
                 setFocusSuggestion(true);
             }
         }
-    }, [suggestion, setFocusSuggestion, handleSubmitMessage]);
+    }, [suggestion, setFocusSuggestion, handleSubmitMessage, suggestionPlacement]);
 
     const onLeaveSuggenstionFocus = useCallback(() => {
-        setSuggestion(undefined);
         setFocusSuggestion(false);
         modifier?.focus();
     }, [setFocusSuggestion, modifier]);
+    
+    const onCloseSuggestion = useCallback(() => {
+        setSuggestion(undefined);
+    }, [setSuggestion]);
 
     const renderRichEditor = useCallback(() => {
         return (
@@ -151,6 +162,7 @@ const Container = ({
             suggestion={suggestion}
             focusSuggestion={focusSuggestion}
             onLeaveSuggenstionFocus={onLeaveSuggenstionFocus}
+            onCloseSuggestion={onCloseSuggestion}
             onCancel={onCancelInput}
         />
     )

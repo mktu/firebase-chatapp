@@ -2,6 +2,7 @@ export type Props<T> = {
     className?: string,
     suggestion?: {
         rect: {
+            top:number,
             left: number,
             bottom: number,
             height: number
@@ -9,6 +10,7 @@ export type Props<T> = {
         profiles: T[]
     },
     focusSuggestion: boolean,
+    onCloseSuggestion: ()=> void,
     onLeaveSuggenstionFocus: () => void,
     handleSelectMention: (profile: T) => void,
     handleSubmitMessage: () => void,

@@ -144,7 +144,7 @@ const Container: React.FC<{
                     }}
                 />
             )
-        }, [room, profiles, profile]);
+        }, [room, profiles, profile, focus, items]);
 
         const renderFooter = useCallback((style) => {
             return (
@@ -177,6 +177,11 @@ export const FocusMiddle = () => <Container focus={'50'} requests={[]} />;
 export const FocusBottom = () => <Container focus={'199'} requests={[]} />;
 export const FewItems = () => <Container items={FULL_ITEMS.slice(0,1)} requests={[]}/>;
 export const Empty = () => <Container requests={[]} items={[]} />;
+export const WithSendMessage = () => <Container requests={[]} items={[...FULL_ITEMS,{
+    id : `${FULL_ITEMS.length+1}`,
+    date: Date.now() + FULL_ITEMS.length+1,
+    message: `this is ${FULL_ITEMS.length+1}`,
+    profileId: 'test3'}]}/>;
 export const Requests = () => <Container requests={[
     { id: 'test1', nickName: 'First User', date: Date.now(), status: 'requesting', profileId: 'test1p' },
     { id: 'test2', nickName: 'Second User', date: Date.now(), status: 'requesting', profileId: 'test2p' },

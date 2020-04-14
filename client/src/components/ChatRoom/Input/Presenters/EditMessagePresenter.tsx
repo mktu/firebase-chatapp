@@ -1,5 +1,5 @@
 import React from 'react';
-import styled, {css} from 'styled-components';
+import styled, { css } from 'styled-components';
 import 'emoji-mart/css/emoji-mart.css';
 import IconButton from '@material-ui/core/IconButton';
 import CheckIcon from '@material-ui/icons/Check';
@@ -60,12 +60,6 @@ const Wrapper = styled.div`
    
 `;
 
-const Portal = styled.div(({ bottom, left }: { bottom: number, left: number }) => `
-    position : absolute;
-    bottom : ${bottom}px;
-    left : ${left}px;
-`)
-
 function Presenter<T extends {
     id: string,
     nickname: string
@@ -77,30 +71,12 @@ function Presenter<T extends {
     renderRichEditor,
     handleSelectMention,
     focusSuggestion,
+    onCloseSuggestion,
     onLeaveSuggenstionFocus,
     onCancel
 }: Props<T>) {
     return (
         <Wrapper className={className} >
-            <div className='input-content'>
-                <div className='input-editor'>
-                    {renderRichEditor()}
-                </div>
-                {suggestion && (
-                    <Portal
-                        bottom={suggestion.rect.bottom + suggestion.rect.height}
-                        left={suggestion.rect.left}
-                    >
-                        <Suggestion
-                            suggestion={suggestion.profiles}
-                            handleSelect={handleSelectMention}
-                            focus={focusSuggestion}
-                            onLeaveFocus={onLeaveSuggenstionFocus}
-                            reverse
-                        />
-                    </Portal>
-                )}
-            </div>
             <div className='input-menu'>
                 <div className='input-options'>
                     <EmojiPicker onSelectEmoji={onSelectEmoji} classes={{
@@ -112,6 +88,22 @@ function Presenter<T extends {
                     <IconButton className='submit-button' onClick={onCancel}><ClearIcon /></IconButton>
                     <IconButton className='submit-button' onClick={handleSubmitMessage}><CheckIcon /></IconButton>
                 </div>
+            </div>
+            <div className='input-content'>
+                <div className='input-editor'>
+                    {renderRichEditor()}
+                </div>
+                {suggestion && (
+                    <Suggestion
+                        suggestion={suggestion.profiles}
+                        handleSelect={handleSelectMention}
+                        onClose={onCloseSuggestion}
+                        focus={focusSuggestion}
+                        onLeaveFocus={onLeaveSuggenstionFocus}
+                        startAt='top'
+                        variant='small'
+                    />
+                )}
             </div>
         </Wrapper>
     )

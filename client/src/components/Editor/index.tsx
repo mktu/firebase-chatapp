@@ -87,7 +87,7 @@ const ChatEditor: React.FC<{
         useEffect(() => {
             onChangeText(plainText);
         }, [plainText, onChangeText])
-
+        
         useEffect(()=>{
             initText && setEditorState( prev => {
                 const selectionState = prev.getSelection();

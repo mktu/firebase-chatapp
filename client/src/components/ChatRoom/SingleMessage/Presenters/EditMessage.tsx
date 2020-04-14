@@ -6,18 +6,19 @@ const Wrapper = styled.div`
     width : 100%;
 `;
 
-
-const EditMessage: React.FC<{
+type PropsType = {
     className?: string,
-    children :  React.ReactElement
-}> = ({
+    children: React.ReactElement
+}
+
+const EditMessage = React.forwardRef<HTMLDivElement,PropsType>(({
     className,
     children
-}) => {
-        return (
-            <Wrapper className={className}>
-                {children}
-            </Wrapper>)
-    };
+}, ref) => {
+    return (
+        <Wrapper className={className} ref={ref}>
+            {children}
+        </Wrapper>)
+});
 
 export default EditMessage;

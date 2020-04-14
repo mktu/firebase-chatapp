@@ -48,8 +48,10 @@ function Presenter<T extends {
     renderRichEditor,
     handleSelectMention,
     focusSuggestion,
+    onCloseSuggestion,
     onLeaveSuggenstionFocus
 }: Props<T> ) {
+    console.log(suggestion)
     return (
         <Wrapper className={className} >
             <div className='input-options'>
@@ -67,9 +69,10 @@ function Presenter<T extends {
                         <Suggestion
                             suggestion={suggestion.profiles}
                             handleSelect={handleSelectMention}
+                            onClose={onCloseSuggestion}
                             focus={focusSuggestion}
                             onLeaveFocus={onLeaveSuggenstionFocus}
-                            reverse
+                            startAt='bottom'
                         />
                     </Portal>
                 )}

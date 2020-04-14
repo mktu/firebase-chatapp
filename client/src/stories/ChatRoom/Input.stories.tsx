@@ -35,5 +35,6 @@ export const EditMessage = () => <Input
     submitMessage={(action('create message'))}
     onCancel={action('onCancel')}
     presenter={EditMessagePresenter}
+    suggestionPlacement='below'
 />;
 

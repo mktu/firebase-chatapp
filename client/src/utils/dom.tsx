@@ -34,13 +34,13 @@ export const calcRelativePosition = (portalElement: HTMLElement, parentElement?:
             window.pageYOffset || document.documentElement.scrollTop;
         relativeScrollLeft =
             window.pageXOffset || document.documentElement.scrollLeft;
-        relativeScrollWidth = document.body.scrollWidth;
-        relativeScrollHeight = document.body.scrollHeight;
+        relativeScrollWidth = window.innerWidth;
+        relativeScrollHeight = window.innerHeight;
 
         relativeTop = portalRect.top;
         relativeLeft = portalRect.left;
     }
-
+    //console.log(`relativeScrollHeight:${relativeScrollHeight},relativeScrollTop:${relativeScrollTop}`)
     const left = relativeLeft + relativeScrollLeft;
     const top = relativeTop + relativeScrollTop;
     const bottom = relativeScrollHeight - relativeScrollTop - portalRect.bottom;
