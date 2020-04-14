@@ -19,7 +19,7 @@ const small = css`
             padding : 1px;
             > .suggestion-list-item-text{
                 > .primary{
-                    font-size : 5px;
+                    font-size : 0.9rem;
                 }
             }
             > .suggestion-list-item-avatar{
@@ -28,7 +28,7 @@ const small = css`
                > .avatar {
                     width : 20px;
                     height : 20px;
-                    font-size : 5px;
+                    font-size : 0.9rem;
                }
             }
         }
@@ -106,7 +106,7 @@ function Sugestion<T extends {
                             ref={focusIndex === i ? ref : null}>
                             <ListItemAvatar className='suggestion-list-item-avatar'>
                                 <Avatar className='avatar'>
-                                    {s.nickname[0]}S
+                                    {s.nickname[0]}
                                 </Avatar>
                             </ListItemAvatar>
                             <ListItemText classes={{
