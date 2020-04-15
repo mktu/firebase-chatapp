@@ -2,12 +2,13 @@ import React, { useRef, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
+import Button from '@material-ui/core/Button';
 import ClearIcon from '@material-ui/icons/Clear';
 import EditIcon from '@material-ui/icons/Edit';
+import Popover from '@material-ui/core/Popover';
 import Baloon from '../Baloon';
 import { EmojiReactions } from '../../../Emoji';
 import User from '../User';
-import { domutil } from '../../../../utils';
 
 const Wrapper = styled.div`
     display : flex;
@@ -37,38 +38,43 @@ const Wrapper = styled.div`
     }
 `;
 
-const Portal = styled.div(({ top, left, theme }: { top: number, left: number, theme: any }) => `
-    position : absolute;
-    top : ${top}px;
-    left : ${left}px;
-`)
+const ConfirmationWrapper = styled.div`
+    padding : ${({ theme }) => `${theme.spacing(1)}px`};
+    display : flex;
+    flex-direction : column;
+    align-items : center;
+    &>.delete-actions{
+        margin-top : ${({ theme }) => `${theme.spacing(0.5)}px`};
+    }
+`;
 
 const SentMessage: React.FC<{
     className?: string,
     time: string,
     handleAddReaction: (reactionId: string) => void,
-    onClickEdit: ()=>void,
+    onClickEdit: () => void,
+    onClickDelete: () => void,
     reactions: { [s: string]: string[] },
     message: string,
-    sender: string
+    sender: string,
+    update?: boolean
 }> = ({
     className,
     time,
     handleAddReaction,
+    onClickDelete,
     onClickEdit,
     sender,
     message,
     reactions = {},
+    update = false
 }) => {
         const ref = useRef<HTMLDivElement | null>(null);
         const [hover, setHover] = useState(false);
-        const [rect, setRect] = useState<ReturnType<typeof domutil.calcRelativePosition>>();
+        const [showConfirmation, setShowConfirmation] = useState(false);
         useEffect(() => {
             if (ref.current) {
-                const domRect = domutil.calcRelativePosition(ref.current, domutil.getRelativeParent(ref.current));
-                setRect(domRect);
             }
-
         }, []);
         return (<Wrapper className={className} ref={ref} onMouseEnter={() => {
             setHover(true);
@@ -81,7 +87,7 @@ const SentMessage: React.FC<{
             <div className='message-wrapper'>
                 <div className='message-header'>
                     <div>
-                        <Typography variant='caption' color='textSecondary'>{sender},{time}</Typography>
+    <Typography variant='caption' color='textSecondary'>{sender} {time} {update&&'UPDATED'}</Typography>
                     </div>
                     <div className='message-actions'>
                         {
@@ -90,7 +96,9 @@ const SentMessage: React.FC<{
                                     <IconButton className='action-button' onClick={onClickEdit}>
                                         <EditIcon fontSize='inherit' className='action-icon' />
                                     </IconButton>
-                                    <IconButton className='action-button'>
+                                    <IconButton className='action-button' onClick={() => {
+                                        setShowConfirmation(true);
+                                    }}>
                                         <ClearIcon fontSize='inherit' className='action-icon' />
                                     </IconButton>
                                 </React.Fragment>
@@ -100,12 +108,35 @@ const SentMessage: React.FC<{
                 </div>
                 <Baloon message={message} />
             </div>
+            <Popover
+                open={showConfirmation}
+                anchorEl={ref.current}
+                onClose={() => {
+                    setShowConfirmation(false);
+                }}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
+                }}
+            >
+                <ConfirmationWrapper>
+                    <Typography>Are you sure you want to delete?</Typography>
+                    <div className='delete-actions'>
+                        <Button color='secondary' onClick={() => {
+                            setShowConfirmation(false);
+                            onClickDelete();
+                        }}>DELETE</Button>
+                        <Button variant='outlined' color='secondary' onClick={() => {
+                            setShowConfirmation(false);
+                        }}>CANCEL</Button>
+                    </div>
+                </ConfirmationWrapper>
+            </Popover>
             <EmojiReactions className='reactions' readonly reactions={reactions} handleAddReaction={handleAddReaction} />
-            {hover && rect && (
-                <Portal top={rect.top + rect.height} left={rect.left}>
-
-                </Portal>
-            )}
         </Wrapper>)
     };
 

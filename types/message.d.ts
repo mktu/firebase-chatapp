@@ -9,6 +9,8 @@ export type Message = {
     date : number,
     reactions? : Reactions,
     mentions? : string[],
+    disable?: boolean,
+    update?: number,
     id : string
 };
 

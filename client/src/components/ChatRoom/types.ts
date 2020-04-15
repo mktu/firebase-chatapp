@@ -30,3 +30,8 @@ export type EditMessage = (
     profileId: string,
     mentions: string[]
 ) => void;
+
+export type DisableMessage = (
+    roomId: string,
+    messageId: string,
+) => void

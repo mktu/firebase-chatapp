@@ -4,7 +4,7 @@ import * as Presenters from './Presenters';
 import { Profile } from '../../../../../types/profile';
 import { Message } from '../../../../../types/message';
 import Input, { EditMessagePresenter } from '../Input';
-import { EditMessage, AddReaction } from '../types';
+import { EditMessage, AddReaction, DisableMessage } from '../types';
 
 const Container: React.FC<{
     roomId: string,
@@ -12,18 +12,20 @@ const Container: React.FC<{
     profile: Profile,
     message: Message,
     addReaction: AddReaction,
-    editMessage: EditMessage
+    editMessage: EditMessage,
+    disableMessage: DisableMessage
 }> = ({
     profiles,
     profile,
     message,
     roomId,
     addReaction,
-    editMessage
+    editMessage,
+    disableMessage
 }) => {
         const sender = profiles.find(p => p.id === message.profileId);
         const amISender = sender?.id === profile!.id;
-        const date = new Date(message.date);
+        const date = new Date(message.update || message.date);
         const time = `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
         const [showEmoAction, setShowEmoAction] = useState(false);
         const [editable, setEditable] = useState(false);
@@ -83,6 +85,10 @@ const Container: React.FC<{
             )
         }
 
+        if(message.disable){
+            return null;
+        }
+
         return (
             <React.Fragment >
                 {amISender ? (
@@ -93,6 +99,12 @@ const Container: React.FC<{
                         message={message.message}
                         reactions={reactions}
                         onClickEdit={() => { setEditable(true) }}
+                        onClickDelete={() => {
+                            disableMessage(
+                                roomId, message.id
+                            )
+                        }}
+                        update={Boolean(message.update)}
                     />
                 ) : (
                         <Presenters.ReceivedMessage
@@ -104,6 +116,7 @@ const Container: React.FC<{
                             message={message.message}
                             reactions={reactions}
                             showEmoAction={showEmoAction}
+                            update={Boolean(message.update)}
                         />
                     )}
             </React.Fragment >

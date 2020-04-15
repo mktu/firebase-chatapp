@@ -51,7 +51,6 @@ function Presenter<T extends {
     onCloseSuggestion,
     onLeaveSuggenstionFocus
 }: Props<T> ) {
-    console.log(suggestion)
     return (
         <Wrapper className={className} >
             <div className='input-options'>

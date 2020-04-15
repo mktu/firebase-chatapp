@@ -28,7 +28,6 @@ const ChatEditor: React.FC<{
     attachModifier: (modifier: EditorModifier) => void,
     onMountMention: (profileId: string) => void,
     onKeyPress?: (key: KeyEvent) => void,
-    placeholder?: string,
     initText?: string
 }> = ({
     onChangeText,
@@ -36,7 +35,6 @@ const ChatEditor: React.FC<{
     onChangeMentionCandidate,
     onMountMention,
     onKeyPress,
-    placeholder,
     initText
 }) => {
         const editorRef = useRef<Editor | null>(null);
@@ -111,7 +109,6 @@ const ChatEditor: React.FC<{
                 }
                 return '';
             }}
-            placeholder={placeholder}
             editorState={editorState}
             onChange={onChange}
             handleKeyCommand={(command) => {

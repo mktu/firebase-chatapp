@@ -81,6 +81,7 @@ const Container: React.FC<{
                     profile={profile}
                     addReaction={action('add reaction')}
                     editMessage={action('edit message')}
+                    disableMessage={action('delete message')}
                     getMessages={({
                         roomId,
                         limit,

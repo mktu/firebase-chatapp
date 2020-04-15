@@ -37,6 +37,7 @@ const ReceivedMessage: React.FC<{
     handleAddReaction: (reactionId: string) => void,
     message: string,
     sender: string
+    update?: boolean
 }> = React.forwardRef(({
     onHoverReceivedMessage,
     onLeaveReceivedMessage,
@@ -46,7 +47,8 @@ const ReceivedMessage: React.FC<{
     sender,
     time,
     className,
-    reactions = {}
+    reactions = {},
+    update = false
 }, ref: any) => {
     return (
         <Wrapper className={className} onMouseEnter={onHoverReceivedMessage} onMouseLeave={onLeaveReceivedMessage}>
@@ -55,7 +57,7 @@ const ReceivedMessage: React.FC<{
             </div>
             <EmojiReactions className='reactions' reactions={reactions} handleAddReaction={handleAddReaction} />
             <div className='message-wrapper' >
-                <Typography variant='caption' color='textSecondary'>{sender},{time}</Typography>
+                <Typography variant='caption' color='textSecondary'>{sender} {time} {update&&'UPDATED'}</Typography>
                 <Baloon message={message} />
             </div>
             <User>

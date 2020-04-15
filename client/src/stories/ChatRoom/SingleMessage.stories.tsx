@@ -26,6 +26,7 @@ export const SentMessage = ()=> <SingleMessage
     }}
     addReaction={action('addReaction')}
     editMessage={action('editMessage')}
+    disableMessage={action('disableMessage')}
 />
 
 export const Received = () => <ReceivedMessage 
