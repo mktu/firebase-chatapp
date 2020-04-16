@@ -1,120 +1,113 @@
-import React, { useState, useCallback } from 'react';
-import ChatEditor, {
-    KeyEvent,
-    TextInserter,
-    TextInitializer,
-    MentionReplacer,
-    Focuser
-} from '../../Editor';
+import React, { useState, useCallback, useEffect } from 'react';
+import ChatEditor, { KeyEvent, EditorModifier } from '../../Editor';
 import { Profile } from '../../../../../types/profile';
-import Presenter from './Presenter';
+import DefaultPresenter, { types } from './Presenters';
+import { SuggestionType } from './types';
 
-type PortalRectType = {
-    top: number,
-    left: number,
-    right: number,
-    bottom: number,
-    width: number,
-    height: number
-}
-type SuggestionType = {
-    profiles: Profile[],
-    rect: PortalRectType
-}
-
+// refactor roomId, profile is not necessary
 const Container = ({
     className,
     roomId,
     profile,
     profiles,
-    createMessage
+    submitMessage,
+    onCancel,
+    initText,
+    presenter = DefaultPresenter,
+    initMentions=[],
+    suggestionPlacement = 'above'
 }: {
     className?: string,
     roomId: string,
     profile: Profile,
     profiles: Profile[],
-    createMessage: (
+    submitMessage: (
         roomId: string,
         inputMessage: string,
         profileId: string,
         mentions: string[]
-    ) => void
+    ) => void,
+    onCancel?: () => void,
+    initText?:string,
+    initMentions?:string[],
+    presenter?: React.FC<types.PresenterProps<Profile>>,
+    suggestionPlacement?: 'above' | 'below'
 }) => {
-
-    const [inputMessage, setInputMessage] = useState<string>('');
+    const [inputMessage, setInputMessage] = useState<string>();
     const [mentions, setMentions] = useState<string[]>([]);
-    const [editorCommands, setEditorCommands] = useState<{
-        inserter: TextInserter,
-        initializer: TextInitializer,
-        mentionReplacer: MentionReplacer,
-        focuser : Focuser
-    }>({
-        inserter: () => { }, initializer: () => { }, mentionReplacer: () => { }, focuser : ()=>{}
-    });
+    const [modifier, setModifier] = useState<EditorModifier>();
     const [suggestion, setSuggestion] = useState<SuggestionType>();
-    const [focusSuggestion,setFocusSuggestion] = useState(false);
+    const [focusSuggestion, setFocusSuggestion] = useState(false);
+    const hasText = inputMessage && inputMessage !=='';
 
-    const handleChangeInput = useCallback((text: string) => {
+    useEffect(()=>{
+        if(hasText && initMentions.length > 0){
+            const mentions = initMentions.map(mention=>{
+                const profile = profiles.find(p=>p.id===mention);
+                return profile && {
+                    mention : profile.nickname,
+                    profileId : mention
+                }
+            }).filter(Boolean).map(m=>m!);
+            modifier?.initMention(mentions);
+        }
+    },[hasText,initMentions,modifier,profiles]);
+
+    const onChangeText = useCallback((text: string) => {
         setInputMessage(text);
     }, []);
 
+    const onCancelInput = useCallback(() => {
+        modifier?.initialize();
+        onCancel&&onCancel();
+    }, [modifier,onCancel]);
 
     const handleSubmitMessage = useCallback(() => {
-        if (inputMessage !== '') {
-            createMessage(
+        if (inputMessage) {
+            submitMessage(
                 roomId,
                 inputMessage,
                 profile!.id,
                 mentions
             );
-            editorCommands.initializer();
+            modifier?.initialize();
         }
-    },[inputMessage,editorCommands,createMessage,mentions,profile,roomId])
+    }, [inputMessage, modifier, submitMessage, mentions, profile, roomId])
 
     const onSelectEmoji = (emoji: string) => {
-        editorCommands.inserter(emoji);
+        modifier?.insert(emoji);
     }
 
-    const onEditorMounted = useCallback((
-        inserter: TextInserter,
-        initializer: TextInitializer,
-        mentionReplacer: MentionReplacer,
-        focuser : Focuser
-    ) => {
-        setEditorCommands({
-            inserter,
-            initializer,
-            mentionReplacer,
-            focuser
-        });
-    }, [setEditorCommands]);
+    const attachModifier = useCallback((modifier: EditorModifier) => {
+        setModifier(modifier);
+    }, [setModifier]);
 
-    const updateMentionCandidate = useCallback((text: string, start: number, end: number, mounted: boolean, rect?: PortalRectType) => {
+    const onChangeMentionCandidate = useCallback((text: string, start: number, end: number, mounted: boolean, node?: HTMLElement) => {
         if (!mounted) {
             setSuggestion(undefined);
             setFocusSuggestion(false);
             return;
         }
-        if (text.length === 1 && rect) {
+        if (text.length === 1) {
             setSuggestion({
                 profiles,
-                rect
+                node
             });
             return;
         }
         const substr = text.substring(start, end);
-        rect && setSuggestion({
+        setSuggestion({
             profiles: profiles.filter(p => p.nickname.includes(substr)),
-            rect
+            node
         });
 
     }, [profiles]);
 
     const handleSelectMention = useCallback((profile: Profile) => {
-        editorCommands.mentionReplacer(profile.nickname, profile.id);
-    }, [editorCommands]);
+        modifier?.setMention(profile.nickname, profile.id);
+    }, [modifier]);
 
-    const onMountedMention = useCallback((profileId: string, unmounted = false) => {
+    const onMountMention = useCallback((profileId: string, unmounted = false) => {
         if (unmounted) {
             setMentions(ids => ids.filter(id => id !== profileId));
         }
@@ -123,34 +116,43 @@ const Container = ({
         }
     }, []);
 
-    const onKeyPress = useCallback((key:KeyEvent)=>{
-        if(key==='CtrlEnter'){
+    const onKeyPress = useCallback((key: KeyEvent) => {
+        if (key === 'CtrlEnter') {
             handleSubmitMessage();
         }
-        if(suggestion){
-            if(key==='UpArrow'){
+        if (suggestion) {
+            if (suggestionPlacement === 'above' && key === 'UpArrow') {
+                setFocusSuggestion(true);
+            }
+            else if (suggestionPlacement === 'below' && key === 'DownArrow'){
                 setFocusSuggestion(true);
             }
         }
-    },[suggestion,setFocusSuggestion,handleSubmitMessage]);
+    }, [suggestion, setFocusSuggestion, handleSubmitMessage, suggestionPlacement]);
 
-    const onLeaveSuggenstionFocus = useCallback(()=>{
-        setSuggestion(undefined);
+    const onLeaveSuggenstionFocus = useCallback(() => {
         setFocusSuggestion(false);
-        editorCommands.focuser();
-    },[setFocusSuggestion,editorCommands]);
+        modifier?.focus();
+    }, [setFocusSuggestion, modifier]);
+    
+    const onCloseSuggestion = useCallback(() => {
+        setSuggestion(undefined);
+    }, [setSuggestion]);
 
     const renderRichEditor = useCallback(() => {
         return (
             <ChatEditor
-                notifyTextChanged={handleChangeInput}
-                onMounted={onEditorMounted}
-                onMountedMention={onMountedMention}
-                updateMentionCandidate={updateMentionCandidate}
+                attachModifier={attachModifier}
+                onChangeText={onChangeText}
+                onMountMention={onMountMention}
+                onChangeMentionCandidate={onChangeMentionCandidate}
                 onKeyPress={onKeyPress}
+                initText={initText}
             />
         )
-    }, [handleChangeInput, onEditorMounted, onMountedMention, updateMentionCandidate, onKeyPress])
+    }, [onChangeText, attachModifier, onMountMention, onChangeMentionCandidate, onKeyPress, initText])
+
+    const Presenter = presenter;
     return (
         <Presenter
             className={className}
@@ -161,6 +163,8 @@ const Container = ({
             suggestion={suggestion}
             focusSuggestion={focusSuggestion}
             onLeaveSuggenstionFocus={onLeaveSuggenstionFocus}
+            onCloseSuggestion={onCloseSuggestion}
+            onCancel={onCancelInput}
         />
     )
 };

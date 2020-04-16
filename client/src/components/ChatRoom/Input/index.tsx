@@ -1,7 +1,8 @@
 import Container from './Container';
-import Presenter from './Presenter';
+import ChatInputPresenter, {EditMessagePresenter} from './Presenters';
 
 export default Container;
 export {
-    Presenter
+    ChatInputPresenter,
+    EditMessagePresenter
 };

@@ -1,5 +1,5 @@
-import {SnapshotListenerRegister, Order} from '../Loaders/InfiniteSnapshotLoader';
-import {Message} from '../../../../types/message';
+import { SnapshotListenerRegister, Order } from '../Loaders/InfiniteSnapshotLoader';
+import { Message } from '../../../../types/message';
 
 // service interfaces
 export type MessageListenerRegister = (args: Parameters<SnapshotListenerRegister<Message>>[0] & { roomId: string }) => ReturnType<SnapshotListenerRegister<Message>>;
@@ -22,3 +22,16 @@ export type GetMessage = (args: {
     messageId: string,
     onSucceeded: (message: Message) => void,
 }) => void
+
+export type EditMessage = (
+    roomId: string,
+    messageId: string,
+    inputMessage: string,
+    profileId: string,
+    mentions: string[]
+) => void;
+
+export type DisableMessage = (
+    roomId: string,
+    messageId: string,
+) => void

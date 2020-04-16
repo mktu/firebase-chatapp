@@ -41,7 +41,8 @@ export function registMessagesListener(
         firebase.firestore.DocumentReference<firebase.firestore.DocumentData> | firebase.firestore.Query<firebase.firestore.DocumentData>
         = db.collection('rooms')
             .doc(roomId)
-            .collection('messages');
+            .collection('messages')
+
     if (order) {
         query = query.orderBy(order.key, order.order);
     }
@@ -151,6 +152,48 @@ export function createMessage(
         })
         .then(onSucceeded)
         .catch(onFailed);
+}
+
+export function editMessage(
+    roomId: string,
+    messageId: string,
+    message: string,
+    profileId: string,
+    mentions?: string[],
+    onSucceeded?: Notifier,
+    onFailed: ErrorHandler = consoleError
+){
+    db.collection('rooms')
+        .doc(roomId)
+        .collection('messages')
+        .doc(messageId)
+        .set({
+            message,
+            profileId,
+            mentions,
+            update: Date.now()
+        },{ merge: true })
+        .then(onSucceeded)
+        .catch(onFailed)
+}
+
+export function disableMessage(
+    roomId: string,
+    messageId: string,
+    onSucceeded?: Notifier,
+    onFailed: ErrorHandler = consoleError
+){
+    db.collection('rooms')
+        .doc(roomId)
+        .collection('messages')
+        .doc(messageId)
+        .set({
+            disable : true,
+            message:'',
+            update: Date.now()
+        },{ merge: true })
+        .then(onSucceeded)
+        .catch(onFailed)
 }
 
 export function addReaction(

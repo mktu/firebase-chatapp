@@ -3,7 +3,7 @@ import ProfileContext from '../../contexts/ProfileContext';
 import { Room } from '../../../../types/room';
 import { Profile } from '../../../../types/profile';
 import { modifyRoom } from '../../services/room';
-import { addReaction, createMessage, registMessagesListener, getMessage, getMessages } from '../../services/message';
+import { addReaction, createMessage, editMessage, registMessagesListener, getMessage, getMessages, disableMessage } from '../../services/message';
 import { updateRequest } from '../../services/request';
 import HeaderContainer from './Header';
 import Messages from './Messages';
@@ -56,6 +56,8 @@ const Container: React.FC<{
                     messageListenerRegister={registMessagesListener}
                     getMessage={getMessage}
                     getMessages={getMessages}
+                    editMessage={editMessage}
+                    disableMessage={disableMessage}
                 />
             )
         }, [room.id, profiles, profile, messageId]);
@@ -67,7 +69,7 @@ const Container: React.FC<{
                     profiles={profiles}
                     profile={profile!}
                     roomId={room.id}
-                    createMessage={createMessage}
+                    submitMessage={createMessage}
                 />
             )
         }, [room, profiles, profile]);

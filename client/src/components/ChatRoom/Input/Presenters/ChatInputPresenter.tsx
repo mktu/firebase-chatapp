@@ -1,10 +1,13 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import 'emoji-mart/css/emoji-mart.css';
 import IconButton from '@material-ui/core/IconButton';
 import { Send } from '@material-ui/icons';
-import { EmojiPicker } from '../../Emoji';
-import Suggestion from './Suggestion';
+import { EmojiPicker } from '../../../Emoji';
+import Suggestion from '../Suggestion';
+import { PresenterProps } from '../types';
+import { domutil } from '../../../../utils';
 
 const Wrapper = styled.div`
     display : grid;
@@ -30,7 +33,17 @@ const Wrapper = styled.div`
     }
 `;
 
-const Portal = styled.div(({ bottom, left }: { bottom: number, left: number }) => `
+const Portal: React.FC<{
+    container: HTMLElement,
+    children: React.ReactElement
+}> = ({
+    container,
+    children
+}) => {
+        return ReactDOM.createPortal(children, container);
+    }
+
+const SuggestionWrapper = styled.div(({ bottom, left }: { bottom: number, left: number }) => `
     position : absolute;
     bottom : ${bottom}px;
     left : ${left}px;
@@ -47,24 +60,14 @@ function Presenter<T extends {
     renderRichEditor,
     handleSelectMention,
     focusSuggestion,
+    onCloseSuggestion,
     onLeaveSuggenstionFocus
-}: {
-    className?: string,
-    suggestion?: {
-        rect: {
-            left: number,
-            bottom: number,
-            height: number
-        },
-        profiles: T[]
-    },
-    focusSuggestion: boolean,
-    onLeaveSuggenstionFocus: () => void,
-    handleSelectMention: (profile: T) => void,
-    handleSubmitMessage: () => void,
-    onSelectEmoji: (emoji: string) => void,
-    renderRichEditor: () => React.ReactElement
-}) {
+}: PresenterProps<T>) {
+    let suggestionRect, container;
+    if(suggestion && suggestion.node){
+        container = (suggestion.node.ownerDocument?.body) || document.body;
+        suggestionRect = domutil.calcRelativePosition(suggestion.node, container);
+    }
     return (
         <Wrapper className={className} >
             <div className='input-options'>
@@ -74,19 +77,23 @@ function Presenter<T extends {
                 <div className='input-editor'>
                     {renderRichEditor()}
                 </div>
-                {suggestion && (
-                    <Portal
-                        bottom={suggestion.rect.bottom + suggestion.rect.height}
-                        left={suggestion.rect.left}
-                    >
-                        <Suggestion
-                            suggestion={suggestion.profiles}
-                            handleSelect={handleSelectMention}
-                            focus={focusSuggestion}
-                            onLeaveFocus={onLeaveSuggenstionFocus}
-                            reverse
-                        />
+                {suggestion && container && suggestionRect && (
+                    <Portal container={container}>
+                        <SuggestionWrapper
+                            bottom={suggestionRect.bottom + suggestionRect.height}
+                            left={suggestionRect.left}
+                        >
+                            <Suggestion
+                                suggestion={suggestion.profiles}
+                                handleSelect={handleSelectMention}
+                                onClose={onCloseSuggestion}
+                                focus={focusSuggestion}
+                                onLeaveFocus={onLeaveSuggenstionFocus}
+                                startAt='bottom'
+                            />
+                        </SuggestionWrapper>
                     </Portal>
+
                 )}
             </div>
             <div>
