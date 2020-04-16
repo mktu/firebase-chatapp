@@ -6,7 +6,7 @@ import CheckIcon from '@material-ui/icons/Check';
 import ClearIcon from '@material-ui/icons/Clear';
 import { EmojiPicker } from '../../../Emoji';
 import Suggestion from '../Suggestion';
-import { Props } from './types';
+import { PresenterProps } from '../types';
 
 const IconButtonStyle = css`
     padding : 1px;
@@ -74,7 +74,7 @@ function Presenter<T extends {
     onCloseSuggestion,
     onLeaveSuggenstionFocus,
     onCancel
-}: Props<T>) {
+}: PresenterProps<T>) {
     return (
         <Wrapper className={className} >
             <div className='input-menu'>

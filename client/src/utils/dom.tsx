@@ -40,7 +40,7 @@ export const calcRelativePosition = (portalElement: HTMLElement, parentElement?:
         relativeTop = portalRect.top;
         relativeLeft = portalRect.left;
     }
-    //console.log(`relativeScrollHeight:${relativeScrollHeight},relativeScrollTop:${relativeScrollTop}`)
+    console.log(`relativeScrollHeight:${relativeScrollHeight},relativeScrollTop:${relativeScrollTop}`)
     const left = relativeLeft + relativeScrollLeft;
     const top = relativeTop + relativeScrollTop;
     const bottom = relativeScrollHeight - relativeScrollTop - portalRect.bottom;

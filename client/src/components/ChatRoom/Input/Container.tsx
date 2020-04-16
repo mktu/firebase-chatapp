@@ -2,19 +2,8 @@ import React, { useState, useCallback, useEffect } from 'react';
 import ChatEditor, { KeyEvent, EditorModifier } from '../../Editor';
 import { Profile } from '../../../../../types/profile';
 import DefaultPresenter, { types } from './Presenters';
+import { SuggestionType } from './types';
 
-type PortalRectType = {
-    top: number,
-    left: number,
-    right: number,
-    bottom: number,
-    width: number,
-    height: number
-}
-type SuggestionType = {
-    profiles: Profile[],
-    rect: PortalRectType
-}
 // refactor roomId, profile is not necessary
 const Container = ({
     className,
@@ -41,7 +30,7 @@ const Container = ({
     onCancel?: () => void,
     initText?:string,
     initMentions?:string[],
-    presenter?: React.FC<types.Props<Profile>>,
+    presenter?: React.FC<types.PresenterProps<Profile>>,
     suggestionPlacement?: 'above' | 'below'
 }) => {
     const [inputMessage, setInputMessage] = useState<string>();
@@ -93,23 +82,23 @@ const Container = ({
         setModifier(modifier);
     }, [setModifier]);
 
-    const onChangeMentionCandidate = useCallback((text: string, start: number, end: number, mounted: boolean, rect?: PortalRectType) => {
+    const onChangeMentionCandidate = useCallback((text: string, start: number, end: number, mounted: boolean, node?: HTMLElement) => {
         if (!mounted) {
             setSuggestion(undefined);
             setFocusSuggestion(false);
             return;
         }
-        if (text.length === 1 && rect) {
+        if (text.length === 1) {
             setSuggestion({
                 profiles,
-                rect
+                node
             });
             return;
         }
         const substr = text.substring(start, end);
-        rect && setSuggestion({
+        setSuggestion({
             profiles: profiles.filter(p => p.nickname.includes(substr)),
-            rect
+            node
         });
 
     }, [profiles]);

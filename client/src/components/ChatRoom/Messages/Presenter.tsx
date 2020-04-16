@@ -21,8 +21,6 @@ const Wrapper = styled.div`
         overflow : auto;
         height : 100%;
         > .messages-items{
-            > .messages-item{
-            }
             > .focus-message{
                 animation: ${focusAnimation} 3s 0s both;
             }

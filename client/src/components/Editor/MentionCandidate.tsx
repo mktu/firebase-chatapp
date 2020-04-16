@@ -3,21 +3,13 @@ import styled from 'styled-components';
 import { ContentBlock } from 'draft-js';
 import { MENTION_REGEX, MENTION_TRIGGER } from '../../constants';
 import { StrategyCallback, findWithRegex } from './common';
-import { domutil } from '../../utils'
 
 export type OnChangeMentionCandidate = (
     text: string,
     start: number,
     end: number,
     mounted: boolean,
-    rect?: {
-        top : number,
-        left : number,
-        right : number,
-        bottom : number,
-        width : number,
-        height : number
-    }
+    node?: HTMLElement
 ) => void;
 
 const MentionText = styled.span`
@@ -40,12 +32,8 @@ export const createMentionCandidateComponent = (onChangeMentionCandidate: OnChan
     }) => {
             const portalRef = useRef<HTMLElement | null>(null);
             useEffect(() => {
-                let domRect :ReturnType<typeof domutil.calcRelativePosition> | undefined;
-                if(portalRef.current){
-                    domRect = domutil.calcRelativePosition(portalRef.current, domutil.getRelativeParent(portalRef.current));
-                }
                 const mentionIndex = decoratedText.lastIndexOf(MENTION_TRIGGER);
-                onChangeMentionCandidate(decoratedText, mentionIndex + 1, end, true, domRect);
+                onChangeMentionCandidate(decoratedText, mentionIndex + 1, end, true, portalRef.current || undefined);
                 return () => {
                     onChangeMentionCandidate('', 0, 0, false);
                 }

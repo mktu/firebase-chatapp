@@ -1,12 +1,14 @@
-export type Props<T> = {
+import { Profile } from '../../../../../types/profile';
+
+export type SuggestionType = {
+    profiles: Profile[],
+    node?: HTMLElement
+}
+
+export type PresenterProps<T> = {
     className?: string,
     suggestion?: {
-        rect: {
-            top:number,
-            left: number,
-            bottom: number,
-            height: number
-        },
+        node?: HTMLElement,
         profiles: T[]
     },
     focusSuggestion: boolean,
