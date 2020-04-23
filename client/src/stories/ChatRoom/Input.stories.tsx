@@ -8,8 +8,6 @@ export default {
 };
 
 export const Default = () => <Input
-    roomId={'test'}
-    profile={{ id: 'test1', nickname: 'First User', uid: 'test1' }}
     profiles={[
         { id: 'test1', nickname: 'First User', uid: 'test1' },
         { id: 'test2', nickname: 'Second User', uid: 'test2' },
@@ -22,8 +20,6 @@ export const Default = () => <Input
 />;
 
 export const EditMessage = () => <Input
-    roomId={'test'}
-    profile={{ id: 'test1', nickname: 'First User', uid: 'test1' }}
     profiles={[
         { id: 'test1', nickname: 'First User', uid: 'test1' },
         { id: 'test2', nickname: 'Second User', uid: 'test2' },

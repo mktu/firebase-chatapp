@@ -19,7 +19,7 @@ const Wrapper = styled(Paper)`
 `;
 
 type PropsType = {
-    onSelect : (roomId:string,messageId:string)=>void
+    onSelect: (roomId: string, messageId: string) => void
 } & InfiniteHitsProvided<Message>;
 
 const Hits: React.FC<PropsType> = ({
@@ -41,13 +41,13 @@ const Hits: React.FC<PropsType> = ({
             >
                 {(hit) => {
                     return (
-                        <ListItem button key={hit.id} onClick={()=>{
-                            onSelect(hit.roomId,hit.id);
+                        <ListItem button key={hit.id} onClick={() => {
+                            onSelect(hit.roomId, hit.id);
                         }}>
                             <ListItemAvatar>
-                                <Avatar>T</Avatar>
+                                <Avatar>{hit.senderName[0]}</Avatar>
                             </ListItemAvatar>
-                            <ListItemText secondary={'roomName'}>{hit.message}</ListItemText>
+                            <ListItemText secondary={hit.roomName}>{hit.message}</ListItemText>
                         </ListItem>)
                 }}
             </InfiniteScroll>

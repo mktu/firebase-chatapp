@@ -12,7 +12,6 @@ import SingleMessageContainer from '../SingleMessage';
 import { MessageListenerRegister, GetMessages, GetMessage, AddReaction, EditMessage, DisableMessage } from '../types';
 
 const Container: React.FC<{
-    roomId: string,
     focusMessageId?: string,
     className?: string,
     messageListenerRegister: MessageListenerRegister,
@@ -24,7 +23,6 @@ const Container: React.FC<{
     profiles: Profile[],
     profile: Profile,
 }> = ({
-    roomId,
     className,
     messageListenerRegister,
     getMessages,
@@ -44,7 +42,6 @@ const Container: React.FC<{
             let unmounted = false;
             if (focusMessageId) {
                 getMessage({
-                    roomId,
                     messageId: focusMessageId,
                     onSucceeded: (message) => {
                         if (unmounted) return;
@@ -53,7 +50,6 @@ const Container: React.FC<{
                 })
             }
             getMessages({
-                roomId,
                 limit: 1,
                 order: { key: 'date', order: 'asc' },
                 onAdded: (items) => {
@@ -67,7 +63,6 @@ const Container: React.FC<{
                 }
             });
             getMessages({
-                roomId,
                 limit: 1,
                 order: { key: 'date', order: 'desc' },
                 onAdded: (items) => {
@@ -86,7 +81,7 @@ const Container: React.FC<{
                 setBackwardSentinel(undefined);
                 setForwardSentinel(undefined);
             }
-        }, [roomId, focusMessageId, getMessage, getMessages]);
+        }, [focusMessageId, getMessage, getMessages]);
 
         // loading timeout
         useEffect(() => {
@@ -98,11 +93,8 @@ const Container: React.FC<{
         }, [status]);
 
         const registSnapshotListener: SnapshotListenerRegister<Message> = useCallback((args) => {
-            return messageListenerRegister({
-                roomId,
-                ...args
-            })
-        }, [roomId, messageListenerRegister]);
+            return messageListenerRegister(args);
+        }, [messageListenerRegister]);
 
         return <Presenter className={className} loadingStatus={status}>
             {
@@ -133,7 +125,6 @@ const Container: React.FC<{
                                     >
                                         {(message: Message) => (
                                             <SingleMessageContainer
-                                                roomId={roomId}
                                                 profile={profile!}
                                                 message={message}
                                                 profiles={profiles}

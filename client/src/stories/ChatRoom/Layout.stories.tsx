@@ -17,7 +17,9 @@ const FULL_ITEMS: Message[] = [...Array(ITEM_MAX_IN_PAGE * MAX_PAGE_SIZE).keys()
     id: i.toString(),
     date: Date.now() + i,
     message: `this is ${i}`,
-    profileId: 'test1'
+    senderId: 'test1',
+    senderName: 'test1',
+    roomName : 'room'
 }));
 
 const Wrapper = styled.div`
@@ -77,14 +79,12 @@ const Container: React.FC<{
                 <Messages
                     className={style}
                     focusMessageId={focus}
-                    roomId={room.id}
                     profiles={profiles}
                     profile={profile}
                     addReaction={action('add reaction')}
                     editMessage={action('edit message')}
                     disableMessage={action('delete message')}
                     getMessages={({
-                        roomId,
                         limit,
                         order,
                         onAdded
@@ -100,7 +100,6 @@ const Container: React.FC<{
                         }
                     }}
                     getMessage={({
-                        roomId,
                         messageId,
                         onSucceeded
                     }) => {
@@ -153,8 +152,6 @@ const Container: React.FC<{
                 <InputContainer
                     className={style}
                     profiles={profiles}
-                    profile={profile!}
-                    roomId={room.id}
                     submitMessage={action('createMessage')}
                 />
             )
@@ -184,7 +181,10 @@ export const WithSendMessage = () => <Container requests={[]} items={[...FULL_IT
     id : `${FULL_ITEMS.length+1}`,
     date: Date.now() + FULL_ITEMS.length+1,
     message: `this is ${FULL_ITEMS.length+1}`,
-    profileId: 'test3'}]}/>;
+    senderId: 'test3',
+    senderName: 'test3',
+    roomName : 'room'
+}]}/>;
 export const Requests = () => <Container requests={[
     { id: 'test1', nickName: 'First User', date: Date.now(), status: 'requesting', profileId: 'test1p' },
     { id: 'test2', nickName: 'Second User', date: Date.now(), status: 'requesting', profileId: 'test2p' },

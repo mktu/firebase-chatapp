@@ -1,14 +1,13 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
-import SingleMessage, {ReceivedMessage} from '../../components/ChatRoom/SingleMessage';
+import SingleMessage, { ReceivedMessage } from '../../components/ChatRoom/SingleMessage';
 
 
 export default {
     title: 'ChatRoom/Message',
 };
 
-export const SentMessage = ()=> <SingleMessage 
-    roomId='null'
+export const SentMessage = () => <SingleMessage
     profiles={[
         { id: 'test1', nickname: 'First User', uid: 'test1' },
         { id: 'test2', nickname: 'Second User', uid: 'test2' },
@@ -19,18 +18,20 @@ export const SentMessage = ()=> <SingleMessage
     ]}
     profile={{ id: 'test3', nickname: 'Third User', uid: 'test3' }}
     message={{
-        roomId : 'room',
-        message : 'hello',
-        id : '1',
-        profileId : 'test3',
-        date : Date.now()
+        roomId: 'room',
+        message: 'hello',
+        id: '1',
+        senderId: 'test1',
+        senderName: 'test1',
+        roomName: 'room',
+        date: Date.now()
     }}
     addReaction={action('addReaction')}
     editMessage={action('editMessage')}
     disableMessage={action('disableMessage')}
 />
 
-export const Received = () => <ReceivedMessage 
+export const Received = () => <ReceivedMessage
     time='2020/10/10 16:00'
     onHoverReceivedMessage={action('onHoverReceivedMessage')}
     onLeaveReceivedMessage={action('onLeaveReceivedMessage')}
