@@ -19,6 +19,7 @@ export const SentMessage = ()=> <SingleMessage
     ]}
     profile={{ id: 'test3', nickname: 'Third User', uid: 'test3' }}
     message={{
+        roomId : 'room',
         message : 'hello',
         id : '1',
         profileId : 'test3',

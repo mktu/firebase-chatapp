@@ -13,6 +13,7 @@ import { action } from '@storybook/addon-actions';
 const MAX_PAGE_SIZE = 10;
 const ITEM_MAX_IN_PAGE = 20;
 const FULL_ITEMS: Message[] = [...Array(ITEM_MAX_IN_PAGE * MAX_PAGE_SIZE).keys()].map(i => ({
+    roomId : 'room',
     id: i.toString(),
     date: Date.now() + i,
     message: `this is ${i}`,
@@ -179,6 +180,7 @@ export const FocusBottom = () => <Container focus={'199'} requests={[]} />;
 export const FewItems = () => <Container items={FULL_ITEMS.slice(0,1)} requests={[]}/>;
 export const Empty = () => <Container requests={[]} items={[]} />;
 export const WithSendMessage = () => <Container requests={[]} items={[...FULL_ITEMS,{
+    roomId : 'room',
     id : `${FULL_ITEMS.length+1}`,
     date: Date.now() + FULL_ITEMS.length+1,
     message: `this is ${FULL_ITEMS.length+1}`,

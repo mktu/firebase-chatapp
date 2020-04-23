@@ -16,7 +16,7 @@ function ScrollableContainer<T extends { id: string }>({
     autoScrollThreshold = 100,
     nextScrollThreshold = 250,
     listComponent = 'div',
-    listItemComponent = 'div',
+    listItemComponent,
     classes = {},
 }: {
     items: T[],
@@ -56,6 +56,7 @@ function ScrollableContainer<T extends { id: string }>({
     const NotificationComponent = notificationComponent;
 
     const newItemNavigatable = items.length > 0 && trackingId !== items[0].id && automaticallyScrollDown === 'jumpable-to-bottom';
+    // ここ切り離せるかも
     useEffect(() => {
         let enableAutomaticallyScrollDown = false;
         let nextLoad: 'newer' | 'none' | 'older' = 'none';
@@ -168,11 +169,11 @@ function ScrollableContainer<T extends { id: string }>({
     return useMemo(() => (
         <React.Fragment>
             <StyledList className={rootClass}>
-                {items.map(item => (
+                {items.map(item => ListItemComponent ? (
                     <ListItemComponent className={focusItemId === item.id ? `${listItemClass} ${focusItemClass}` : listItemClass} key={item.id} ref={focusItemId === item.id ? focusItemRef : undefined}>
                         {children(item)}
                     </ListItemComponent>
-                ))}
+                ) : children(item))}
             </StyledList>
             <div ref={itemsEndRef} />
             {NotificationComponent && (
@@ -181,7 +182,7 @@ function ScrollableContainer<T extends { id: string }>({
                 }}/>
             )}
         </React.Fragment>
-    ), [rootClass, listItemClass, notificationClass, focusItemClass, items, children, newItemNavigatable, NotificationComponent, focusItemId]);
+    ), [rootClass, listItemClass, notificationClass, focusItemClass, items, children, newItemNavigatable, NotificationComponent, focusItemId, ListItemComponent]);
 }
 
 

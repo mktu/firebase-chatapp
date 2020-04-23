@@ -4,6 +4,7 @@ export type Reactions = {
     [s: string]: string[]
 };
 export type Message = {
+    roomId: string,
     message : string,
     profileId : string,
     date : number,
