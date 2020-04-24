@@ -14,6 +14,28 @@ export const getRelativeParent = (element: (HTMLElement | null)): HTMLElement | 
     return getRelativeParent(element.parentElement);
 }
 
+export const getScrollableParent = (element: (HTMLElement | null)):HTMLElement => {
+    if (!element) {
+        return document.body;
+    }
+
+    const overflow = window
+        .getComputedStyle(element)
+        .getPropertyValue('overflow');
+
+    const overflowY = window
+        .getComputedStyle(element)
+        .getPropertyValue('overflow-y');
+
+    if (overflow === 'scroll' || overflowY === 'scroll' ||
+    overflow === 'auto' || overflowY === 'auto'
+    ) {
+        return element;
+    }
+
+    return getScrollableParent(element.parentElement);
+}
+
 export const calcRelativePosition = (portalElement: HTMLElement, parentElement?: HTMLElement) => {
     let relativeTop, relativeLeft = 0;
     let relativeScrollLeft, relativeScrollWidth, relativeScrollTop, relativeScrollHeight = 0;
@@ -28,7 +50,7 @@ export const calcRelativePosition = (portalElement: HTMLElement, parentElement?:
         const relativeParentRect = parentElement.getBoundingClientRect();
         relativeLeft = portalRect.left - relativeParentRect.left;
         relativeTop = portalRect.top - relativeParentRect.top;
-        
+
     } else {
         relativeScrollTop =
             window.pageYOffset || document.documentElement.scrollTop;
@@ -50,8 +72,8 @@ export const calcRelativePosition = (portalElement: HTMLElement, parentElement?:
         top,
         bottom,
         right,
-        width : portalRect.width,
-        height : portalRect.height
+        width: portalRect.width,
+        height: portalRect.height
     }
     return rect;
 }
