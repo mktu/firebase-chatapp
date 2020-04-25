@@ -20,18 +20,16 @@ const Wrapper = styled.div`
     & > .messages-scrollable{
         overflow : auto;
         height : 100%;
-        > div{
-            > .messages-items{
-                > .focus-message{
-                    animation: ${focusAnimation} 3s 0s both;
-                }
+        > .messages-items{
+            > .focus-message{
+                animation: ${focusAnimation} 3s 0s both;
             }
-            > .messages-notification{
-                position : absolute;
-                left: 0;
-                right: 0;
-                margin: auto;
-            }
+        }
+        > .messages-notification{
+            position : absolute;
+            left: 0;
+            right: 0;
+            margin: auto;
         }
     }
 `;
