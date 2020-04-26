@@ -133,6 +133,52 @@ export function getMessages({
         .catch(onFailed)
 }
 
+export function getLatestMessage(
+    {
+        roomId,
+        onAdded,
+        onFailed = consoleError
+
+    }: {
+        roomId: string,
+        onAdded: MessageTransfer,
+        onFailed?: ErrorHandler,
+    }
+) {
+    getMessages({
+        roomId,
+        limit: 1,
+        order: { key: 'date', order: 'desc' },
+        onAdded : (items) => {
+            items.length > 0 && onAdded(items[0])
+        },
+        onFailed
+    });
+}
+
+export function getOldestMessage(
+    {
+        roomId,
+        onAdded,
+        onFailed = consoleError
+
+    }: {
+        roomId: string,
+        onAdded: MessageTransfer,
+        onFailed?: ErrorHandler,
+    }
+) {
+    getMessages({
+        roomId,
+        limit: 1,
+        order:{ key: 'date', order: 'asc' },
+        onAdded : (items) => {
+            items.length > 0 && onAdded(items[0])
+        },
+        onFailed
+    });
+}
+
 export function createMessage(
     {
         roomId,

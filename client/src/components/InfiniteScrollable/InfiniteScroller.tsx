@@ -95,7 +95,6 @@ function ScrollableContainer<T extends HTMLElement>({
         if (scrollHeight === clientHeight &&
             canScrollDown && 
             scrollTop === 0) {
-                console.log('load more first')
                 loadMore(true);
         }
     }, [loadMore, canScrollDown, children])

@@ -22,7 +22,7 @@ type PropsType<T> = {
 
 const style = {
     'display':'flex',
-    'flex-direction' : 'column-reverse'
+    'flexDirection' : 'column-reverse'
 }
 
 const makeScrollableListWithRef = <T extends { id: string }>() => {

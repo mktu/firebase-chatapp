@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback,useRef } from 'react';
 import styled from 'styled-components';
 import { Room } from '../../../../types/room';
 import { JoinRequest } from '../../../../types/request';
@@ -30,6 +30,7 @@ export default {
     title: 'ChatRoom/Layout',
 };
 
+type OnAdded = (message:Message)=>void;
 
 const Container: React.FC<{
     className?: string,
@@ -43,7 +44,8 @@ const Container: React.FC<{
     focus,
     items = FULL_ITEMS
 }) => {
-
+        const callbacks = useRef<OnAdded[]>([]);
+        console.log(callbacks)
         const owenr = true;
         const profiles = [
             { id: 'test1', nickname: 'First User', uid: 'test1' },
@@ -84,20 +86,15 @@ const Container: React.FC<{
                     addReaction={action('add reaction')}
                     editMessage={action('edit message')}
                     disableMessage={action('delete message')}
-                    getMessages={({
-                        limit,
-                        order,
-                        onAdded
-                    }) => {
-                        if (order.order === 'desc') {
-                            setTimeout(() => {
-                                items.length > 0 && onAdded([items[items.length - 1]]);
-                            }, 500);
-                        } else {
-                            setTimeout(() => {
-                                items.length > 0 && onAdded([items[0]]);
-                            }, 500);
-                        }
+                    getOldestMessage={({onAdded})=>{
+                        setTimeout(() => {
+                            onAdded(items[0])
+                        }, 500);
+                    }}
+                    getLatestMessage={({onAdded})=>{
+                        setTimeout(() => {
+                            onAdded(items[items.length - 1])
+                        }, 500);
                     }}
                     getMessage={({
                         messageId,
@@ -115,8 +112,6 @@ const Container: React.FC<{
                         startAt,
                         endAt,
                         onAdded,
-                        onModified,
-                        onDeleted
                     }) => {
                         const target = order.order === 'desc' ? items.slice().reverse() : items;
                         let startIndex = -1;
@@ -131,31 +126,54 @@ const Container: React.FC<{
                         if (limit) {
                             endIndex = startIndex + limit;
                         }
-                        if (endAt) {
-                            const end = target.findIndex(item=>order.order === 'desc' ? item.date<=endAt : item.date>=endAt);
-                            console.log(end)
-                        }
-                        console.log(`${startIndex},${endIndex},${order.order},${endAt}`)
+                        // if (endAt) {
+                        //     const end = target.findIndex(item=>order.order === 'desc' ? item.date<=endAt : item.date>=endAt);
+                        // }
                         startIndex > -1 && endIndex > -1 && setTimeout(() => {
                             const values = target.slice(startIndex, endIndex);
-                            console.log(values)
                             onAdded(values);
                         }, 500);
-                        return () => { };
+
+                        const cb = (msg:Message)=>{
+                            // Can be added only when input from Input component( latest loader )
+                            if(order.order === 'asc' && startAfter){
+                                if(msg.date>startAfter && !endAt){
+                                    onAdded([msg]);
+                                }
+                            }
+                        }
+                        callbacks.current.push(cb)
+                        return () => { 
+                            callbacks.current.pop();
+                        };
                     }}
                 />
             )
-        }, [room, profiles, profile, focus, items]);
+        }, [profiles, profile, focus, items]);
 
         const renderFooter = useCallback((style) => {
             return (
                 <InputContainer
                     className={style}
                     profiles={profiles}
-                    submitMessage={action('createMessage')}
+                    submitMessage={(message,mentions)=>{
+                        const added : Message = {
+                            id : message,
+                            message,
+                            roomId : room.id,
+                            roomName : room.roomName,
+                            senderId : profile.id,
+                            senderName : profile.nickname,
+                            date : Date.now() + items.length,
+                            mentions
+                        }
+                        for(const cb of callbacks.current){
+                            cb(added);
+                        }
+                    }}
                 />
             )
-        }, [room, profiles, profile]);
+        }, [room, profiles, profile, items.length]);
 
         return (
             <Wrapper>

@@ -15,6 +15,11 @@ export type GetMessages = (args: {
     onFailed: () => void
 }) => void;
 
+export type GetMessageAtEnd = (args: {
+    onAdded: (messages: Message) => void,
+    onFailed: () => void
+}) => void;
+
 export type GetMessage = (args: {
     messageId: string,
     onSucceeded: (message: Message) => void,

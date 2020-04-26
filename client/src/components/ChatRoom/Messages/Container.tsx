@@ -9,13 +9,14 @@ import Presenter from './Presenter';
 import InfiniteScrollable from '../../InfiniteScrollable';
 import NewItemNotification from '../../InfiniteScrollable/NewItemNotification';
 import SingleMessageContainer from '../SingleMessage';
-import { MessageListenerRegister, GetMessages, GetMessage, AddReaction, EditMessage, DisableMessage } from '../types';
+import { MessageListenerRegister, GetMessageAtEnd, GetMessage, AddReaction, EditMessage, DisableMessage } from '../types';
 
 const Container: React.FC<{
     focusMessageId?: string,
     className?: string,
     messageListenerRegister: MessageListenerRegister,
-    getMessages: GetMessages,
+    getLatestMessage: GetMessageAtEnd,
+    getOldestMessage:GetMessageAtEnd,
     getMessage: GetMessage,
     addReaction: AddReaction,
     editMessage : EditMessage,
@@ -25,7 +26,8 @@ const Container: React.FC<{
 }> = ({
     className,
     messageListenerRegister,
-    getMessages,
+    getLatestMessage,
+    getOldestMessage,
     getMessage,
     addReaction,
     editMessage,
@@ -49,31 +51,27 @@ const Container: React.FC<{
                     }
                 })
             }
-            getMessages({
-                limit: 1,
-                order: { key: 'date', order: 'asc' },
-                onAdded: (items) => {
+            getOldestMessage({
+                onAdded: (item) => {
                     if (unmounted) return;
-                    items.length > 0 && setBackwardSentinel(items[0])
+                    setBackwardSentinel(item)
                     setStatus(LoadingStatus.Succeeded);
                 },
                 onFailed: () => {
                     if (unmounted) return;
                     setStatus(LoadingStatus.Failed);
                 }
-            });
-            getMessages({
-                limit: 1,
-                order: { key: 'date', order: 'desc' },
-                onAdded: (items) => {
+            })
+            getLatestMessage({
+                onAdded: (item) => {
                     if (unmounted) return;
-                    items.length > 0 && setForwardSentinel(items[0])
+                    setForwardSentinel(item);
                 },
                 onFailed: () => {
                     if (unmounted) return;
                     setStatus(LoadingStatus.Failed);
                 }
-            });
+            })
             return () => {
                 unmounted = true;
                 setStatus(LoadingStatus.Loading);
@@ -81,7 +79,7 @@ const Container: React.FC<{
                 setBackwardSentinel(undefined);
                 setForwardSentinel(undefined);
             }
-        }, [focusMessageId, getMessage, getMessages]);
+        }, [focusMessageId, getMessage, getLatestMessage,getOldestMessage]);
 
         // loading timeout
         useEffect(() => {
