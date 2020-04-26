@@ -63,23 +63,28 @@ const calcOrder = (direction: LoadDirection, orderBase: Order): Order => {
     return direction === 'older' ? { key: orderBase.key, order: 'asc' } : { key: orderBase.key, order: 'desc' };
 }
 
+const hasMore = <T extends ItemTypeBase>(sentinel:T, loaded : T[]) => {
+    if(sentinel){
+        if(loaded.length === 0){ // has not read yet.
+            return false;
+        }
+        return ! Boolean(loaded.find(m => m.id === sentinel.id))
+    }
+    return false;
+}
 
 function useInfiniteSnapshotListener<T extends ItemTypeBase>({
     limit,
     order,
-    backwardSentinel,
     forwardSentinel,
     registSnapshotListener
 }: {
     limit?: number,
     order: Order,
-    backwardSentinel?: T,
     forwardSentinel?: T,
     registSnapshotListener: SnapshotListenerRegister<T>
 }) {
     const [loaded, setMessages] = useState<T[]>([]);
-    const hasOlderItems = backwardSentinel ? ! Boolean(loaded.find(m => m.id === backwardSentinel.id)) : false;
-    const hasNewerItems = forwardSentinel ? ! Boolean(loaded.find(m => m.id === forwardSentinel?.id)) : false;
     const unsubscribes = useRef<Unsubscribe[]>([]);
     const readItems = useCallback(({
         startAfter,
@@ -154,8 +159,6 @@ function useInfiniteSnapshotListener<T extends ItemTypeBase>({
     }, []);
 
     return {
-        hasOlderItems,
-        hasNewerItems,
         loaded,
         readItems
     }
@@ -189,14 +192,11 @@ function BackwardItemLoader<T extends ItemTypeBase>(
     }
 ) {
     const {
-        hasOlderItems,
-        hasNewerItems,
         loaded,
         readItems
     } = useInfiniteSnapshotListener({
         limit,
         order: descOrder,
-        backwardSentinel,
         forwardSentinel,
         registSnapshotListener
     })
@@ -206,6 +206,9 @@ function BackwardItemLoader<T extends ItemTypeBase>(
             direction : 'older'
         });
     }, [startDate, readItems]);
+
+    const hasOlderItems = hasMore(backwardSentinel,loaded);
+    const hasNewerItems = hasMore(forwardSentinel,loaded);
 
     const allItems = useMemo(() => {
         return hasNewerItems ? loaded : [...items, ...loaded];
@@ -258,7 +261,6 @@ function LatestItemLoader<T extends ItemTypeBase>(
         readItems
     } = useInfiniteSnapshotListener({
         order: ascOrder,
-        backwardSentinel,
         registSnapshotListener
     })
     useEffect(() => {

@@ -28,7 +28,7 @@ function ScrollableContainer<T extends HTMLElement>({
     canScrollDown?: boolean,
     nextScrollThreshold?: number
 }) {
-    const rootRef = useRef<T| null>(null);
+    const rootRef = useRef<T | null>(null);
     const [loading, setLoading] = useState<ScrollState>();
     useEffect(() => {
         let nextLoad: ScrollDirection = 'none';
@@ -84,15 +84,31 @@ function ScrollableContainer<T extends HTMLElement>({
         }
     }, [children, loading])
 
+    // ScrollHeight may not exceed clientHeight when focusing on old items.
+    // In this case, scrolling cannot be performed and newer items cannot be read.
+    // So the next new item needs to be loaded programmatically.
+    useEffect(() => {
+        const parentNode = rootRef.current && domutil.getScrollableParent(rootRef.current);
+        const scrollHeight = parentNode?.scrollHeight || 0;
+        const clientHeight = parentNode?.clientHeight || 0;
+        const scrollTop = parentNode?.scrollTop || 0;
+        if (scrollHeight === clientHeight &&
+            canScrollDown && 
+            scrollTop === 0) {
+                console.log('load more first')
+                loadMore(true);
+        }
+    }, [loadMore, canScrollDown, children])
+
     return useMemo(() => {
         const childProps = {
             ...children.props,
             ref: (value: T) => {
                 if (children.ref) {
-                    if(typeof children.ref === 'function'){
+                    if (typeof children.ref === 'function') {
                         children.ref(value);
                     }
-                    else{
+                    else {
                         const refObject = children.ref as React.MutableRefObject<T>
                         refObject.current = value;
                     }

@@ -1,6 +1,6 @@
 import React, {useMemo} from 'react';
 import InfiniteScroller from './InfiniteScroller';
-import makeScrollableListWithRef from './ScrollableList';
+import { ScrollUpList } from './ScrollableList';
 
 export type Classes = 'root' | 'list-item' | 'focus-item' | 'notification';
 
@@ -36,7 +36,7 @@ function ScrollableContainer<T extends { id: string }>({
     }
     renderNewItemNotification?: (show: boolean, onClickScrollToBottom: () => void) => React.ReactElement
 }) {
-    const ScrollableList = useMemo(()=>makeScrollableListWithRef<T>(),[]);
+    const ScrollableList = useMemo(()=>ScrollUpList<T>(),[]);
     return (
         <InfiniteScroller
             loadMore={loadMore}
@@ -46,7 +46,6 @@ function ScrollableContainer<T extends { id: string }>({
         >
             <ScrollableList
                 items={items}
-                loadMore={loadMore}
                 className={className}
                 focusItemId={focusItemId}
                 notificationComponent={notificationComponent}

@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { ScrollDownType } from './types';
-import { domutil } from '../../utils'
+import { ScrollDownType } from '../types';
+import { domutil } from '../../../utils'
 
 export type Classes = 'root' | 'list-item' | 'focus-item' | 'notification';
 
@@ -49,6 +49,7 @@ const makeScrollableListWithRef = <T extends { id: string }>() => {
             const NotificationComponent = notificationComponent;
             const [automaticallyScrollDown, setAutomaticallyScrollDown] = useState<ScrollDownType>('disable');
             const newItemNavigatable = items.length > 0 && trackingId !== items[0].id && automaticallyScrollDown === 'jumpable-to-bottom';
+            
             useEffect(() => {
                 let enableAutomaticallyScrollDown = false;
                 let unmounted = false;
@@ -84,7 +85,8 @@ const makeScrollableListWithRef = <T extends { id: string }>() => {
                 const scrollHeight = parentNode?.scrollHeight || 0;
                 const clientHeight = parentNode?.clientHeight || 0;
                 if (scrollHeight === clientHeight &&
-                    hasNewerItems && focusItemId && hasItem) {
+                    hasNewerItems && focusItemId // =scrollTop===0
+                    && hasItem) { //=scrollHeight!=0
                     loadMore(true);
                 }
             }, [loadMore, hasNewerItems, focusItemId, hasItem])
