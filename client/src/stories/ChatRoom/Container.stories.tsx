@@ -7,7 +7,7 @@ import { modifyRoom } from '../../services/room';
 import HeaderContainer from '../../components/ChatRoom/Header';
 import Messages from '../../components/ChatRoom/Messages';
 import InputContainer from '../../components/ChatRoom/Input';
-import { Presenter } from '../../components/ChatRoom/';
+import { Presenter } from '../../components/ChatRoom';
 import { action } from '@storybook/addon-actions';
 
 const MAX_PAGE_SIZE = 10;
@@ -27,7 +27,7 @@ const Wrapper = styled.div`
 `;
 
 export default {
-    title: 'ChatRoom/Layout',
+    title: 'ChatRoom/Container',
 };
 
 type OnAdded = (message:Message)=>void;

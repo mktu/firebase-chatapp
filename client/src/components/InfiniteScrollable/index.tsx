@@ -1,9 +1,10 @@
-import ScrollableContainer from './ScrollableContainer';
 import NewItemNotification from './NewItemNotification';
-import Container from './Container';
+import {ScrollUpList,ScrollDownList} from './ScrollableList';
 
-export default Container;
 export {
     NewItemNotification,
-    ScrollableContainer
+    ScrollDownList,
+    ScrollUpList
 }
+
+export default ScrollUpList;

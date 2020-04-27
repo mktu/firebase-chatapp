@@ -1,4 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import Scroller from '../InfiniteScroller';
+import { Props } from '../types';
 import { domutil } from '../../../utils'
 
 export type Classes = 'root' | 'list-item' | 'focus-item' | 'notification';
@@ -81,7 +83,7 @@ const makeScrollableListWithRef = <T extends { id: string }>() => {
                 else if (trackingId !== items[0].id) {
                     setTrackingId(items[0].id!);
                 }
-            }, [items, automaticallyScroll, trackingId]);
+            }, [items, trackingId]);
 
             const rootClass = className || classes['root'];
             const listItemClass = classes['list-item'];
@@ -109,4 +111,44 @@ const makeScrollableListWithRef = <T extends { id: string }>() => {
     );
 };
 
-export default makeScrollableListWithRef;
+function ScrollableContainer<T extends { id: string }>({
+    items,
+    loadMore,
+    hasOlderItems,
+    children,
+    className,
+    focusItemId,
+    hasNewerItems,
+    notificationComponent,
+    autoScrollThreshold = 100,
+    nextScrollThreshold = 250,
+    listComponent = 'div',
+    listItemComponent,
+    classes = {},
+}: Props<T>) {
+    const ScrollableList = useMemo(()=>makeScrollableListWithRef<T>(),[]);
+    return (
+        <Scroller
+            loadMore={loadMore}
+            canScrollUp={hasNewerItems}
+            canScrollDown={hasOlderItems}
+            nextScrollThreshold={nextScrollThreshold}
+        >
+            <ScrollableList
+                items={items}
+                className={className}
+                focusItemId={focusItemId}
+                notificationComponent={notificationComponent}
+                autoScrollThreshold={autoScrollThreshold}
+                listComponent={listComponent}
+                hasNewerItems={hasNewerItems}
+                listItemComponent={listItemComponent}
+                classes={classes}
+            >
+                {children}
+            </ScrollableList>
+        </Scroller>
+    )
+}
+
+export default ScrollableContainer;

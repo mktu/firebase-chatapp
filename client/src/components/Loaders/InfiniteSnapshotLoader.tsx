@@ -53,7 +53,7 @@ type Children<T> = (
     items: T[],
     readMore: ReadMore,
     backwardListenable: boolean,
-    forwardListenable?: boolean
+    forwardListenable: boolean
 ) => React.ReactElement;
 
 const calcOrder = (direction: LoadDirection, orderBase: Order): Order => {

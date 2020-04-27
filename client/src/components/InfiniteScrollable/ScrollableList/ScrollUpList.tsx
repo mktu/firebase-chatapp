@@ -1,10 +1,12 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { ScrollDownType } from '../types';
+import Scroller from '../InfiniteScroller';
+import { Props } from '../types';
 import { domutil } from '../../../utils'
 
+export type ScrollDownType = 'jumpable-to-bottom' | 'automatically-scroll-down' | 'disable';
 export type Classes = 'root' | 'list-item' | 'focus-item' | 'notification';
 
-type PropsType<T> = {
+type ListProps<T> = {
     items: T[],
     children: (item: T) => React.ReactElement,
     hasNewerItems?: boolean,
@@ -26,7 +28,7 @@ const style = {
 }
 
 const makeScrollableListWithRef = <T extends { id: string }>() => {
-    return React.forwardRef<HTMLElement, PropsType<T>>(
+    return React.forwardRef<HTMLElement, ListProps<T>>(
         ({
             items,
             children,
@@ -129,4 +131,45 @@ const makeScrollableListWithRef = <T extends { id: string }>() => {
     );
 };
 
-export default makeScrollableListWithRef;
+function ScrollableContainer<T extends { id: string }>({
+    items,
+    loadMore,
+    hasOlderItems,
+    children,
+    className,
+    focusItemId,
+    hasNewerItems,
+    notificationComponent,
+    autoScrollThreshold = 100,
+    nextScrollThreshold = 250,
+    listComponent = 'div',
+    listItemComponent,
+    classes = {},
+}: Props<T>) {
+    const ScrollableList = useMemo(()=>makeScrollableListWithRef<T>(),[]);
+    return (
+        <Scroller
+            loadMore={loadMore}
+            canScrollUp={hasOlderItems}
+            canScrollDown={hasNewerItems}
+            nextScrollThreshold={nextScrollThreshold}
+        >
+            <ScrollableList
+                items={items}
+                className={className}
+                focusItemId={focusItemId}
+                notificationComponent={notificationComponent}
+                autoScrollThreshold={autoScrollThreshold}
+                listComponent={listComponent}
+                hasNewerItems={hasNewerItems}
+                listItemComponent={listItemComponent}
+                classes={classes}
+            >
+                {children}
+            </ScrollableList>
+        </Scroller>
+    )
+}
+
+
+export default ScrollableContainer;
