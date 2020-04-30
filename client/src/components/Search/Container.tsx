@@ -1,18 +1,20 @@
 import React from 'react';
 import algoliasearch from 'algoliasearch';
-import { connectInfiniteHits, connectSearchBox } from 'react-instantsearch-dom';
-import { InstantSearch } from 'react-instantsearch-dom';
+import { connectInfiniteHits, connectSearchBox, connectHighlight } from 'react-instantsearch-dom';
+import { InstantSearch} from 'react-instantsearch-dom';
 import { useHistory } from "react-router-dom";
-import SearchBoxContainer from './SearchBox';
-import HitsContainer from './Hits';
+import SearchBoxComponent from './SearchBox';
+import HitsComponent from './Hits';
+import HighlightComponent from './Highlight';
 import Presenter from './Presenter';
 import Refinements from './Refinements';
 
 const searchClient = process.env.REACT_APP_ALGOLIA_APP_ID && process.env.REACT_APP_ALGOLIA_API_KEY &&
     algoliasearch(process.env.REACT_APP_ALGOLIA_APP_ID, process.env.REACT_APP_ALGOLIA_API_KEY);
 
-const SearchBox = connectSearchBox(SearchBoxContainer);
-const Hits = connectInfiniteHits(HitsContainer);
+const SearchBox = connectSearchBox(SearchBoxComponent);
+const Hits = connectInfiniteHits(HitsComponent);
+const HighlightHit = connectHighlight(HighlightComponent);
 
 const Container: React.FC<{
     keyword?: string,
@@ -36,9 +38,16 @@ const Container: React.FC<{
                 renderHits={(style) => (
                     <Hits
                         className={style}
+                        highlight={(hit, attribute) => (
+                            <HighlightHit
+                                hit={hit}
+                                attribute={attribute}
+                            />
+                        )}
                         onSelect={(roomId, messageId) => {
                             history.push(`/rooms/${roomId}?message=${messageId}`);
-                        }} />
+                        }}
+                    />
                 )}
             />
         </InstantSearch>)

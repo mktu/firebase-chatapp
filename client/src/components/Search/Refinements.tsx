@@ -7,11 +7,10 @@ const Wrapper = styled.div`
     width : 100%;
     display : flex;
     align-items : center;
-    justify-content : space-between;
     box-sizing: border-box;
 
     & > .refinements-text{
-
+        margin-right : ${({ theme }) => `${theme.spacing(4)}px`};
     }
     & > .refinements-searchbox{
         display : flex;
