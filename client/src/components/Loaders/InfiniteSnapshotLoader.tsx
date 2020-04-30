@@ -6,6 +6,7 @@ export type Order = {
 }
 
 type LoadDirection = 'older' | 'newer';
+type LoadTarget = 'new' | 'existing';
 
 type Unsubscribe = () => void;
 
@@ -48,6 +49,7 @@ export type SingleItemLoader<T> = (
             onReceived: (results: T) => void,
             onFailed: (error: Error) => void
         }) => void;
+
 type ReadMore = (forward?: boolean) => void;
 type Children<T> = (
     items: T[],
@@ -56,11 +58,12 @@ type Children<T> = (
     forwardListenable: boolean
 ) => React.ReactElement;
 
-const calcOrder = (direction: LoadDirection, orderBase: Order): Order => {
-    if (orderBase.order === 'desc') {
-        return direction === 'older' ? { key: orderBase.key, order: 'desc' } : { key: orderBase.key, order: 'asc' };
+const convertToFirestoreOrder = (direction: LoadDirection, loadTarget: LoadTarget, key : string): Order => {
+    if (loadTarget === 'existing') {
+        return direction === 'older' ? { key, order: 'desc' } : { key, order: 'asc' };
     }
-    return direction === 'older' ? { key: orderBase.key, order: 'asc' } : { key: orderBase.key, order: 'desc' };
+    // loadTarget==='new'
+    return direction === 'older' ? { key, order: 'asc' } : { key, order: 'desc' };
 }
 
 const hasMore = <T extends ItemTypeBase>(sentinel:T, loaded : T[]) => {
@@ -75,12 +78,14 @@ const hasMore = <T extends ItemTypeBase>(sentinel:T, loaded : T[]) => {
 
 function useInfiniteSnapshotListener<T extends ItemTypeBase>({
     limit,
-    order,
+    loadTarget,
+    orderKey,
     forwardSentinel,
     registSnapshotListener
 }: {
     limit?: number,
-    order: Order,
+    loadTarget: LoadTarget,
+    orderKey: string
     forwardSentinel?: T,
     registSnapshotListener: SnapshotListenerRegister<T>
 }) {
@@ -99,21 +104,21 @@ function useInfiniteSnapshotListener<T extends ItemTypeBase>({
         const unsubscribe = registSnapshotListener(
             {
                 limit,
-                order: calcOrder(direction, order),
+                order: convertToFirestoreOrder(direction, loadTarget, orderKey),
                 startAfter,
                 startAt,
                 endAt,
                 onAdded: (results) => {
                     if (results.length > 0) {
                         if (direction === 'older') {
-                            if (order.order === 'desc') {
+                            if (loadTarget === 'existing') {
                                 setMessages(prev => [...prev, ...results])
                             } else {
                                 setMessages(prev => [...results, ...prev]);
                             }
                         }
                         else {
-                            if (order.order === 'desc') {
+                            if (loadTarget === 'existing') {
                                 setMessages(prev => [...results.reverse(), ...prev])
                             } else {
                                 setMessages(prev => [...prev, ...results.reverse()]);
@@ -146,7 +151,7 @@ function useInfiniteSnapshotListener<T extends ItemTypeBase>({
             }
         )
         unsubscribes.current.push(unsubscribe);
-    }, [limit, order, forwardSentinel, registSnapshotListener]);
+    }, [limit, loadTarget, orderKey, forwardSentinel, registSnapshotListener]);
 
     useEffect(() => {
         return () => {
@@ -163,16 +168,8 @@ function useInfiniteSnapshotListener<T extends ItemTypeBase>({
         readItems
     }
 }
-const descOrder: Order = {
-    key: 'date',
-    order: 'desc'
-};
-const ascOrder: Order = {
-    key: 'date',
-    order: 'asc'
-};
 
-function BackwardItemLoader<T extends ItemTypeBase>(
+function ExistingItemLoader<T extends ItemTypeBase>(
     {
         children,
         items,
@@ -196,7 +193,8 @@ function BackwardItemLoader<T extends ItemTypeBase>(
         readItems
     } = useInfiniteSnapshotListener({
         limit,
-        order: descOrder,
+        loadTarget : 'existing',
+        orderKey : 'date',
         forwardSentinel,
         registSnapshotListener
     })
@@ -235,7 +233,7 @@ function BackwardItemLoader<T extends ItemTypeBase>(
     return children(allItems, handleReadMore, hasOlderItems, hasNewerItems);
 }
 
-function LatestItemLoader<T extends ItemTypeBase>(
+function NewItemLoader<T extends ItemTypeBase>(
     {
         children,
         start,
@@ -260,7 +258,8 @@ function LatestItemLoader<T extends ItemTypeBase>(
         loaded,
         readItems
     } = useInfiniteSnapshotListener({
-        order: ascOrder,
+        loadTarget: 'new',
+        orderKey : 'date',
         registSnapshotListener
     })
     useEffect(() => {
@@ -274,7 +273,7 @@ function LatestItemLoader<T extends ItemTypeBase>(
         return children(loaded, () => { }, false, false);
     }
 
-    return <BackwardItemLoader
+    return <ExistingItemLoader
         children={children}
         items={loaded}
         backwardSentinel={backwardSentinel}
@@ -285,4 +284,4 @@ function LatestItemLoader<T extends ItemTypeBase>(
     />;
 }
 
-export default LatestItemLoader;
+export default NewItemLoader;
