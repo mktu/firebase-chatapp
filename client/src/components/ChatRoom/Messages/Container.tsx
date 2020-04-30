@@ -101,9 +101,10 @@ const Container: React.FC<{
             {
                 ({ classes }) => (
                     <InfiniteSnapshotListener
-                        start={start}
+                        loadOrigin={start?.date}
                         sortOrigin={startDate}
                         sortKey='date'
+                        uniqueKey='id'
                         backwardSentinel={backwardSentinel}
                         forwardSentinel={forwardSentinel}
                         registSnapshotListener={registSnapshotListener}

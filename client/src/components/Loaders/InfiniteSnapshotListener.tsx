@@ -9,10 +9,6 @@ type LoadDirection = 'older' | 'newer';
 type LoadTarget = 'new' | 'existing';
 type Unsubscribe = () => void;
 
-type ItemTypeBase = {
-    id: string,
-}
-
 export type SnapshotListenerRegister<T> = (
     {
         limit,
@@ -64,20 +60,21 @@ const convertToFirestoreOrder = (direction: LoadDirection, loadTarget: LoadTarge
     return direction === 'older' ? { key, order: 'asc' } : { key, order: 'desc' };
 }
 
-const hasMore = <T extends ItemTypeBase>(sentinel:T, loaded : T[]) => {
+function hasMore<T>(sentinel:T, loaded : T[], uniqueKey : keyof T) {
     if(sentinel){
         if(loaded.length === 0){ // has not read yet.
             return false;
         }
-        return ! Boolean(loaded.find(m => m.id === sentinel.id))
+        return ! Boolean(loaded.find(m => m[uniqueKey] === sentinel[uniqueKey]))
     }
     return false;
 }
 
-function useInfiniteSnapshotListener<T extends ItemTypeBase>({
+function useInfiniteSnapshotListener<T>({
     limit,
     loadTarget,
     sortKey,
+    uniqueKey,
     forwardSentinel,
     registSnapshotListener
 }: {
@@ -85,6 +82,7 @@ function useInfiniteSnapshotListener<T extends ItemTypeBase>({
     loadTarget: LoadTarget,
     sortKey: keyof T,
     forwardSentinel?: T,
+    uniqueKey : keyof T,
     registSnapshotListener: SnapshotListenerRegister<T>
 }) {
     const [loaded, setMessages] = useState<T[]>([]);
@@ -127,7 +125,7 @@ function useInfiniteSnapshotListener<T extends ItemTypeBase>({
                 onModified: (results) => {
                     setMessages(prev => {
                         return prev.map(mes => {
-                            const found = results.find(m => m.id === mes.id);
+                            const found = results.find(m => m[uniqueKey] === mes[uniqueKey]);
                             if (found) {
                                 return found;
                             }
@@ -138,7 +136,7 @@ function useInfiniteSnapshotListener<T extends ItemTypeBase>({
                 onDeleted: (results) => {
                     setMessages(prev => {
                         return prev.filter(mes => {
-                            const found = results.find(m => m.id === mes.id);
+                            const found = results.find(m => m[uniqueKey] === mes[uniqueKey]);
                             if (found) {
                                 return false;
                             }
@@ -149,7 +147,7 @@ function useInfiniteSnapshotListener<T extends ItemTypeBase>({
             }
         )
         unsubscribes.current.push(unsubscribe);
-    }, [limit, loadTarget, sortKey, forwardSentinel, registSnapshotListener]);
+    }, [limit, loadTarget, sortKey, uniqueKey, forwardSentinel, registSnapshotListener]);
 
     useEffect(() => {
         return () => {
@@ -167,7 +165,7 @@ function useInfiniteSnapshotListener<T extends ItemTypeBase>({
     }
 }
 
-function ExistingItemListener<T extends ItemTypeBase>(
+function ExistingItemListener<T>(
     {
         children,
         items,
@@ -176,6 +174,7 @@ function ExistingItemListener<T extends ItemTypeBase>(
         limit,
         startDate,
         sortKey,
+        uniqueKey,
         registSnapshotListener
     }: {
         children: Children<T>,
@@ -184,6 +183,7 @@ function ExistingItemListener<T extends ItemTypeBase>(
         forwardSentinel: T,
         limit: number,
         sortKey : keyof T,
+        uniqueKey : keyof T,
         startDate: T[keyof T],
         registSnapshotListener: SnapshotListenerRegister<T>
     }
@@ -195,6 +195,7 @@ function ExistingItemListener<T extends ItemTypeBase>(
         limit,
         loadTarget : 'existing',
         sortKey,
+        uniqueKey: uniqueKey,
         forwardSentinel,
         registSnapshotListener
     })
@@ -205,8 +206,8 @@ function ExistingItemListener<T extends ItemTypeBase>(
         });
     }, [startDate, readItems]);
 
-    const hasOlderItems = hasMore(backwardSentinel,loaded);
-    const hasNewerItems = hasMore(forwardSentinel,loaded);
+    const hasOlderItems = hasMore(backwardSentinel,loaded,uniqueKey);
+    const hasNewerItems = hasMore(forwardSentinel,loaded,uniqueKey);
 
     const allItems = useMemo(() => {
         return hasNewerItems ? loaded : [...items, ...loaded];
@@ -233,14 +234,15 @@ function ExistingItemListener<T extends ItemTypeBase>(
     return children(allItems, handleReadMore, hasOlderItems, hasNewerItems);
 }
 
-function NewItemListener<T extends ItemTypeBase>(
+function NewItemListener<T>(
     {
         children,
-        start,
+        loadOrigin,
         backwardSentinel,
         forwardSentinel,
         registSnapshotListener,
         sortKey,
+        uniqueKey,
         sortOrigin,
         limit=10
     }: {
@@ -248,8 +250,9 @@ function NewItemListener<T extends ItemTypeBase>(
         backwardSentinel?: T,
         forwardSentinel?: T,
         sortKey : keyof T,
+        uniqueKey : keyof T,
         sortOrigin : T[keyof T],
-        start?: T,
+        loadOrigin?: T[keyof T],
         limit?: number
         registSnapshotListener: SnapshotListenerRegister<T>
     }
@@ -259,7 +262,8 @@ function NewItemListener<T extends ItemTypeBase>(
         readItems
     } = useInfiniteSnapshotListener({
         loadTarget: 'new',
-        sortKey: sortKey,
+        sortKey,
+        uniqueKey: uniqueKey,
         registSnapshotListener
     })
     useEffect(() => {
@@ -277,9 +281,10 @@ function NewItemListener<T extends ItemTypeBase>(
         children={children}
         items={loaded}
         sortKey={sortKey}
+        uniqueKey={uniqueKey}
         backwardSentinel={backwardSentinel}
         forwardSentinel={forwardSentinel}
-        startDate={start?start[sortKey]:sortOrigin}
+        startDate={loadOrigin||sortOrigin}
         limit={limit}
         registSnapshotListener={registSnapshotListener}
     />;
