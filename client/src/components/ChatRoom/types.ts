@@ -1,4 +1,4 @@
-import { SnapshotListenerRegister, Order } from '../Loaders/InfiniteSnapshotLoader';
+import { SnapshotListenerRegister, Order } from '../Loaders/InfiniteSnapshotListener';
 import { Message } from '../../../../types/message';
 
 // service interfaces

@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import { Message } from '../../../../../types/message';
 import { Profile } from '../../../../../types/profile';
-import InfiniteSnapshotLoader, { SnapshotListenerRegister } from '../../Loaders/InfiniteSnapshotLoader';
+import InfiniteSnapshotListener, { SnapshotListenerRegister } from '../../Loaders/InfiniteSnapshotListener';
 import { LoadingStatusType, LoadingStatus } from '../../../constants';
 import Presenter from './Presenter';
 import InfiniteScrollable from '../../InfiniteScrollable';
@@ -94,11 +94,16 @@ const Container: React.FC<{
             return messageListenerRegister(args);
         }, [messageListenerRegister]);
 
+        const startDate = useMemo(() => {
+            return Date.now();
+        }, []);
         return <Presenter className={className} loadingStatus={status}>
             {
                 ({ classes }) => (
-                    <InfiniteSnapshotLoader
+                    <InfiniteSnapshotListener
                         start={start}
+                        sortOrigin={startDate}
+                        sortKey='date'
                         backwardSentinel={backwardSentinel}
                         forwardSentinel={forwardSentinel}
                         registSnapshotListener={registSnapshotListener}
@@ -133,7 +138,7 @@ const Container: React.FC<{
                                     </InfiniteScrollable>
                                 )
                         }
-                    </InfiniteSnapshotLoader>
+                    </InfiniteSnapshotListener>
                 )
             }
         </Presenter>
