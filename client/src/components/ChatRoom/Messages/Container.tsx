@@ -119,6 +119,7 @@ const Container: React.FC<{
                                     <InfiniteScrollable
                                         classes={classes}
                                         loadMore={readMore}
+                                        uniqueKey='id'
                                         hasOlderItems={hasOlderItems}
                                         hasNewerItems={hasNewerItems}
                                         items={messages}

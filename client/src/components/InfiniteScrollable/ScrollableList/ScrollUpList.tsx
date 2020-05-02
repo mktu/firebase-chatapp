@@ -8,9 +8,10 @@ export type Classes = 'root' | 'list-item' | 'focus-item' | 'notification';
 
 type ListProps<T> = {
     items: T[],
+    uniqueKey : keyof T,
     children: (item: T) => React.ReactElement,
     hasNewerItems?: boolean,
-    focusItemId?: string,
+    focusItemId?: T[keyof T],
     listComponent?: any,
     listItemComponent?: any,
     notificationComponent?: any,
@@ -27,11 +28,12 @@ const style = {
     'flexDirection' : 'column-reverse'
 }
 
-const makeScrollableListWithRef = <T extends { id: string }>() => {
+function makeScrollableListWithRef<T>(){
     return React.forwardRef<HTMLElement, ListProps<T>>(
         ({
             items,
             children,
+            uniqueKey,
             className,
             focusItemId,
             hasNewerItems,
@@ -43,14 +45,14 @@ const makeScrollableListWithRef = <T extends { id: string }>() => {
         }, ref) => {
             const itemsEndRef = useRef<HTMLDivElement | null>(null);
             const focusItemRef = useRef<HTMLElement | null>(null);
-            const [trackingId, setTrackingId] = useState<string>();
+            const [trackingId, setTrackingId] = useState<T[keyof T]>();
             
             const hasItem = items.length > 0;
             const List = listComponent;
             const ListItemComponent = listItemComponent;
             const NotificationComponent = notificationComponent;
             const [automaticallyScrollDown, setAutomaticallyScrollDown] = useState<ScrollDownType>('disable');
-            const newItemNavigatable = items.length > 0 && trackingId !== items[0].id && automaticallyScrollDown === 'jumpable-to-bottom';
+            const newItemNavigatable = items.length > 0 && trackingId !== items[0][uniqueKey] && automaticallyScrollDown === 'jumpable-to-bottom';
             
             useEffect(() => {
                 let enableAutomaticallyScrollDown = false;
@@ -90,16 +92,16 @@ const makeScrollableListWithRef = <T extends { id: string }>() => {
                     // scroll begins, start tracking the first item
                     if (element && scrollHeight > clientHeight) {
                         element.scrollIntoView();
-                        setTrackingId(items[0].id!);
+                        setTrackingId(items[0][uniqueKey]!);
                     }
                 }
-                else if (trackingId !== items[0].id && itemsEndRef.current) {
+                else if (trackingId !== items[0][uniqueKey] && itemsEndRef.current) {
                     if (automaticallyScrollDown === 'automatically-scroll-down') {
-                        setTrackingId(items[0].id!);
+                        setTrackingId(items[0][uniqueKey]!);
                         itemsEndRef.current.scrollIntoView({ behavior: "smooth" });
                     }
                 }
-            }, [items, automaticallyScrollDown, trackingId]);
+            }, [items, automaticallyScrollDown, trackingId, uniqueKey]);
         
             useEffect(() => {
                 hasItem && focusItemRef.current && focusItemRef.current.focus();
@@ -114,7 +116,7 @@ const makeScrollableListWithRef = <T extends { id: string }>() => {
                 <React.Fragment>
                     <List className={rootClass} style={style} ref={ref}>
                         {items.map(item => ListItemComponent ? (
-                            <ListItemComponent className={focusItemId === item.id ? `${listItemClass} ${focusItemClass}` : listItemClass} key={item.id} ref={focusItemId === item.id ? focusItemRef : undefined}>
+                            <ListItemComponent className={focusItemId === item[uniqueKey] ? `${listItemClass} ${focusItemClass}` : listItemClass} key={item[uniqueKey]} ref={focusItemId === item[uniqueKey] ? focusItemRef : undefined}>
                                 {children(item)}
                             </ListItemComponent>
                         ) : children(item))}
@@ -126,14 +128,15 @@ const makeScrollableListWithRef = <T extends { id: string }>() => {
                         }} />
                     )}
                 </React.Fragment>
-            ), [rootClass, listItemClass, notificationClass, focusItemClass, items, children, newItemNavigatable, NotificationComponent, focusItemId, ListItemComponent,ref]);
+            ), [rootClass, listItemClass, notificationClass, focusItemClass, items, children, newItemNavigatable, NotificationComponent, focusItemId, ListItemComponent,uniqueKey,ref]);
         }
     );
 };
 
-function ScrollableContainer<T extends { id: string }>({
+function ScrollableContainer<T>({
     items,
     loadMore,
+    uniqueKey,
     hasOlderItems,
     children,
     className,
@@ -157,6 +160,7 @@ function ScrollableContainer<T extends { id: string }>({
             <ScrollableList
                 items={items}
                 className={className}
+                uniqueKey={uniqueKey}
                 focusItemId={focusItemId}
                 notificationComponent={notificationComponent}
                 autoScrollThreshold={autoScrollThreshold}

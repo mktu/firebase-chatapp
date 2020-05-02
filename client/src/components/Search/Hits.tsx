@@ -32,6 +32,7 @@ function Hits({
         <Wrapper className={className}>
             <ScrollDownList
                 items={hits}
+                uniqueKey='id'
                 hasNewerItems={false}
                 hasOlderItems={hasMore}
                 loadMore={(toNewer) => {
