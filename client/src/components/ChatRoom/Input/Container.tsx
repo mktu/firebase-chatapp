@@ -7,8 +7,6 @@ import { SuggestionType } from './types';
 // refactor roomId, profile is not necessary
 const Container = ({
     className,
-    roomId,
-    profile,
     profiles,
     submitMessage,
     onCancel,
@@ -18,13 +16,9 @@ const Container = ({
     suggestionPlacement = 'above'
 }: {
     className?: string,
-    roomId: string,
-    profile: Profile,
     profiles: Profile[],
     submitMessage: (
-        roomId: string,
-        inputMessage: string,
-        profileId: string,
+        message: string,
         mentions: string[]
     ) => void,
     onCancel?: () => void,
@@ -65,14 +59,12 @@ const Container = ({
     const handleSubmitMessage = useCallback(() => {
         if (inputMessage) {
             submitMessage(
-                roomId,
                 inputMessage,
-                profile!.id,
                 mentions
             );
             modifier?.initialize();
         }
-    }, [inputMessage, modifier, submitMessage, mentions, profile, roomId])
+    }, [inputMessage, modifier, submitMessage, mentions])
 
     const onSelectEmoji = (emoji: string) => {
         modifier?.insert(emoji);

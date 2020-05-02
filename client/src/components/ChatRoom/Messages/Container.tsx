@@ -1,22 +1,22 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import { Message } from '../../../../../types/message';
 import { Profile } from '../../../../../types/profile';
-import InfiniteSnapshotLoader, { SnapshotListenerRegister } from '../../Loaders/InfiniteSnapshotLoader';
+import InfiniteSnapshotListener, { SnapshotListenerRegister } from '../../Loaders/InfiniteSnapshotListener';
 import { LoadingStatusType, LoadingStatus } from '../../../constants';
 import Presenter from './Presenter';
 import InfiniteScrollable from '../../InfiniteScrollable';
 import NewItemNotification from '../../InfiniteScrollable/NewItemNotification';
 import SingleMessageContainer from '../SingleMessage';
-import { MessageListenerRegister, GetMessages, GetMessage, AddReaction, EditMessage, DisableMessage } from '../types';
+import { MessageListenerRegister, GetMessageAtEnd, GetMessage, AddReaction, EditMessage, DisableMessage } from '../types';
 
 const Container: React.FC<{
-    roomId: string,
     focusMessageId?: string,
     className?: string,
     messageListenerRegister: MessageListenerRegister,
-    getMessages: GetMessages,
+    getLatestMessage: GetMessageAtEnd,
+    getOldestMessage:GetMessageAtEnd,
     getMessage: GetMessage,
     addReaction: AddReaction,
     editMessage : EditMessage,
@@ -24,10 +24,10 @@ const Container: React.FC<{
     profiles: Profile[],
     profile: Profile,
 }> = ({
-    roomId,
     className,
     messageListenerRegister,
-    getMessages,
+    getLatestMessage,
+    getOldestMessage,
     getMessage,
     addReaction,
     editMessage,
@@ -44,7 +44,6 @@ const Container: React.FC<{
             let unmounted = false;
             if (focusMessageId) {
                 getMessage({
-                    roomId,
                     messageId: focusMessageId,
                     onSucceeded: (message) => {
                         if (unmounted) return;
@@ -52,33 +51,27 @@ const Container: React.FC<{
                     }
                 })
             }
-            getMessages({
-                roomId,
-                limit: 1,
-                order: { key: 'date', order: 'asc' },
-                onAdded: (items) => {
+            getOldestMessage({
+                onAdded: (item) => {
                     if (unmounted) return;
-                    items.length > 0 && setBackwardSentinel(items[0])
+                    setBackwardSentinel(item)
                     setStatus(LoadingStatus.Succeeded);
                 },
                 onFailed: () => {
                     if (unmounted) return;
                     setStatus(LoadingStatus.Failed);
                 }
-            });
-            getMessages({
-                roomId,
-                limit: 1,
-                order: { key: 'date', order: 'desc' },
-                onAdded: (items) => {
+            })
+            getLatestMessage({
+                onAdded: (item) => {
                     if (unmounted) return;
-                    items.length > 0 && setForwardSentinel(items[0])
+                    setForwardSentinel(item);
                 },
                 onFailed: () => {
                     if (unmounted) return;
                     setStatus(LoadingStatus.Failed);
                 }
-            });
+            })
             return () => {
                 unmounted = true;
                 setStatus(LoadingStatus.Loading);
@@ -86,7 +79,7 @@ const Container: React.FC<{
                 setBackwardSentinel(undefined);
                 setForwardSentinel(undefined);
             }
-        }, [roomId, focusMessageId, getMessage, getMessages]);
+        }, [focusMessageId, getMessage, getLatestMessage,getOldestMessage]);
 
         // loading timeout
         useEffect(() => {
@@ -98,17 +91,20 @@ const Container: React.FC<{
         }, [status]);
 
         const registSnapshotListener: SnapshotListenerRegister<Message> = useCallback((args) => {
-            return messageListenerRegister({
-                roomId,
-                ...args
-            })
-        }, [roomId, messageListenerRegister]);
+            return messageListenerRegister(args);
+        }, [messageListenerRegister]);
 
+        const startDate = useMemo(() => {
+            return Date.now();
+        }, []);
         return <Presenter className={className} loadingStatus={status}>
             {
                 ({ classes }) => (
-                    <InfiniteSnapshotLoader
-                        start={start}
+                    <InfiniteSnapshotListener
+                        loadOrigin={start?.date}
+                        sortOrigin={startDate}
+                        sortKey='date'
+                        uniqueKey='id'
                         backwardSentinel={backwardSentinel}
                         forwardSentinel={forwardSentinel}
                         registSnapshotListener={registSnapshotListener}
@@ -123,6 +119,7 @@ const Container: React.FC<{
                                     <InfiniteScrollable
                                         classes={classes}
                                         loadMore={readMore}
+                                        uniqueKey='id'
                                         hasOlderItems={hasOlderItems}
                                         hasNewerItems={hasNewerItems}
                                         items={messages}
@@ -133,7 +130,6 @@ const Container: React.FC<{
                                     >
                                         {(message: Message) => (
                                             <SingleMessageContainer
-                                                roomId={roomId}
                                                 profile={profile!}
                                                 message={message}
                                                 profiles={profiles}
@@ -144,7 +140,7 @@ const Container: React.FC<{
                                     </InfiniteScrollable>
                                 )
                         }
-                    </InfiniteSnapshotLoader>
+                    </InfiniteSnapshotListener>
                 )
             }
         </Presenter>

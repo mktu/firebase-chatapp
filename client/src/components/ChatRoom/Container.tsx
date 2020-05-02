@@ -3,7 +3,7 @@ import ProfileContext from '../../contexts/ProfileContext';
 import { Room } from '../../../../types/room';
 import { Profile } from '../../../../types/profile';
 import { modifyRoom } from '../../services/room';
-import { addReaction, createMessage, editMessage, registMessagesListener, getMessage, getMessages, disableMessage } from '../../services/message';
+import { addReaction, createMessage, editMessage, registMessagesListener, getMessage, getLatestMessage, getOldestMessage, disableMessage } from '../../services/message';
 import { updateRequest } from '../../services/request';
 import HeaderContainer from './Header';
 import Messages from './Messages';
@@ -25,7 +25,7 @@ const Container: React.FC<{
         const { profileState } = useContext(ProfileContext);
         const { profile } = profileState;
         const owenr = profile?.id === room.ownerId;
-        
+
         const renderHeader = useCallback((style) => {
             return (
                 <RequestsLoader roomId={room.id}>
@@ -41,37 +41,79 @@ const Container: React.FC<{
                         />
                     )}
                 </RequestsLoader>
-            )
+            );
         }, [room, profiles, owenr]);
 
         const renderMessages = useCallback((style) => {
-            return (
+            return profile ? (
                 <Messages
                     className={style}
-                    roomId={room.id}
                     focusMessageId={messageId}
-                    profile={profile!}
+                    profile={profile}
                     profiles={profiles}
-                    addReaction={addReaction}
-                    messageListenerRegister={registMessagesListener}
-                    getMessage={getMessage}
-                    getMessages={getMessages}
-                    editMessage={editMessage}
-                    disableMessage={disableMessage}
+                    addReaction={(messageId, reactionId, profileId)=>{
+                        addReaction({
+                            roomId:room.id,
+                            messageId,
+                            reactionId,
+                            profileId
+                        });
+                    }}
+                    messageListenerRegister={(args)=>{
+                        return registMessagesListener({
+                            roomId: room.id,
+                            ...args
+                        });
+                    }}
+                    getMessage={(args)=>{
+                        getMessage({
+                            roomId: room.id,
+                            ...args
+                        })
+                    }}
+                    getLatestMessage={(args)=>{
+                        getLatestMessage({
+                            roomId: room.id,
+                            ...args
+                        })
+                    }}
+                    getOldestMessage={(args)=>{
+                        getOldestMessage({
+                            roomId: room.id,
+                            ...args
+                        })
+                    }}
+                    editMessage={(messageId,message,mentions) => {
+                        editMessage({
+                            roomId: room.id,
+                            messageId,
+                            message,
+                            mentions
+                        })
+                    }}
+                    disableMessage={(messageId)=>{
+                        disableMessage(room.id,messageId);
+                    }}
                 />
-            )
+            ) : <div/>
         }, [room.id, profiles, profile, messageId]);
 
         const renderFooter = useCallback((style) => {
-            return (
-                <InputContainer
-                    className={style}
-                    profiles={profiles}
-                    profile={profile!}
-                    roomId={room.id}
-                    submitMessage={createMessage}
-                />
-            )
+            return profile ? (<InputContainer
+                className={style}
+                profiles={profiles}
+                submitMessage={(message, mentions) => {
+                    createMessage({
+                        roomId: room.id,
+                        roomName: room.roomName,
+                        senderId: profile.id,
+                        senderName: profile.nickname,
+                        message,
+                        mentions
+                    })
+                }}
+            />
+            ) : <div/>;
         }, [room, profiles, profile]);
 
         return (

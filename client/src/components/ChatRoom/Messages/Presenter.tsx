@@ -1,6 +1,6 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
-import { Classes } from '../../InfiniteScrollable/ScrollableContainer';
+import { types } from '../../InfiniteScrollable';
 import { LoadingStatusType } from '../../../constants';
 
 const focusAnimation = keyframes`
@@ -43,7 +43,7 @@ function Presenter({
     loadingStatus : LoadingStatusType,
     children: (
         args: {
-            classes: {[key in Classes]? : string}
+            classes: {[key in types.Classes]? : string}
         }
     ) => React.ReactElement,
 }) {

@@ -7,7 +7,6 @@ import Input, { EditMessagePresenter } from '../Input';
 import { EditMessage, AddReaction, DisableMessage } from '../types';
 
 const Container: React.FC<{
-    roomId: string,
     profiles: Profile[],
     profile: Profile,
     message: Message,
@@ -18,12 +17,11 @@ const Container: React.FC<{
     profiles,
     profile,
     message,
-    roomId,
     addReaction,
     editMessage,
     disableMessage
 }) => {
-        const sender = profiles.find(p => p.id === message.profileId);
+        const sender = profiles.find(p => p.id === message.senderId);
         const amISender = sender?.id === profile!.id;
         const date = new Date(message.update || message.date);
         const time = `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
@@ -39,12 +37,11 @@ const Container: React.FC<{
 
         const handleAddReaction = useCallback((reactionId: string) => {
             addReaction(
-                roomId,
                 message.id,
                 reactionId,
                 profile!.id,
             )
-        }, [roomId, message.id, profile, addReaction]);
+        }, [message.id, profile, addReaction]);
 
         const reactions: { [s: string]: string[] } = useMemo(() => {
             const reactionsBase = message.reactions || {};
@@ -67,11 +64,9 @@ const Container: React.FC<{
                 }}>
                     <Presenters.EditMessage>
                         <Input
-                            roomId={roomId}
                             profiles={profiles}
-                            profile={profile}
-                            submitMessage={(roomId, messageText, profileId, mentions) => {
-                                editMessage(roomId, message.id, messageText, profileId, mentions);
+                            submitMessage={(messageText, mentions) => {
+                                editMessage(message.id, messageText, mentions);
                                 setEditable(false);
                             }}
                             onCancel={() => { setEditable(false) }}
@@ -101,7 +96,7 @@ const Container: React.FC<{
                         onClickEdit={() => { setEditable(true) }}
                         onClickDelete={() => {
                             disableMessage(
-                                roomId, message.id
+                                message.id
                             )
                         }}
                         update={Boolean(message.update)}

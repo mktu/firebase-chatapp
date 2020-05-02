@@ -30,8 +30,8 @@ export function registMessagesListener(
         limit?: number,
         order?: Order,
         startAfter?: any,
-        startAt?:any,
-        endAt?:any,
+        startAt?: any,
+        endAt?: any,
         onAdded: MessagesTransfer,
         onModified: MessagesTransfer,
         onDeleted: MessagesTransfer,
@@ -49,13 +49,13 @@ export function registMessagesListener(
     if (startAfter) {
         query = query.startAfter(startAfter);
     }
-    if(startAt){
+    if (startAt) {
         query = query.startAt(startAt);
     }
     if (limit) {
         query = query.limit(limit);
     }
-    if(endAt){
+    if (endAt) {
         query = query.endAt(endAt);
     }
     return query
@@ -70,29 +70,29 @@ export function getMessage({
     messageId,
     onSucceeded,
     onFailed = consoleError
-}:{
-    roomId : string,
-    messageId : string,
-    onSucceeded : MessageTransfer,
-    onFailed? : ErrorHandler
-}){
+}: {
+    roomId: string,
+    messageId: string,
+    onSucceeded: MessageTransfer,
+    onFailed?: ErrorHandler
+}) {
     db.collection('rooms')
-    .doc(roomId)
-    .collection('messages')
-    .doc(messageId)
-    .get()
-    .then((data)=>{
-        if(data.exists){
-            onSucceeded({
-                id : messageId,
-                ...data.data()
-            } as Message );
-        }
-        else{
-            onFailed(Error(`room:${roomId},message:${messageId} does not exist`));
-        }
-    })
-    .catch(onFailed);
+        .doc(roomId)
+        .collection('messages')
+        .doc(messageId)
+        .get()
+        .then((data) => {
+            if (data.exists) {
+                onSucceeded({
+                    id: messageId,
+                    ...data.data()
+                } as Message);
+            }
+            else {
+                onFailed(Error(`room:${roomId},message:${messageId} does not exist`));
+            }
+        })
+        .catch(onFailed);
 }
 export function getMessages({
     roomId,
@@ -133,20 +133,83 @@ export function getMessages({
         .catch(onFailed)
 }
 
+export function getLatestMessage(
+    {
+        roomId,
+        onAdded,
+        onFailed = consoleError
+
+    }: {
+        roomId: string,
+        onAdded: MessageTransfer,
+        onFailed?: ErrorHandler,
+    }
+) {
+    getMessages({
+        roomId,
+        limit: 1,
+        order: { key: 'date', order: 'desc' },
+        onAdded : (items) => {
+            items.length > 0 && onAdded(items[0])
+        },
+        onFailed
+    });
+}
+
+export function getOldestMessage(
+    {
+        roomId,
+        onAdded,
+        onFailed = consoleError
+
+    }: {
+        roomId: string,
+        onAdded: MessageTransfer,
+        onFailed?: ErrorHandler,
+    }
+) {
+    getMessages({
+        roomId,
+        limit: 1,
+        order:{ key: 'date', order: 'asc' },
+        onAdded : (items) => {
+            items.length > 0 && onAdded(items[0])
+        },
+        onFailed
+    });
+}
+
 export function createMessage(
-    roomId: string,
-    message: string,
-    profileId: string,
-    mentions?: string[],
-    onSucceeded?: Notifier,
-    onFailed: ErrorHandler = consoleError
+    {
+        roomId,
+        roomName,
+        message,
+        senderId,
+        senderName,
+        mentions,
+        onSucceeded,
+        onFailed = consoleError
+    }:
+        {
+            roomId: string,
+            roomName: string,
+            message: string,
+            senderId: string,
+            senderName: string,
+            mentions?: string[],
+            onSucceeded?: Notifier,
+            onFailed?: ErrorHandler
+        }
 ) {
     db.collection('rooms')
         .doc(roomId)
         .collection('messages')
         .add({
             message,
-            profileId,
+            roomName,
+            roomId,
+            senderId,
+            senderName,
             mentions,
             date: Date.now()
         })
@@ -155,24 +218,32 @@ export function createMessage(
 }
 
 export function editMessage(
-    roomId: string,
-    messageId: string,
-    message: string,
-    profileId: string,
-    mentions?: string[],
-    onSucceeded?: Notifier,
-    onFailed: ErrorHandler = consoleError
-){
+    {
+        roomId,
+        messageId,
+        message,
+        mentions,
+        onSucceeded,
+        onFailed = consoleError
+    }
+        : {
+            roomId: string,
+            messageId: string,
+            message: string,
+            mentions?: string[],
+            onSucceeded?: Notifier,
+            onFailed?: ErrorHandler
+        }
+) {
     db.collection('rooms')
         .doc(roomId)
         .collection('messages')
         .doc(messageId)
         .set({
             message,
-            profileId,
             mentions,
             update: Date.now()
-        },{ merge: true })
+        }, { merge: true })
         .then(onSucceeded)
         .catch(onFailed)
 }
@@ -182,27 +253,37 @@ export function disableMessage(
     messageId: string,
     onSucceeded?: Notifier,
     onFailed: ErrorHandler = consoleError
-){
+) {
     db.collection('rooms')
         .doc(roomId)
         .collection('messages')
         .doc(messageId)
         .set({
-            disable : true,
-            message:'',
+            disable: true,
+            message: '',
             update: Date.now()
-        },{ merge: true })
+        }, { merge: true })
         .then(onSucceeded)
         .catch(onFailed)
 }
 
 export function addReaction(
-    roomId: string,
-    messageId: string,
-    reactionId: string,
-    profileId: string,
-    onSucceeded?: Notifier,
-    onFailed: ErrorHandler = consoleError
+    {
+        roomId,
+        messageId,
+        reactionId,
+        profileId,
+        onSucceeded,
+        onFailed = consoleError
+    }
+        : {
+            roomId: string,
+            messageId: string,
+            reactionId: string,
+            profileId: string,
+            onSucceeded?: Notifier,
+            onFailed?: ErrorHandler
+        }
 ) {
     const docRef = db.collection('rooms')
         .doc(roomId)
@@ -217,20 +298,20 @@ export function addReaction(
             const data = doc.data() as Message;
             const reactions = data.reactions ? data.reactions : {};
             const profileIds = reactions[reactionId] || [];
-            if(profileIds.includes(profileId)){
+            if (profileIds.includes(profileId)) {
                 return;
             }
             const newReactions = {
                 ...reactions,
-                [reactionId] : [...profileIds,profileId]
+                [reactionId]: [...profileIds, profileId]
             }
-            const newData : Message = {
+            const newData: Message = {
                 ...data,
-                reactions:newReactions
+                reactions: newReactions
             }
             transaction.update(docRef, newData);
         });
     })
-    .then(onSucceeded)
-    .catch(onFailed);
+        .then(onSucceeded)
+        .catch(onFailed);
 }

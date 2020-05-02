@@ -6,13 +6,8 @@ export type Order = {
 }
 
 type LoadDirection = 'older' | 'newer';
-
+type LoadTarget = 'new' | 'existing';
 type Unsubscribe = () => void;
-
-type ItemTypeBase = {
-    id: string,
-    date: number
-}
 
 export type SnapshotListenerRegister<T> = (
     {
@@ -28,9 +23,9 @@ export type SnapshotListenerRegister<T> = (
         {
             limit?: number,
             order: Order,
-            startAfter?: number,
-            startAt?: number,
-            endAt?: number
+            startAfter?: T[keyof T],
+            startAt?: T[keyof T],
+            endAt?: T[keyof T]
             onAdded: (results: T[]) => void,
             onModified: (results: T[]) => void,
             onDeleted: (results: T[]) => void,
@@ -48,38 +43,49 @@ export type SingleItemLoader<T> = (
             onReceived: (results: T) => void,
             onFailed: (error: Error) => void
         }) => void;
+
 type ReadMore = (forward?: boolean) => void;
 type Children<T> = (
     items: T[],
     readMore: ReadMore,
     backwardListenable: boolean,
-    forwardListenable?: boolean
+    forwardListenable: boolean
 ) => React.ReactElement;
 
-const calcOrder = (direction: LoadDirection, orderBase: Order): Order => {
-    if (orderBase.order === 'desc') {
-        return direction === 'older' ? { key: orderBase.key, order: 'desc' } : { key: orderBase.key, order: 'asc' };
+const convertToFirestoreOrder = (direction: LoadDirection, loadTarget: LoadTarget, key : string): Order => {
+    if (loadTarget === 'existing') {
+        return direction === 'older' ? { key, order: 'desc' } : { key, order: 'asc' };
     }
-    return direction === 'older' ? { key: orderBase.key, order: 'asc' } : { key: orderBase.key, order: 'desc' };
+    // loadTarget==='new'
+    return direction === 'older' ? { key, order: 'asc' } : { key, order: 'desc' };
 }
 
+function hasMore<T>(sentinel:T, loaded : T[], uniqueKey : keyof T) {
+    if(sentinel){
+        if(loaded.length === 0){ // has not read yet.
+            return false;
+        }
+        return ! Boolean(loaded.find(m => m[uniqueKey] === sentinel[uniqueKey]))
+    }
+    return false;
+}
 
-function useInfiniteSnapshotListener<T extends ItemTypeBase>({
+function useInfiniteSnapshotListener<T>({
     limit,
-    order,
-    backwardSentinel,
+    loadTarget,
+    sortKey,
+    uniqueKey,
     forwardSentinel,
     registSnapshotListener
 }: {
     limit?: number,
-    order: Order,
-    backwardSentinel?: T,
+    loadTarget: LoadTarget,
+    sortKey: keyof T,
     forwardSentinel?: T,
+    uniqueKey : keyof T,
     registSnapshotListener: SnapshotListenerRegister<T>
 }) {
     const [loaded, setMessages] = useState<T[]>([]);
-    const hasOlderItems = backwardSentinel ? ! Boolean(loaded.find(m => m.id === backwardSentinel.id)) : false;
-    const hasNewerItems = forwardSentinel ? ! Boolean(loaded.find(m => m.id === forwardSentinel?.id)) : false;
     const unsubscribes = useRef<Unsubscribe[]>([]);
     const readItems = useCallback(({
         startAfter,
@@ -87,28 +93,28 @@ function useInfiniteSnapshotListener<T extends ItemTypeBase>({
         direction
     }: {
         direction: LoadDirection
-        startAt?: number,
-        startAfter?: number,
+        startAt?: T[keyof T],
+        startAfter?: T[keyof T],
     }) => {
-        const endAt = direction === 'newer' ? forwardSentinel?.date : undefined;
+        const endAt = direction === 'newer' ? forwardSentinel?.[sortKey] : undefined;
         const unsubscribe = registSnapshotListener(
             {
                 limit,
-                order: calcOrder(direction, order),
+                order: convertToFirestoreOrder(direction, loadTarget, sortKey.toString()),
                 startAfter,
                 startAt,
                 endAt,
                 onAdded: (results) => {
                     if (results.length > 0) {
                         if (direction === 'older') {
-                            if (order.order === 'desc') {
+                            if (loadTarget === 'existing') {
                                 setMessages(prev => [...prev, ...results])
                             } else {
                                 setMessages(prev => [...results, ...prev]);
                             }
                         }
                         else {
-                            if (order.order === 'desc') {
+                            if (loadTarget === 'existing') {
                                 setMessages(prev => [...results.reverse(), ...prev])
                             } else {
                                 setMessages(prev => [...prev, ...results.reverse()]);
@@ -119,7 +125,7 @@ function useInfiniteSnapshotListener<T extends ItemTypeBase>({
                 onModified: (results) => {
                     setMessages(prev => {
                         return prev.map(mes => {
-                            const found = results.find(m => m.id === mes.id);
+                            const found = results.find(m => m[uniqueKey] === mes[uniqueKey]);
                             if (found) {
                                 return found;
                             }
@@ -130,7 +136,7 @@ function useInfiniteSnapshotListener<T extends ItemTypeBase>({
                 onDeleted: (results) => {
                     setMessages(prev => {
                         return prev.filter(mes => {
-                            const found = results.find(m => m.id === mes.id);
+                            const found = results.find(m => m[uniqueKey] === mes[uniqueKey]);
                             if (found) {
                                 return false;
                             }
@@ -141,7 +147,7 @@ function useInfiniteSnapshotListener<T extends ItemTypeBase>({
             }
         )
         unsubscribes.current.push(unsubscribe);
-    }, [limit, order, forwardSentinel, registSnapshotListener]);
+    }, [limit, loadTarget, sortKey, uniqueKey, forwardSentinel, registSnapshotListener]);
 
     useEffect(() => {
         return () => {
@@ -154,22 +160,12 @@ function useInfiniteSnapshotListener<T extends ItemTypeBase>({
     }, []);
 
     return {
-        hasOlderItems,
-        hasNewerItems,
         loaded,
         readItems
     }
 }
-const descOrder: Order = {
-    key: 'date',
-    order: 'desc'
-};
-const ascOrder: Order = {
-    key: 'date',
-    order: 'asc'
-};
 
-function BackwardItemLoader<T extends ItemTypeBase>(
+function ExistingItemListener<T>(
     {
         children,
         items,
@@ -177,26 +173,29 @@ function BackwardItemLoader<T extends ItemTypeBase>(
         forwardSentinel,
         limit,
         startDate,
+        sortKey,
+        uniqueKey,
         registSnapshotListener
     }: {
         children: Children<T>,
         items: T[],
         backwardSentinel: T,
         forwardSentinel: T,
-        limit: number
-        startDate: number,
+        limit: number,
+        sortKey : keyof T,
+        uniqueKey : keyof T,
+        startDate: T[keyof T],
         registSnapshotListener: SnapshotListenerRegister<T>
     }
 ) {
     const {
-        hasOlderItems,
-        hasNewerItems,
         loaded,
         readItems
     } = useInfiniteSnapshotListener({
         limit,
-        order: descOrder,
-        backwardSentinel,
+        loadTarget : 'existing',
+        sortKey,
+        uniqueKey: uniqueKey,
         forwardSentinel,
         registSnapshotListener
     })
@@ -207,6 +206,9 @@ function BackwardItemLoader<T extends ItemTypeBase>(
         });
     }, [startDate, readItems]);
 
+    const hasOlderItems = hasMore(backwardSentinel,loaded,uniqueKey);
+    const hasNewerItems = hasMore(forwardSentinel,loaded,uniqueKey);
+
     const allItems = useMemo(() => {
         return hasNewerItems ? loaded : [...items, ...loaded];
     }, [items, loaded, hasNewerItems]);
@@ -215,72 +217,77 @@ function BackwardItemLoader<T extends ItemTypeBase>(
         if (allItems.length > 0) {
             if (!toNewer && hasOlderItems) {
                 readItems({
-                    startAfter: allItems[allItems.length - 1].date,
+                    startAfter: allItems[allItems.length - 1][sortKey],
                     direction: 'older'
                 });
             }
             else if (toNewer && hasNewerItems) {
                 readItems({
-                    startAfter: allItems[0].date,
+                    startAfter: allItems[0][sortKey],
                     direction: 'newer'
                 });
             }
         }
 
-    }, [hasOlderItems, allItems, readItems, hasNewerItems]);
+    }, [hasOlderItems, allItems, readItems, hasNewerItems, sortKey]);
 
     return children(allItems, handleReadMore, hasOlderItems, hasNewerItems);
 }
 
-function LatestItemLoader<T extends ItemTypeBase>(
+function NewItemListener<T>(
     {
         children,
-        start,
+        loadOrigin,
         backwardSentinel,
         forwardSentinel,
         registSnapshotListener,
+        sortKey,
+        uniqueKey,
+        sortOrigin,
         limit=10
     }: {
         children: Children<T>,
         backwardSentinel?: T,
         forwardSentinel?: T,
-        start?: T,
+        sortKey : keyof T,
+        uniqueKey : keyof T,
+        sortOrigin : T[keyof T],
+        loadOrigin?: T[keyof T],
         limit?: number
         registSnapshotListener: SnapshotListenerRegister<T>
     }
 ) {
-    const startDate = useMemo(() => {
-        return Date.now();
-    }, []);
-
     const {
         loaded,
         readItems
     } = useInfiniteSnapshotListener({
-        order: ascOrder,
-        backwardSentinel,
+        loadTarget: 'new',
+        sortKey,
+        uniqueKey: uniqueKey,
         registSnapshotListener
     })
     useEffect(() => {
         readItems({
-            startAfter : startDate, 
+            startAfter : sortOrigin, 
             direction : 'older'
         });
-    }, [startDate, readItems]);
+    }, [sortOrigin, readItems]);
 
     if (!forwardSentinel || !backwardSentinel) {
         return children(loaded, () => { }, false, false);
     }
 
-    return <BackwardItemLoader
+    return <ExistingItemListener
         children={children}
         items={loaded}
+        sortKey={sortKey}
+        uniqueKey={uniqueKey}
         backwardSentinel={backwardSentinel}
         forwardSentinel={forwardSentinel}
-        startDate={start?start.date:startDate}
+        startDate={loadOrigin||sortOrigin}
         limit={limit}
         registSnapshotListener={registSnapshotListener}
     />;
 }
 
-export default LatestItemLoader;
+export default NewItemListener;
