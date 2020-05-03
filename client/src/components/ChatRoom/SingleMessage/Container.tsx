@@ -1,5 +1,4 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import * as Presenters from './Presenters';
 import { Profile } from '../../../../../types/profile';
 import { Message } from '../../../../../types/message';
@@ -59,28 +58,24 @@ const Container: React.FC<{
 
         if (editable) {
             return (
-                <ClickAwayListener onClickAway={() => {
-                    setEditable(false);
-                }}>
-                    <Presenters.EditMessage>
-                        <Input
-                            profiles={profiles}
-                            submitMessage={(messageText, mentions) => {
-                                editMessage(message.id, messageText, mentions);
-                                setEditable(false);
-                            }}
-                            onCancel={() => { setEditable(false) }}
-                            presenter={EditMessagePresenter}
-                            initText={message.message}
-                            initMentions={message.mentions}
-                            suggestionPlacement='below'
-                        />
-                    </Presenters.EditMessage>
-                </ClickAwayListener>
+                <Presenters.EditMessage>
+                    <Input
+                        profiles={profiles}
+                        submitMessage={(messageText, mentions) => {
+                            editMessage(message.id, messageText, mentions);
+                            setEditable(false);
+                        }}
+                        onCancel={() => { setEditable(false) }}
+                        presenter={EditMessagePresenter}
+                        initText={message.message}
+                        initMentions={message.mentions}
+                        suggestionPlacement='below'
+                    />
+                </Presenters.EditMessage>
             )
         }
 
-        if(message.disable){
+        if (message.disable) {
             return null;
         }
 
