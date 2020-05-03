@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
@@ -72,10 +72,6 @@ const SentMessage: React.FC<{
         const ref = useRef<HTMLDivElement | null>(null);
         const [hover, setHover] = useState(false);
         const [showConfirmation, setShowConfirmation] = useState(false);
-        useEffect(() => {
-            if (ref.current) {
-            }
-        }, []);
         return (<Wrapper className={className} ref={ref} onMouseEnter={() => {
             setHover(true);
         }} onMouseLeave={() => {
@@ -87,7 +83,7 @@ const SentMessage: React.FC<{
             <div className='message-wrapper'>
                 <div className='message-header'>
                     <div>
-    <Typography variant='caption' color='textSecondary'>{sender} {time} {update&&'UPDATED'}</Typography>
+                        <Typography variant='caption' color='textSecondary'>{sender} {time} {update && 'UPDATED'}</Typography>
                     </div>
                     <div className='message-actions'>
                         {

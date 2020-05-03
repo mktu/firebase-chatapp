@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
@@ -34,11 +34,14 @@ const Presenter: React.FC<{
     renderMessages,
     renderFooter
 }) => {
+    const header = useMemo(()=>renderHeader('room-header'),[renderHeader]);
+    const messages = useMemo(()=>renderMessages('room-messages'),[renderMessages]);
+    const footer = useMemo(()=>renderFooter('room-input'),[renderFooter]);
         return (
             <Wrapper className={className} >
-                {renderHeader('room-header')}
-                {renderMessages('room-messages')}
-                {renderFooter('room-input')}
+                {header}
+                {messages}
+                {footer}
             </Wrapper>
         )
     };
