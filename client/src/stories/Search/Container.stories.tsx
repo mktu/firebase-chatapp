@@ -3,6 +3,7 @@ import { action } from '@storybook/addon-actions';
 import Hits from '../../components/Search/Hits';
 import { Hit } from 'react-instantsearch-core';
 import SearchBox from '../../components/Search/SearchBox';
+import Menu from '../../components/Search/Menu';
 import { Presenter, Refinements } from '../../components/Search'
 import { Message } from '../../../../types/message';
 
@@ -10,14 +11,14 @@ const MAX_PAGE_SIZE = 10;
 const ITEM_MAX_IN_PAGE = 20;
 const FULL_ITEMS: Hit<Message>[] = [...Array(ITEM_MAX_IN_PAGE * MAX_PAGE_SIZE).keys()].map(i => ({
     roomId: 'room',
-    objectID : 'room',
+    objectID: 'room',
     id: i.toString(),
     date: Date.now() + i,
     message: `this is ${i}`,
     senderId: 'test1',
     senderName: 'test1',
     roomName: 'room',
-    _highlightResult : {}
+    _highlightResult: {}
 }));
 
 const Container = ({
@@ -41,7 +42,30 @@ const Container = ({
                             currentRefinement={'test'}
                             isSearchStalled={false}
                         />
-                    )} />
+                    )}
+                    renderRoomMenu={(className) => (
+                        <Menu
+                            className={className}
+                            items={[]}
+                            currentRefinement=''
+                            refine={action('refine')}
+                            createURL={action('createURL')}
+                            searchForItems={action('searchForItems')}
+                            isFromSearch={false}
+                        />
+                    )}
+                    renderSenderMenu={(className)=>(
+                        <Menu
+                            className={className}
+                            items={[]}
+                            currentRefinement=''
+                            refine={action('refine')}
+                            createURL={action('createURL')}
+                            searchForItems={action('searchForItems')}
+                            isFromSearch={false}
+                        />
+                    )}
+                />
             )}
             renderHits={(className) => (
                 <Hits
@@ -59,8 +83,8 @@ const Container = ({
                         }, 500);
                     }}
                     refinePrevious={action('previous')}
-                    highlight={(hit,attribute)=>{
-                    return <span>{hit[attribute]}</span>
+                    highlight={(hit, attribute) => {
+                        return <span>{hit[attribute]}</span>
                     }}
                 />
             )}

@@ -49,6 +49,29 @@ export function createRoom(
         .catch(onFailed);
 }
 
+export function getRoomsBelongs(
+    profileId: string,
+    onSucceeded: RoomsTransfer,
+    onFailed: ErrorHandler = consoleError
+){
+    db.collection('rooms')
+    .where('users', 'array-contains', profileId)
+    .get()
+    .then((querySnapshot)=>{
+        let results: Room[] = [];
+            querySnapshot.forEach((data) => {
+                if (data.exists) {
+                    results.push({
+                        id: data.id,
+                        ...data.data()
+                    } as Room);
+                }
+            });
+            results.length > 0 && onSucceeded(results);
+    })
+    .catch(onFailed)
+}
+
 export function getRoom(
     roomId : string,
     onSucceeded: RoomTransfer,

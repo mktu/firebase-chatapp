@@ -7,7 +7,9 @@ const Wrapper = styled.div`
     display: grid;
     grid-template-rows: auto 1fr;
     & > .refinements{
-        padding : ${({ theme }) => `${theme.spacing(1)}px`};
+        padding-top : ${({ theme }) => `${theme.spacing(1.5)}px`};
+        padding-bottom : ${({ theme }) => `${theme.spacing(1.5)}px`};
+        border-bottom :  ${({ theme }) => `1px solid ${theme.palette.divider}`};
     }
     & > .hits{
         max-height :80vh;
