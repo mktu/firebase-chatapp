@@ -36,6 +36,7 @@ const EmojiPicker = ({
 
     const onSelect = useCallback((emoji: BaseEmoji) => {
         onSelectEmoji(emoji.native);
+        setAnchorEl(null);
     }, [onSelectEmoji]);
 
     return (

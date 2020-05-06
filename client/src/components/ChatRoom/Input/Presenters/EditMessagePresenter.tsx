@@ -34,9 +34,6 @@ const Wrapper = styled.div`
             overflow: scroll;
             
         }
-        > .input-suggestion{
-
-        }
     }
 
     & > .input-menu {

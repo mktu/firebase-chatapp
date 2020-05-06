@@ -34,7 +34,7 @@ export const modifyMessage = async (req: https.Request, res: Response) => {
         messageDocs.forEach((doc) => {
             const mesage = doc.data() as Message;
             mesage.id = doc.id;
-            const profile = profiles.find(p=>p.id===mesage.profileId);
+            const profile = profiles.find(p=>p.id===mesage.senderId);
             const docRef = admin.firestore()
                 .collection('rooms')
                 .doc(room.id)

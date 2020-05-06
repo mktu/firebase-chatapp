@@ -15,7 +15,7 @@ export const sendNotifications = async (snapshot: DocumentSnapshot, context: fun
     if (!message.mentions || message.mentions.length === 0) {
         return;
     }
-    if (!message.profileId) {
+    if (!message.senderId) {
         console.error('profileId is not defined')
         return;
     }
@@ -23,11 +23,11 @@ export const sendNotifications = async (snapshot: DocumentSnapshot, context: fun
     const profile = await admin
         .firestore()
         .collection('profiles')
-        .doc(message.profileId)
+        .doc(message.senderId)
         .get();
 
     if (!profile.exists) {
-        console.error(`profile ${message.profileId} is not exists.`)
+        console.error(`profile ${message.senderId} is not exists.`)
         return;
     }
 
