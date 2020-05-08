@@ -6,6 +6,7 @@ import Button from '@material-ui/core/Button';
 import ClearIcon from '@material-ui/icons/Clear';
 import EditIcon from '@material-ui/icons/Edit';
 import Popover from '@material-ui/core/Popover';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 import Baloon from '../Baloon';
 import { EmojiReactions } from '../../../Emoji';
 import User from '../User';
@@ -28,7 +29,8 @@ const Wrapper = styled.div`
                     margin-right :  ${({ theme }) => `${theme.spacing(0.25)}px`};
                 }
             }
-            
+        }
+        >.message-body{
         }
     }
     &>.reactions{
@@ -36,6 +38,13 @@ const Wrapper = styled.div`
         align-items : flex-end;
         margin-left : ${({ theme }) => `${theme.spacing(0.5)}px`};
     }
+`;
+
+const StyledVisibilityIcon = styled(VisibilityIcon)`
+    color : ${({ theme }) => `${theme.palette.text.hint}`};
+    font-size : ${({ theme }) => `${theme.typography.caption.fontSize}`};
+    margin-left :  ${({ theme }) => `${theme.spacing(1)}px`};
+    margin-right :  ${({ theme }) => `${theme.spacing(0.5)}px`};
 `;
 
 const ConfirmationWrapper = styled.div`
@@ -57,7 +66,8 @@ const SentMessage: React.FC<{
     reactions: { [s: string]: string[] },
     message: string,
     sender: string,
-    update?: boolean
+    update?: boolean,
+    readCount?: number,
 }> = ({
     className,
     time,
@@ -67,7 +77,8 @@ const SentMessage: React.FC<{
     sender,
     message,
     reactions = {},
-    update = false
+    update = false,
+    readCount
 }) => {
         const ref = useRef<HTMLDivElement | null>(null);
         const [hover, setHover] = useState(false);
@@ -85,6 +96,7 @@ const SentMessage: React.FC<{
                     <div>
                         <Typography variant='caption' color='textSecondary'>{sender} {time} {update && 'UPDATED'}</Typography>
                     </div>
+                    {readCount && (<div><StyledVisibilityIcon /><Typography variant='caption' color='textSecondary'>{readCount}</Typography></div>)}
                     <div className='message-actions'>
                         {
                             hover && (
@@ -102,7 +114,9 @@ const SentMessage: React.FC<{
                         }
                     </div>
                 </div>
-                <Baloon message={message} />
+                <div className='message-body'>
+                    <Baloon message={message} />
+                </div>
             </div>
             <Popover
                 open={showConfirmation}

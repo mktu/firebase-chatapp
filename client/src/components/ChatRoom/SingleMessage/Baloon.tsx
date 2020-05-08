@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, { useMemo, useRef } from 'react';
 import styled, { css } from 'styled-components';
 import { find } from 'linkifyjs';
 import Linkify from 'react-linkify';
@@ -27,12 +27,12 @@ const Wrapper = styled.div`
     }
 `;
 
-const LinkDecorator = (decoratedHref: string, decoratedText: string, key: number): React.ReactNode =>{
+const LinkDecorator = (decoratedHref: string, decoratedText: string, key: number): React.ReactNode => {
     return (
         <a href={decoratedHref} key={key} target='_blank' rel="noopener noreferrer">
-          {decoratedText}
+            {decoratedText}
         </a>
-      );
+    );
 }
 
 const MentionText = styled.span`
@@ -44,11 +44,11 @@ const MentionText = styled.span`
 
 const makeMentionDecorator = (source: string) => {
     const matchInfos = buildMatchInfo(source, MENTION_REGEX);
-    return matchInfos.map(m=>m.matched?(
+    return matchInfos.map(m => m.matched ? (
         <MentionText key={m.text}>
             {m.text}
         </MentionText>
-    ):m.text)
+    ) : m.text)
 }
 
 const Baloon: React.FC<{
@@ -58,29 +58,25 @@ const Baloon: React.FC<{
     className,
     message,
 }) => {
-    const urls = find(message);
-    const mentionDecorated = useMemo(()=>makeMentionDecorator(message),[message]);
-    return (
-        <Wrapper className={className}>
-            {
-                urls.length > 0 ? (
-                    <React.Fragment>
-                        <span>
+        const urls = find(message);
+        const spanRef = useRef<HTMLSpanElement>(null);
+        const portalContainer = spanRef.current?.ownerDocument?.body;
+        const mentionDecorated = useMemo(() => makeMentionDecorator(message), [message]);
+        return (
+            <Wrapper className={className}>
+                <React.Fragment>
+                    <span ref={spanRef}>
+                        {urls.length > 0 ? (
                             <Linkify componentDecorator={LinkDecorator}>
                                 {mentionDecorated}
                             </Linkify>
-                        </span>
-                        <LinkPreview url={urls[0].href} />
-                    </React.Fragment>
-                ) : (
-                        <span>
-                            {mentionDecorated}
-                        </span>
-                    )
-            }
-        </Wrapper>
+                        ) : mentionDecorated}
+                    </span>
+                    {urls.length > 0  && (<LinkPreview url={urls[0].href} />)}
+                </React.Fragment>
+            </Wrapper>
 
-    )
-};
+        )
+    };
 
 export default Baloon;

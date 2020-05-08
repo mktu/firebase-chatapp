@@ -3,7 +3,7 @@ import ProfileContext from '../../contexts/ProfileContext';
 import { Room } from '../../../../types/room';
 import { Profile } from '../../../../types/profile';
 import { modifyRoom } from '../../services/room';
-import { addReaction, createMessage, editMessage, registMessagesListener, getMessage, getLatestMessage, getOldestMessage, disableMessage } from '../../services/message';
+import { addReaction, createMessage, editMessage, registMessagesListener, getMessage, getLatestMessage, getOldestMessage, disableMessage, addReadFlags } from '../../services/message';
 import { updateRequest } from '../../services/request';
 import HeaderContainer from './Header';
 import Messages from './Messages';
@@ -59,10 +59,14 @@ const Container: React.FC<{
                             profileId
                         });
                     }}
-                    messageListenerRegister={(args)=>{
+                    messageListenerRegister={({onAdded,...other})=>{
                         return registMessagesListener({
                             roomId: room.id,
-                            ...args
+                            onAdded : (messages)=>{
+                                addReadFlags(room.id, profile.id, messages);
+                                onAdded(messages)
+                            },
+                            ...other
                         });
                     }}
                     getMessage={(args)=>{

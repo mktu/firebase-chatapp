@@ -10,6 +10,7 @@ export type Message = {
     senderName : string,
     date : number,
     roomName : string,
+    readers? : string[],
     reactions? : Reactions,
     mentions? : string[],
     disable?: boolean,

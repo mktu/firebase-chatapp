@@ -4,7 +4,6 @@ import { Profile } from '../../../../../types/profile';
 import DefaultPresenter, { types } from './Presenters';
 import { SuggestionType } from './types';
 
-// refactor roomId, profile is not necessary
 const Container = ({
     className,
     profiles,

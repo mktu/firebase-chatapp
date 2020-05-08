@@ -94,6 +94,7 @@ const Container: React.FC<{
                                 message.id
                             )
                         }}
+                        readCount={message.readers?.length}
                         update={Boolean(message.update)}
                     />
                 ) : (
