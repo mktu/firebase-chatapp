@@ -1,18 +1,9 @@
-import React, { useMemo, useState, useCallback } from 'react';
-import * as Presenters from './Presenters';
-import { Profile } from '../../../../../types/profile';
-import { Message } from '../../../../../types/message';
-import Input, { EditMessagePresenter } from '../Input';
-import { EditMessage, AddReaction, DisableMessage } from '../types';
+import React from 'react';
+import ReceivedMessage from './ReceivedMessage';
+import SentMessage from './SentMessage';
+import { SingleMessageProps } from '../types';
 
-const Container: React.FC<{
-    profiles: Profile[],
-    profile: Profile,
-    message: Message,
-    addReaction: AddReaction,
-    editMessage: EditMessage,
-    disableMessage: DisableMessage
-}> = ({
+const Container: React.FC<SingleMessageProps> = ({
     profiles,
     profile,
     message,
@@ -20,98 +11,34 @@ const Container: React.FC<{
     editMessage,
     disableMessage
 }) => {
-        const sender = profiles.find(p => p.id === message.senderId);
-        const amISender = sender?.id === profile!.id;
-        const date = new Date(message.update || message.date);
-        const time = `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
-        const [showEmoAction, setShowEmoAction] = useState(false);
-        const [editable, setEditable] = useState(false);
+    const sender = profiles.find(p => p.id === message.senderId);
+    const amISender = sender?.id === profile.id;
 
-        const onHoverReceivedMessage = useCallback(() => {
-            setShowEmoAction(true);
-        }, []);
-        const onLeaveReceivedMessage = useCallback(() => {
-            setShowEmoAction(false);
-        }, []);
+    if (message.disable) {
+        return null;
+    }
 
-        const handleAddReaction = useCallback((reactionId: string) => {
-            addReaction(
-                message.id,
-                reactionId,
-                profile!.id,
-            )
-        }, [message.id, profile, addReaction]);
-
-        const reactions: { [s: string]: string[] } = useMemo(() => {
-            const reactionsBase = message.reactions || {};
-            const keys = Object.keys(reactionsBase);
-            return keys.reduce<{ [s: string]: string[] }>((acc, cur) => {
-                const profileIds = reactionsBase[cur];
-                const profilesNames = profileIds.map(id => {
-                    const profile = profiles.find(p => p.id === id);
-                    return profile?.nickname || 'Unknown';
-                });
-                acc[cur] = profilesNames;
-                return acc;
-            }, {});
-        }, [message.reactions, profiles]);
-
-        if (editable) {
-            return (
-                <Presenters.EditMessage>
-                    <Input
+    return (
+        <React.Fragment >
+            {amISender ? (
+                <SentMessage
+                    message={message}
+                    sender={profile}
+                    profiles={profiles}
+                    editMessage={editMessage}
+                    disableMessage={disableMessage}
+                />
+            ) : (
+                    <ReceivedMessage
+                        message={message}
+                        sender={sender}
+                        me={profile}
                         profiles={profiles}
-                        submitMessage={(messageText, mentions) => {
-                            editMessage(message.id, messageText, mentions);
-                            setEditable(false);
-                        }}
-                        onCancel={() => { setEditable(false) }}
-                        presenter={EditMessagePresenter}
-                        initText={message.message}
-                        initMentions={message.mentions}
-                        suggestionPlacement='below'
+                        addReaction={addReaction}
                     />
-                </Presenters.EditMessage>
-            )
-        }
-
-        if (message.disable) {
-            return null;
-        }
-
-        return (
-            <React.Fragment >
-                {amISender ? (
-                    <Presenters.SentMessage
-                        time={time}
-                        handleAddReaction={handleAddReaction}
-                        sender={sender!.nickname}
-                        message={message.message}
-                        reactions={reactions}
-                        onClickEdit={() => { setEditable(true) }}
-                        onClickDelete={() => {
-                            disableMessage(
-                                message.id
-                            )
-                        }}
-                        readCount={message.readers?.length}
-                        update={Boolean(message.update)}
-                    />
-                ) : (
-                        <Presenters.ReceivedMessage
-                            time={time}
-                            onHoverReceivedMessage={onHoverReceivedMessage}
-                            onLeaveReceivedMessage={onLeaveReceivedMessage}
-                            handleAddReaction={handleAddReaction}
-                            sender={sender?.nickname || 'Unknown'}
-                            message={message.message}
-                            reactions={reactions}
-                            showEmoAction={showEmoAction}
-                            update={Boolean(message.update)}
-                        />
-                    )}
-            </React.Fragment >
-        )
-    };
+                )}
+        </React.Fragment >
+    )
+};
 
 export default Container;

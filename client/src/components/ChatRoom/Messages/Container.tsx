@@ -2,39 +2,22 @@ import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import { Message } from '../../../../../types/message';
-import { Profile } from '../../../../../types/profile';
 import InfiniteSnapshotListener, { SnapshotListenerRegister } from '../../Loaders/InfiniteSnapshotListener';
 import { LoadingStatusType, LoadingStatus } from '../../../constants';
 import Presenter from './Presenter';
 import InfiniteScrollable from '../../InfiniteScrollable';
 import NewItemNotification from '../../InfiniteScrollable/NewItemNotification';
 import SingleMessageContainer from '../SingleMessage';
-import { MessageListenerRegister, GetMessageAtEnd, GetMessage, AddReaction, EditMessage, DisableMessage } from '../types';
+import { MessagesProps } from '../types';
 
-const Container: React.FC<{
-    focusMessageId?: string,
-    className?: string,
-    messageListenerRegister: MessageListenerRegister,
-    getLatestMessage: GetMessageAtEnd,
-    getOldestMessage:GetMessageAtEnd,
-    getMessage: GetMessage,
-    addReaction: AddReaction,
-    editMessage : EditMessage,
-    disableMessage: DisableMessage,
-    profiles: Profile[],
-    profile: Profile,
-}> = ({
+const Container: React.FC<MessagesProps> = ({
     className,
     messageListenerRegister,
     getLatestMessage,
     getOldestMessage,
     getMessage,
-    addReaction,
-    editMessage,
-    disableMessage,
-    profiles,
-    profile,
     focusMessageId,
+    ...singleMessageProps
 }) => {
         const [status, setStatus] = useState<LoadingStatusType>(LoadingStatus.Loading);
         const [backwardSentinel, setBackwardSentinel] = useState<Message>();
@@ -128,14 +111,10 @@ const Container: React.FC<{
                                         listItemComponent={ListItem}
                                         notificationComponent={NewItemNotification}
                                     >
-                                        {(message: Message) => (
+                                        {(message) => (
                                             <SingleMessageContainer
-                                                profile={profile!}
                                                 message={message}
-                                                profiles={profiles}
-                                                addReaction={addReaction}
-                                                editMessage={editMessage}
-                                                disableMessage={disableMessage}
+                                                {...singleMessageProps}
                                             />)}
                                     </InfiniteScrollable>
                                 )
