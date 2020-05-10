@@ -2,8 +2,9 @@ import React, { useRef, useState, useMemo } from 'react';
 import Baloon from '../Baloon';
 import { EmojiReactions } from '../../../../Emoji';
 import Presenter, { EditorStyle } from './Presenter';
+import PortalPresenter from './PortalPresenter';
 import ConfirmDeletePopover from '../ConfirmDeletePopover';
-import EditActionPortal from '../EditActionPortal';
+import EditActionPanel from '../EditActionPanel';
 import Input, { EditMessagePresenter } from '../../../Input';
 import { SentMessageProps } from '../../../types';
 import { getDateAsString, getReactionsAsUserName } from '../../../utils';
@@ -54,24 +55,27 @@ const Container: React.FC<SentMessageProps> = ({
                 renderBaloon={() => (
                     <Baloon
                         message={message.message}
-                        renderPortal={(rect) => {
-                            if (!hover) return <div />;
-                            return (
-                                <EditActionPortal
-                                    onClickDelete={() => { setShowConfirmation(true) }}
-                                    onClickEdit={() => { setEditable(true) }}
-                                    bottom={rect.bottom}
-                                    left={rect.left+rect.width}
-                                />
-                            )
-                        }}
+                        renderPortal={(rect) => (
+                            <PortalPresenter
+                                showEditActions={hover}
+                                bottom={rect.bottom}
+                                left={rect.left+rect.width}
+                                renderEditActions={(style) => (
+                                    <EditActionPanel
+                                        className={style}
+                                        onClickDelete={() => { setShowConfirmation(true) }}
+                                        onClickEdit={() => { setEditable(true) }}
+                                    />
+                                )}
+                                renderEmojiReactions={(style) => (
+                                    <EmojiReactions
+                                        className={style}
+                                        readonly
+                                        reactions={reactions} />
+                                )}
+                            />
+                        )}
                     />
-                )}
-                renderReactions={(style) => (
-                    <EmojiReactions
-                        className={style}
-                        readonly
-                        reactions={reactions} />
                 )}
             />
             <ConfirmDeletePopover

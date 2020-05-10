@@ -16,15 +16,6 @@ const Wrapper = styled.div`
             align-items : center;
         }
     }
-    &>.reactions{
-        display : flex;
-        align-items : flex-end;
-        margin-left : ${({ theme }) => `${theme.spacing(0.5)}px`};
-    }
-`;
-
-export const EditorStyle = styled.div`
-    width : 100%;
 `;
 
 const StyledVisibilityIcon = styled(VisibilityIcon)`
@@ -34,10 +25,13 @@ const StyledVisibilityIcon = styled(VisibilityIcon)`
     margin-right :  ${({ theme }) => `${theme.spacing(0.5)}px`};
 `;
 
+const EditorStyle = styled.div`
+    width : 100%;
+`;
+
 type PropsType = {
     className?: string,
     time: string,
-    renderReactions: (style?: string) => React.ReactElement,
     renderBaloon: (style?: string) => React.ReactElement,
     onMouseEnter: (e: React.MouseEvent<HTMLDivElement>) => void,
     onMouseLeave: (e: React.MouseEvent<HTMLDivElement>) => void,
@@ -49,7 +43,6 @@ type PropsType = {
 const Presenter = React.forwardRef<HTMLDivElement, PropsType>(({
     className,
     time,
-    renderReactions,
     renderBaloon,
     onMouseEnter,
     onMouseLeave,
@@ -82,9 +75,12 @@ const Presenter = React.forwardRef<HTMLDivElement, PropsType>(({
                     {renderBaloon()}
                 </div>
             </div>
-            {renderReactions('reactions')}
         </Wrapper>)
 });
 
-
 export default Presenter;
+
+export {
+    EditorStyle
+}
+
