@@ -7,7 +7,7 @@ import { LoadingStatusType, LoadingStatus } from '../../../constants';
 import Presenter from './Presenter';
 import InfiniteScrollable from '../../InfiniteScrollable';
 import NewItemNotification from '../../InfiniteScrollable/NewItemNotification';
-import SingleMessageContainer from '../SingleMessage';
+import SingleMessageContainer from './SingleMessage';
 import { MessagesProps } from '../types';
 
 const Container: React.FC<MessagesProps> = ({

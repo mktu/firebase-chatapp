@@ -3,10 +3,10 @@ import styled, { css } from 'styled-components';
 import Portal from '@material-ui/core/Portal';
 import { find } from 'linkifyjs';
 import Linkify from 'react-linkify';
-import { LinkPreview } from '../../LinkPreview';
-import { buildMatchInfo } from '../../../logics/regexHelper';
-import { MENTION_REGEX } from '../../../constants';
-import { domutil } from '../../../utils';
+import { LinkPreview } from '../../../LinkPreview';
+import { buildMatchInfo } from '../../../../logics/regexHelper';
+import { MENTION_REGEX } from '../../../../constants';
+import { domutil } from '../../../../utils';
 
 const innerStyle = css`
     display : inline-block;
@@ -63,11 +63,6 @@ type BaloonRect = {
     bottom: number,
     right: number
 }
-
-type PortalArgs = {
-    rect?: BaloonRect,
-    container?: HTMLElement
-};
 
 type PropsType = {
     className?: string,

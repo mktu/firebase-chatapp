@@ -1,7 +1,7 @@
 import React from 'react';
 import ReceivedMessage from './ReceivedMessage';
 import SentMessage from './SentMessage';
-import { SingleMessageProps } from '../types';
+import { SingleMessageProps } from '../../types';
 
 const Container: React.FC<SingleMessageProps> = ({
     profiles,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
-import {EditUserPresenter} from '../../components/ChatRoom/UsersDialog';
+import {EditUserPresenter} from '../../components/ChatRoom/Header/UsersDialog';
 
 
 export default {

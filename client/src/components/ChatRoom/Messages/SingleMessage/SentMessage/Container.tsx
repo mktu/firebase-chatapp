@@ -1,12 +1,12 @@
 import React, { useRef, useState, useMemo } from 'react';
 import Baloon from '../Baloon';
-import { EmojiReactions } from '../../../Emoji';
+import { EmojiReactions } from '../../../../Emoji';
 import Presenter, { EditorStyle } from './Presenter';
 import ConfirmDeletePopover from '../ConfirmDeletePopover';
 import EditActionPortal from '../EditActionPortal';
-import Input, { EditMessagePresenter } from '../../Input';
-import { SentMessageProps } from '../../types';
-import { getDateAsString, getReactionsAsUserName } from '../../utils';
+import Input, { EditMessagePresenter } from '../../../Input';
+import { SentMessageProps } from '../../../types';
+import { getDateAsString, getReactionsAsUserName } from '../../../utils';
 
 const Container: React.FC<SentMessageProps> = ({
     className,

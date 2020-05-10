@@ -1,9 +1,9 @@
 import React, { useRef, useState, useMemo } from 'react';
 import Baloon from '../Baloon';
-import { EmojiReactions, AddEmojiReaction } from '../../../Emoji';
+import { EmojiReactions, AddEmojiReaction } from '../../../../Emoji';
 import Presenter from './Presenter';
-import { ReceivedMessageProps } from '../../types';
-import { getDateAsString, getReactionsAsUserName } from '../../utils';
+import { ReceivedMessageProps } from '../../../types';
+import { getDateAsString, getReactionsAsUserName } from '../../../utils';
 
 const Container: React.FC<ReceivedMessageProps> = ({
     className,

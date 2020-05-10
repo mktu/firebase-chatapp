@@ -53,7 +53,6 @@ const Container: React.FC<{
                         rooms.reduce((users, cur) => {
                             return [...users, ...cur.users];
                         }, [] as string[])));
-                console.log(uids)
                 getProfiles(uids, (items) => {
                     setProfiles(items);
                 })
