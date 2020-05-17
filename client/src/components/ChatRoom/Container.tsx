@@ -5,6 +5,7 @@ import { Profile } from '../../../../types/profile';
 import { modifyRoom } from '../../services/room';
 import { addReaction, createMessage, editMessage, registMessagesListener, getMessage, getLatestMessage, getOldestMessage, disableMessage, addReadFlags } from '../../services/message';
 import { updateRequest } from '../../services/request';
+import { clearUnread } from '../../services/unreads';
 import HeaderContainer from './Header';
 import Messages from './Messages';
 import InputContainer from './Input';
@@ -25,7 +26,6 @@ const Container: React.FC<{
         const { profileState } = useContext(ProfileContext);
         const { profile } = profileState;
         const owenr = profile?.id === room.ownerId;
-
         const renderHeader = useCallback((style) => {
             return (
                 <RequestsLoader roomId={room.id}>
@@ -51,43 +51,44 @@ const Container: React.FC<{
                     focusMessageId={messageId}
                     profile={profile}
                     profiles={profiles}
-                    addReaction={(messageId, reactionId, profileId)=>{
+                    addReaction={(messageId, reactionId, profileId) => {
                         addReaction({
-                            roomId:room.id,
+                            roomId: room.id,
                             messageId,
                             reactionId,
                             profileId
                         });
                     }}
-                    messageListenerRegister={({onAdded,...other})=>{
+                    messageListenerRegister={({ onAdded, ...other }) => {
                         return registMessagesListener({
                             roomId: room.id,
-                            onAdded : (messages)=>{
+                            onAdded: (messages) => {
                                 addReadFlags(room.id, profile.id, messages);
                                 onAdded(messages)
+                                clearUnread(room.id, profile.id);
                             },
                             ...other
                         });
                     }}
-                    getMessage={(args)=>{
+                    getMessage={(args) => {
                         getMessage({
                             roomId: room.id,
                             ...args
                         })
                     }}
-                    getLatestMessage={(args)=>{
+                    getLatestMessage={(args) => {
                         getLatestMessage({
                             roomId: room.id,
                             ...args
                         })
                     }}
-                    getOldestMessage={(args)=>{
+                    getOldestMessage={(args) => {
                         getOldestMessage({
                             roomId: room.id,
                             ...args
                         })
                     }}
-                    editMessage={(messageId,message,mentions) => {
+                    editMessage={(messageId, message, mentions) => {
                         editMessage({
                             roomId: room.id,
                             messageId,
@@ -95,11 +96,11 @@ const Container: React.FC<{
                             mentions
                         })
                     }}
-                    disableMessage={(messageId)=>{
-                        disableMessage(room.id,messageId);
+                    disableMessage={(messageId) => {
+                        disableMessage(room.id, messageId);
                     }}
                 />
-            ) : <div/>
+            ) : <div />
         }, [room.id, profiles, profile, messageId]);
 
         const renderFooter = useCallback((style) => {
@@ -117,7 +118,7 @@ const Container: React.FC<{
                     })
                 }}
             />
-            ) : <div/>;
+            ) : <div />;
         }, [room, profiles, profile]);
 
         return (

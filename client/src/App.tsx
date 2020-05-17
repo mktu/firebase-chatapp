@@ -7,8 +7,7 @@ import { ThemeProvider as StyledThemeProvider } from "styled-components";
 import {
   AuthContext,
   ProfileContext,
-  RoomContext,
-  NotificationContext
+  NotificationContext,
 } from './contexts';
 import useAppState from './hooks/useAppState';
 import AppRoot from './components/Routes/AppRoot';
@@ -27,10 +26,8 @@ const App: React.FC = () => {
     profileState,
     userActions,
     profileActions,
-    roomState,
-    roomActions,
     notificationState,
-    notificationActions
+    notificationActions,
   } = useAppState();
 
   return (
@@ -41,11 +38,9 @@ const App: React.FC = () => {
             <SnackbarProvider maxSnack={3}>
               <AuthContext.Provider value={{ userState, actions: userActions }}>
                 <ProfileContext.Provider value={{ profileState, actions: profileActions }}>
-                  <RoomContext.Provider value={{ roomState, actions: roomActions }}>
-                    <NotificationContext.Provider value={{ notificationState, actions: notificationActions }}>
-                      <AppRoot />
-                    </NotificationContext.Provider>
-                  </RoomContext.Provider>
+                  <NotificationContext.Provider value={{ notificationState, actions: notificationActions }}>
+                    <AppRoot />
+                  </NotificationContext.Provider>
                 </ProfileContext.Provider>
               </AuthContext.Provider>
             </SnackbarProvider>

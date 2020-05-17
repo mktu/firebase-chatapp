@@ -7,5 +7,5 @@ export {
     createAuthActions,
     createNotificationActions,
     createProfileActions,
-    createRoomActions
+    createRoomActions,
 };

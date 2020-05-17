@@ -5,7 +5,7 @@ import {
     MessageTransfer
 } from '../../../types/message';
 import { Notifier, ErrorHandler, consoleError } from '../utils';
-import { getCollectionListener } from './db';
+import { getCollectionListener, UnsubscribeNotifier } from './db';
 
 const db = firebase.firestore();
 
@@ -58,12 +58,20 @@ export function registMessagesListener(
     if (endAt) {
         query = query.endAt(endAt);
     }
-    return query
+    const notifier : UnsubscribeNotifier = {
+        unsubscribe : false
+    }
+    const unsubscribe = query
         .onSnapshot(getCollectionListener<Message>(
             onAdded,
             onModified,
             onDeleted,
+            notifier
         ))
+    return ()=>{
+        notifier.unsubscribe = true;
+        unsubscribe();
+    }
 }
 export function getMessage({
     roomId,

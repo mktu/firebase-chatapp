@@ -7,5 +7,5 @@ export {
     authReducer,
     profileReducer,
     roomReducer,
-    notificationReducer
+    notificationReducer,
 }

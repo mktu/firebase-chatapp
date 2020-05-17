@@ -77,9 +77,7 @@ const Container: React.FC<MessagesProps> = ({
             return messageListenerRegister(args);
         }, [messageListenerRegister]);
 
-        const startDate = useMemo(() => {
-            return Date.now();
-        }, []);
+        const startDate = Date.now();
         return <Presenter className={className} loadingStatus={status}>
             {
                 ({ classes }) => (

@@ -1,4 +1,4 @@
-import { CollectionTransfer, DocumentTransfer } from './core';
+import { CollectionTransfer, DocumentTransfer, Notifier, ErrorHandler } from './core';
 
 export type Room = {
     roomName : string,
@@ -29,6 +29,45 @@ export type Actions = {
     loading : () => void
 };
 
+// services
+export type CreateRoom = (
+    roomName: string,
+    profileId: string,
+    onSucceeded: Notifier,
+    onFailed: ErrorHandler
+) => void;
+
+export type RegistRoomsListener = (
+    onAdded: RoomsTransfer,
+    onModified: RoomsTransfer,
+    onDeleted: RoomsTransfer,
+    profileId: string
+) => Notifier;
+
+export type RegistRoomListener = (
+    roomId: string,
+    onModified: RoomTransfer
+) => Notifier;
+
+export type GetRoomsBelongs = (
+    profileId: string,
+    onSucceeded: RoomsTransfer,
+    onFailed: ErrorHandler
+) => void;
+
+export type GetRoom = (
+    roomId : string,
+    onSucceeded: RoomTransfer,
+    onFailed: ErrorHandler
+) => void;
+
+export type ModifyRoom = (
+    room: Room,
+    onSucceeded ?: () => void,
+    onFailed?: ErrorHandler
+) =>void;
+
+// context
 export type State = {
     rooms : Room[],
     loading : boolean,
@@ -37,7 +76,7 @@ export type State = {
 
 export type ContextType = {
     roomState : State,
-    actions : Actions
+    actions : Actions,
 }
 
 export type Dispatch = (action : Action) => void;

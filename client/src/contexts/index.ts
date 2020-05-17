@@ -6,5 +6,5 @@ export {
     AuthContext,
     ProfileContext,
     RoomContext,
-    NotificationContext
+    NotificationContext,
  };
