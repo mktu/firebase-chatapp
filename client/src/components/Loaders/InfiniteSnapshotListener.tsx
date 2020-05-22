@@ -194,7 +194,8 @@ function ExistingItemListener<T>(
 ) {
     const {
         loaded,
-        readItems
+        readItems,
+        clear
     } = useInfiniteSnapshotListener({
         limit,
         loadTarget: 'existing',
@@ -208,7 +209,10 @@ function ExistingItemListener<T>(
             startAt: startDate,
             direction: 'older'
         });
-    }, [startDate, readItems]);
+        return ()=>{
+            clear();
+        }
+    }, [startDate, readItems, clear]);
 
     const hasOlderItems = hasMore(backwardSentinel, loaded, uniqueKey);
     const hasNewerItems = hasMore(forwardSentinel, loaded, uniqueKey);

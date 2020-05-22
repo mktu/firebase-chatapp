@@ -1,54 +1,39 @@
 import React from 'react';
 import { Route, Redirect, useHistory, useRouteMatch, useLocation, RouteProps } from "react-router-dom";
-import { RoomLoader } from '../Loaders';
-import { ProfileListLoader } from '../Loaders/ProfileLoader';
 import RoomPage from '../RoomPage';
 import ChatRoom from '../ChatRoom';
 
-const ChatRoomMounter: React.FC = () => {
+const Target: React.FC = () => {
     const history = useHistory();
     const match = useRouteMatch<{ roomId: string }>('/rooms/:roomId');
     const location = useLocation();
-    let children = <div />;
-    if (match && match.isExact) {
-        const urlParams = new URLSearchParams(location.search);
-        const messageId = urlParams.get('message') || undefined;
-        children = (
-            <RoomLoader
-                roomId={match?.params.roomId}
-                fallback={(roomId) => {
-                    return <Redirect
-                        to={{
-                            pathname: `/requests/${roomId}`
-                        }}
-                    />;
-                }}
-            >
-                {(room) => (
-                    <ProfileListLoader uids={room.users}>
-                        {
-                            (profiles) => (
-                                <ChatRoom profiles={profiles} room={room} messageId={messageId} />
-                            )
-                        }
-                    </ProfileListLoader>
-                )}
-            </RoomLoader>
-        );
-    }
+    const roomId = (match && match.isExact && match?.params.roomId) || undefined;
+    const urlParams = new URLSearchParams(location.search);
+    const messageId = urlParams.get('message') || undefined;
+
     return (
-        <RoomPage currentRoomId={match?.params.roomId} handleLoadRoom={(roomId) => {
-            history.replace(`/rooms/${roomId}`);
-        }}>
-            {children}
-        </RoomPage>
-    )
+        <RoomPage
+            currentRoomId={roomId}
+            handleLoadRoom={(roomId) => {
+                history.replace(`/rooms/${roomId}`);
+            }}
+            renderChatRoom={(room) => (
+                <ChatRoom key={room.id} show={roomId === room.id} room={room} focusMessageId={messageId} />
+            )}
+            renderRequestRoom={(id) => (
+                <Redirect
+                    to={{
+                        pathname: `/requests/${id}`
+                    }}
+                />
+            )}
+        />);
 }
 
 const RoomRoot: React.FC<RouteProps> = (props) => {
     return (
         <Route {...props}>
-            <ChatRoomMounter />
+            <Target />
         </Route>
     )
 };

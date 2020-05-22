@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -6,12 +6,11 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import { Room } from '../../../../types/room';
-import ServiceContext from './ServiceContext';
 
 
 type Props = {
     room: Room,
-    profileId: string,
+    unreads: number,
     selected: boolean,
     handleSelectRoom: (room: Room) => void,
     className?: string
@@ -38,21 +37,11 @@ const EmphasisText = styled.span`
 export default ({
     className,
     selected,
-    profileId,
+    unreads,
     handleSelectRoom,
     room
 }: Props) => {
 
-    const { registUnreadsListener } = useContext(ServiceContext);
-    const [unreads, setUnreads] = useState([] as string[])
-    useEffect(() => {
-        let unsubscribe = registUnreadsListener(room.id, profileId, (unread) => {
-            setUnreads(unread.messageIds)
-        });
-        return () => {
-            unsubscribe();
-        }
-    }, [profileId, room.id, registUnreadsListener])
     return (
         <ListItem className={className} button onClick={() => {
             handleSelectRoom(room);
@@ -65,10 +54,10 @@ export default ({
             <ListItemText >
                 {selected ? (<EmphasisText>{room.roomName}</EmphasisText>) : room.roomName}
             </ListItemText>
-            {unreads.length > 0 && (
+            {unreads > 0 && (
                 <ListItemSecondaryAction >
                     <UnreadAvatar variant='rounded'>
-                        {unreads.length}
+                        {unreads}
                     </UnreadAvatar>
                 </ListItemSecondaryAction>
             )}

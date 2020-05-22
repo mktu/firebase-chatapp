@@ -22,14 +22,14 @@ const Wrapper = styled.div`
 
 type Props = {
     renderRoomList: (className: string) => React.ReactElement,
-    chatroom: React.ReactElement,
+    chatrooms: React.ReactElement,
     loading: boolean,
     open: boolean,
 };
 
 const Presenter: React.FC<Props> = ({
     renderRoomList,
-    chatroom,
+    chatrooms,
     loading,
     open
 }) => {
@@ -44,7 +44,7 @@ const Presenter: React.FC<Props> = ({
         <Wrapper open={open}>
             {renderRoomList('room-list')}
             <div className='chat-room'>
-                {chatroom}
+                {chatrooms}
             </div>
         </Wrapper>
     )

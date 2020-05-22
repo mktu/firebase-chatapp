@@ -8,7 +8,9 @@ import {
   AuthContext,
   ProfileContext,
   NotificationContext,
+  ServiceContext
 } from './contexts';
+import { defaultServices } from './contexts/ServiceContext';
 import useAppState from './hooks/useAppState';
 import AppRoot from './components/Routes/AppRoot';
 
@@ -36,13 +38,15 @@ const App: React.FC = () => {
         <ThemeProvider theme={theme}>
           <StyledThemeProvider theme={theme}>
             <SnackbarProvider maxSnack={3}>
-              <AuthContext.Provider value={{ userState, actions: userActions }}>
-                <ProfileContext.Provider value={{ profileState, actions: profileActions }}>
-                  <NotificationContext.Provider value={{ notificationState, actions: notificationActions }}>
-                    <AppRoot />
-                  </NotificationContext.Provider>
-                </ProfileContext.Provider>
-              </AuthContext.Provider>
+              <ServiceContext.Provider value={defaultServices}>
+                <AuthContext.Provider value={{ userState, actions: userActions }}>
+                  <ProfileContext.Provider value={{ profileState, actions: profileActions }}>
+                    <NotificationContext.Provider value={{ notificationState, actions: notificationActions }}>
+                      <AppRoot />
+                    </NotificationContext.Provider>
+                  </ProfileContext.Provider>
+                </AuthContext.Provider>
+              </ServiceContext.Provider>
             </SnackbarProvider>
           </StyledThemeProvider>
         </ThemeProvider>

@@ -10,7 +10,7 @@ import InputContainer from '../../components/ChatRoom/Input';
 import { Presenter } from '../../components/ChatRoom';
 import { action } from '@storybook/addon-actions';
 
-const MAX_PAGE_SIZE = 10;
+/* const MAX_PAGE_SIZE = 10;
 const ITEM_MAX_IN_PAGE = 20;
 const FULL_ITEMS: Message[] = [...Array(ITEM_MAX_IN_PAGE * MAX_PAGE_SIZE).keys()].map(i => ({
     roomId : 'room',
@@ -207,4 +207,5 @@ export const Requests = () => <Container requests={[
     { id: 'test1', nickName: 'First User', date: Date.now(), status: 'requesting', profileId: 'test1p' },
     { id: 'test2', nickName: 'Second User', date: Date.now(), status: 'requesting', profileId: 'test2p' },
 ]} />;
-
+ */
+export const Default = ()=><div/>;

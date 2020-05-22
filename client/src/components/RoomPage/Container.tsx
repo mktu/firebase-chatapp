@@ -1,28 +1,37 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { RoomContext, ProfileContext } from '../../contexts';
+import { RoomContext, ProfileContext, MessagesContext } from '../../contexts';
 import { LoadingStatusType } from '../../constants';
 import RoomDialog from '../RoomDialog';
 import RoomList from './RoomList';
 import RoomListItem from './RoomListItem';
 import Presenter from './Presenter';
-import ServiceContext from './ServiceContext';
+import { Room } from '../../../../types/room';
+import ServiceContext from '../../contexts/ServiceContext';
 
 export type Props = {
-    children: React.ReactElement,
+    renderChatRoom: (room: Room) => React.ReactElement,
+    renderRequestRoom: (roomId:string) => React.ReactElement,
     currentRoomId?: string,
     handleLoadRoom: (roomId: string) => void
 };
 
-const Container: React.FC<Props> = ({ children, currentRoomId, handleLoadRoom }) => {
+const Container: React.FC<Props> = ({
+    currentRoomId,
+    handleLoadRoom,
+    renderChatRoom,
+    renderRequestRoom
+}) => {
     const [showNewRoom, setShowNewRoom] = useState<boolean>(false);
     const [newRoomName, setNewRoomName] = useState<string>('');
     const [status, setStatus] = useState<LoadingStatusType>('loading');
     const { roomState, actions } = useContext(RoomContext);
+    const { messageState } = useContext(MessagesContext);
     const { createRoom, registRoomsListener } = useContext(ServiceContext);
     const { rooms } = roomState;
     const { profileState } = useContext(ProfileContext);
     const { profile } = profileState;
     const { id: profileId } = profile || {};
+    const needRequest = status !== 'loading' && currentRoomId && !Boolean(rooms.find(r => r.id === currentRoomId));
 
     useEffect(() => {
         let unsubscribe: ReturnType<typeof registRoomsListener> = () => { };
@@ -63,6 +72,9 @@ const Container: React.FC<Props> = ({ children, currentRoomId, handleLoadRoom })
             hideDialog();
         }
     }
+    if (needRequest && currentRoomId) {
+        return renderRequestRoom(currentRoomId);
+    }
     return (
         <React.Fragment>
             <Presenter
@@ -75,10 +87,11 @@ const Container: React.FC<Props> = ({ children, currentRoomId, handleLoadRoom })
                         renderRoomListItem={(room) => (
                             <RoomListItem
                                 key={room.id}
-                                profileId={profileId!}
+                                unreads={messageState[room.id] ? 
+                                    messageState[room.id] : 0}
                                 selected={room.id === currentRoomId}
                                 room={room}
-                                handleSelectRoom={({id}) => {
+                                handleSelectRoom={({ id }) => {
                                     handleLoadRoom(id);
                                 }}
                             />
@@ -86,7 +99,9 @@ const Container: React.FC<Props> = ({ children, currentRoomId, handleLoadRoom })
                         rooms={rooms}
                     />
                 )}
-                chatroom={children}
+                chatrooms={<React.Fragment>
+                    {rooms.map(r => renderChatRoom(r))}
+                </React.Fragment>}
             >
             </Presenter>
             <RoomDialog

@@ -1,7 +1,6 @@
 import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import { types } from '../../InfiniteScrollable';
-import { LoadingStatusType } from '../../../constants';
 
 const focusAnimation = keyframes`
     0% {
@@ -37,22 +36,14 @@ const Wrapper = styled.div`
 function Presenter({
     className,
     children,
-    loadingStatus
 }: {
     className?: string,
-    loadingStatus : LoadingStatusType,
     children: (
         args: {
             classes: {[key in types.Classes]? : string}
         }
     ) => React.ReactElement,
 }) {
-    if(loadingStatus==='loading'){
-        return (<div>loading messages...</div>);
-    }
-    if(loadingStatus==='failed'){
-        return (<div>loading error</div>);
-    }
     return (
         <Wrapper className={className} >
             <div className='messages-scrollable'>

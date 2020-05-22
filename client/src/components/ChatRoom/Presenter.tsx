@@ -1,11 +1,12 @@
-import React, {useMemo} from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
     box-sizing: border-box;
     display: grid;
     grid-template-rows: auto 1fr auto;
-    height : 100%;
+    height : ${({show}:{show:boolean})=>show?`100%`:`0`};
+    overflow : hidden;
     & > .room-header{
         padding : ${({ theme }) => `${theme.spacing(1)}px`};
     }
@@ -25,20 +26,22 @@ const Wrapper = styled.div`
 
 const Presenter: React.FC<{
     className?: string,
-    renderHeader : (style:string)=>React.ReactElement,
-    renderMessages : (style:string)=>React.ReactElement,
-    renderFooter : (style:string)=>React.ReactElement
+    show: boolean,
+    renderHeader: (style: string) => React.ReactElement,
+    renderMessages: (style: string) => React.ReactElement,
+    renderFooter: (style: string) => React.ReactElement
 }> = ({
     className,
     renderHeader,
     renderMessages,
-    renderFooter
+    renderFooter,
+    show
 }) => {
-    const header = useMemo(()=>renderHeader('room-header'),[renderHeader]);
-    const messages = useMemo(()=>renderMessages('room-messages'),[renderMessages]);
-    const footer = useMemo(()=>renderFooter('room-input'),[renderFooter]);
+        const header = useMemo(() => renderHeader('room-header'), [renderHeader]);
+        const messages = useMemo(() => renderMessages('room-messages'), [renderMessages]);
+        const footer = useMemo(() => renderFooter('room-input'), [renderFooter]);
         return (
-            <Wrapper className={className} >
+            <Wrapper className={className} show={show}>
                 {header}
                 {messages}
                 {footer}
