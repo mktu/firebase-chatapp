@@ -17,7 +17,6 @@ import {
     addReadFlags
 } from '../services/message';
 import { getProfiles } from '../services/profile';
-import { registUnreadsListener } from '../services/unreads';
 
 export const defaultServices = {
     // room
@@ -28,7 +27,6 @@ export const defaultServices = {
     getMessage,
     getLatestMessage,
     getOldestMessage,
-    registUnreadsListener,
     registMessagesListener,
     addReaction,
     createMessage,

@@ -1,29 +1,8 @@
-import { https, Response, firestore, EventContext, } from 'firebase-functions';
+import { https, Response } from 'firebase-functions';
 import { Message } from '../../../types/message';
 import { Room } from '../../../types/room';
 import { Profile } from '../../../types/profile';
 import admin from './admin';
-
-export const updateReadCounter = async (snap: firestore.DocumentSnapshot, context: EventContext) => {
-    const { roomId, messageId } = context.params;
-    const message = snap.data() as Message;
-    const roomDoc = await admin.firestore()
-        .collection('rooms')
-        .doc(roomId)
-        .get();
-    const room = roomDoc.data() as Room;
-    const users = room.users.filter(u=>u!==message.senderId);
-    const batch = admin.firestore().batch();
-    users.forEach(user => {
-        const unreadDoc = admin.firestore()
-            .collection('rooms')
-            .doc(roomId)
-            .collection('unreads')
-            .doc(user)
-        batch.set(unreadDoc, {messageIds:admin.firestore.FieldValue.arrayUnion(messageId)}, {merge : true});
-    });
-    await batch.commit();
-}
 
 export const modifyMessage = async (req: https.Request, res: Response) => {
     const rooms: Room[] = [];
