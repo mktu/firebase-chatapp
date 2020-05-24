@@ -33,6 +33,14 @@ export const updateMessage = async (change: Change<firestore.DocumentSnapshot>, 
         return;
     }
     const message = change.after.data() as MessageIndex;
+    const messagesBefore = change.before.data() as MessageIndex;
+    
+    // update algolia index only when "message" and "disable" field changes
+    if (message.message === messagesBefore.message &&
+        message.disable === messagesBefore.disable) {
+        return;
+    }
+
     message.roomId = context.params.roomId;
     message.id = context.params.messageId;
     message.objectID = change.after.id;

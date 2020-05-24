@@ -1,6 +1,6 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
-import {RequestPresenter} from '../../components/ChatRoom/RequestsDialog';
+import {RequestPresenter} from '../../components/ChatRoom/Header/RequestsDialog';
 
 
 export default {

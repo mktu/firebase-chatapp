@@ -5,7 +5,7 @@ import {
     MessageTransfer
 } from '../../../types/message';
 import { Notifier, ErrorHandler, consoleError } from '../utils';
-import { getCollectionListener } from './db';
+import { getCollectionListener, UnsubscribeNotifier } from './db';
 
 const db = firebase.firestore();
 
@@ -58,12 +58,20 @@ export function registMessagesListener(
     if (endAt) {
         query = query.endAt(endAt);
     }
-    return query
+    const notifier : UnsubscribeNotifier = {
+        unsubscribe : false
+    }
+    const unsubscribe = query
         .onSnapshot(getCollectionListener<Message>(
             onAdded,
             onModified,
             onDeleted,
+            notifier
         ))
+    return ()=>{
+        notifier.unsubscribe = true;
+        unsubscribe();
+    }
 }
 export function getMessage({
     roomId,
@@ -149,7 +157,7 @@ export function getLatestMessage(
         roomId,
         limit: 1,
         order: { key: 'date', order: 'desc' },
-        onAdded : (items) => {
+        onAdded: (items) => {
             items.length > 0 && onAdded(items[0])
         },
         onFailed
@@ -171,8 +179,8 @@ export function getOldestMessage(
     getMessages({
         roomId,
         limit: 1,
-        order:{ key: 'date', order: 'asc' },
-        onAdded : (items) => {
+        order: { key: 'date', order: 'asc' },
+        onAdded: (items) => {
             items.length > 0 && onAdded(items[0])
         },
         onFailed
@@ -314,4 +322,34 @@ export function addReaction(
     })
         .then(onSucceeded)
         .catch(onFailed);
+}
+
+export function addReadFlags(
+    roomId: string,
+    myProfileId: string,
+    messages: Message[],
+    onSucceeded?: Notifier,
+    onFailed: ErrorHandler = consoleError
+) {
+    const batch = db.batch();
+    messages.forEach(message => {
+        if (message.senderId === myProfileId) {
+            return;
+        }
+        const readers = message.readers || [];
+        if (readers.includes(myProfileId)) {
+            return;
+        }
+        const docRef = db
+            .collection('rooms')
+            .doc(roomId)
+            .collection('messages')
+            .doc(message.id);
+        batch.update(docRef, {
+            readers: [...readers, myProfileId]
+        })
+    });
+    batch.commit()
+        .then(onSucceeded)
+        .catch(onFailed)
 }

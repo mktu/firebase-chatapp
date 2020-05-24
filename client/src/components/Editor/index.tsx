@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
     Editor,
     EditorState,
+    SelectionState,
     CompositeDecorator,
     Modifier,
     getDefaultKeyBinding,
@@ -18,7 +19,7 @@ export type EditorModifier = {
     insert: (characters: string) => void,
     initialize: () => void;
     setMention: (mention: string, profileId: string) => void,
-    initMention: (mentions:Mention[]) =>void,
+    initMention: (mentions: Mention[]) => void,
     focus: () => void
 }
 
@@ -65,16 +66,30 @@ const ChatEditor: React.FC<{
         useEffect(() => {
             attachModifier({
                 insert: (characters: string) => {
-                    setEditorState( prev => {
+                    setEditorState(prev => {
                         const selectionState = prev.getSelection();
                         const newContentState = Modifier.insertText(prev.getCurrentContent(), selectionState, characters);
-                        const newEditorState = EditorState.set(prev, { currentContent: newContentState });
-                        return newEditorState;
+                        const newEditorState = EditorState.push(prev, newContentState, 'insert-characters');
+                        return EditorState.forceSelection(newEditorState, newContentState.getSelectionAfter());
                     });
 
                 },
                 initialize: () => {
-                    setEditorState(EditorState.createEmpty(constructDecorator()));
+                    setEditorState(prev => {
+                        const contentState = prev.getCurrentContent();
+                        const firstBlock = contentState.getFirstBlock();
+                        const lastBlock = contentState.getLastBlock();
+                        const allSelected = new SelectionState({
+                            anchorKey: firstBlock.getKey(),
+                            anchorOffset: 0,
+                            focusKey: lastBlock.getKey(),
+                            focusOffset: lastBlock.getLength(),
+                            hasFocus: true
+                        });
+                        const newContentState = Modifier.removeRange(prev.getCurrentContent(), allSelected, 'backward');
+                        const newEditorState = EditorState.push(prev, newContentState, 'remove-range');
+                        return EditorState.forceSelection(newEditorState, newContentState.getSelectionAfter());
+                    });
                 },
                 focus: () => {
                     editorRef.current?.focus();
@@ -87,15 +102,15 @@ const ChatEditor: React.FC<{
         useEffect(() => {
             onChangeText(plainText);
         }, [plainText, onChangeText])
-        
-        useEffect(()=>{
-            initText && setEditorState( prev => {
+
+        useEffect(() => {
+            initText && setEditorState(prev => {
                 const selectionState = prev.getSelection();
                 const newContentState = Modifier.insertText(prev.getCurrentContent(), selectionState, initText);
                 const newEditorState = EditorState.set(prev, { currentContent: newContentState });
                 return newEditorState;
             });
-        },[initText,setEditorState])
+        }, [initText, setEditorState])
 
         const handleKeyEvent = useCallback((key: KeyEvent) => () => {
             onKeyPress && onKeyPress(key);

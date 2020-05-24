@@ -1,8 +1,8 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { Room, JoinRequest } from '../../../../../types/room';
 import { Profile } from '../../../../../types/profile';
-import UsersDialog from '../UsersDialog';
-import RequestsDialog from '../RequestsDialog';
+import UsersDialog from './UsersDialog';
+import RequestsDialog from './RequestsDialog';
 import HeaderPresenter from './Presenter';
 
 const HeaderContainer: React.FC<{

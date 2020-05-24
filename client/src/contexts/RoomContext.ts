@@ -1,5 +1,5 @@
 import React from 'react';
-import {State, ContextType} from '../../../types/room';
+import {State, ContextType, Actions} from '../../../types/room';
 
 export const initialState : State = {
     rooms: [],
@@ -8,15 +8,19 @@ export const initialState : State = {
 };
 
 const initFunc = ()=>{};
+
+export const initialActions : Actions = {
+    add : initFunc,
+    modify : initFunc,
+    delete : initFunc,
+    init : initFunc,
+    loading : initFunc
+}
+
 const RoomContext = React.createContext<ContextType>({
     roomState : initialState,
-    actions : {
-        add : initFunc,
-        modify : initFunc,
-        delete : initFunc,
-        init : initFunc,
-        loading : initFunc
-    }
+    actions : initialActions,
+
 });
 
 export default RoomContext;

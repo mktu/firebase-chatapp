@@ -1,4 +1,4 @@
-import { CollectionTransfer, DocumentTransfer } from './core';
+import { CollectionTransfer, DocumentTransfer, Notifier, ErrorHandler } from './core';
 
 export type Room = {
     roomName : string,
@@ -29,6 +29,7 @@ export type Actions = {
     loading : () => void
 };
 
+// context
 export type State = {
     rooms : Room[],
     loading : boolean,
@@ -37,7 +38,7 @@ export type State = {
 
 export type ContextType = {
     roomState : State,
-    actions : Actions
+    actions : Actions,
 }
 
 export type Dispatch = (action : Action) => void;

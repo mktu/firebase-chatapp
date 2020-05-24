@@ -1,10 +1,19 @@
 import {CollectionTransfer,DocumentTransfer} from '../../../types/core';
+
+export type UnsubscribeNotifier = {
+    unsubscribe : boolean
+}
+
 export function getCollectionListener<T>(
     onAdded: CollectionTransfer<T>,
     onModified: CollectionTransfer<T>,
-    onDeleted: CollectionTransfer<T>
+    onDeleted: CollectionTransfer<T>,
+    unsubscribeNotifier ?: UnsubscribeNotifier
 ) {
     return function (querySnapshot: firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>) {
+        if(unsubscribeNotifier && unsubscribeNotifier.unsubscribe){
+            return;
+        }
         let added: T[] = [];
         let modified: T[] = [];
         let deleted: T[] = [];

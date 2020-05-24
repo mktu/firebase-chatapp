@@ -52,7 +52,7 @@ type Children<T> = (
     forwardListenable: boolean
 ) => React.ReactElement;
 
-const convertToFirestoreOrder = (direction: LoadDirection, loadTarget: LoadTarget, key : string): Order => {
+const convertToFirestoreOrder = (direction: LoadDirection, loadTarget: LoadTarget, key: string): Order => {
     if (loadTarget === 'existing') {
         return direction === 'older' ? { key, order: 'desc' } : { key, order: 'asc' };
     }
@@ -60,12 +60,12 @@ const convertToFirestoreOrder = (direction: LoadDirection, loadTarget: LoadTarge
     return direction === 'older' ? { key, order: 'asc' } : { key, order: 'desc' };
 }
 
-function hasMore<T>(sentinel:T, loaded : T[], uniqueKey : keyof T) {
-    if(sentinel){
-        if(loaded.length === 0){ // has not read yet.
+function hasMore<T>(sentinel: T, loaded: T[], uniqueKey: keyof T) {
+    if (sentinel) {
+        if (loaded.length === 0) { // has not read yet.
             return false;
         }
-        return ! Boolean(loaded.find(m => m[uniqueKey] === sentinel[uniqueKey]))
+        return !Boolean(loaded.find(m => m[uniqueKey] === sentinel[uniqueKey]))
     }
     return false;
 }
@@ -82,11 +82,18 @@ function useInfiniteSnapshotListener<T>({
     loadTarget: LoadTarget,
     sortKey: keyof T,
     forwardSentinel?: T,
-    uniqueKey : keyof T,
+    uniqueKey: keyof T,
     registSnapshotListener: SnapshotListenerRegister<T>
 }) {
     const [loaded, setMessages] = useState<T[]>([]);
     const unsubscribes = useRef<Unsubscribe[]>([]);
+    const clear = useCallback(() => {
+        for (const unsubscribe of unsubscribes.current) {
+            unsubscribe();
+        }
+        setMessages([]);
+        unsubscribes.current = [];
+    }, [])
     const readItems = useCallback(({
         startAfter,
         startAt,
@@ -151,17 +158,14 @@ function useInfiniteSnapshotListener<T>({
 
     useEffect(() => {
         return () => {
-            for (const unsubscribe of unsubscribes.current) {
-                unsubscribe();
-            }
-            setMessages([]);
-            unsubscribes.current = [];
+            clear();
         };
-    }, []);
+    }, [clear]);
 
     return {
         loaded,
-        readItems
+        readItems,
+        clear
     }
 }
 
@@ -182,18 +186,19 @@ function ExistingItemListener<T>(
         backwardSentinel: T,
         forwardSentinel: T,
         limit: number,
-        sortKey : keyof T,
-        uniqueKey : keyof T,
+        sortKey: keyof T,
+        uniqueKey: keyof T,
         startDate: T[keyof T],
         registSnapshotListener: SnapshotListenerRegister<T>
     }
 ) {
     const {
         loaded,
-        readItems
+        readItems,
+        clear
     } = useInfiniteSnapshotListener({
         limit,
-        loadTarget : 'existing',
+        loadTarget: 'existing',
         sortKey,
         uniqueKey: uniqueKey,
         forwardSentinel,
@@ -201,13 +206,16 @@ function ExistingItemListener<T>(
     })
     useEffect(() => {
         readItems({
-            startAt : startDate,
-            direction : 'older'
+            startAt: startDate,
+            direction: 'older'
         });
-    }, [startDate, readItems]);
+        return ()=>{
+            clear();
+        }
+    }, [startDate, readItems, clear]);
 
-    const hasOlderItems = hasMore(backwardSentinel,loaded,uniqueKey);
-    const hasNewerItems = hasMore(forwardSentinel,loaded,uniqueKey);
+    const hasOlderItems = hasMore(backwardSentinel, loaded, uniqueKey);
+    const hasNewerItems = hasMore(forwardSentinel, loaded, uniqueKey);
 
     const allItems = useMemo(() => {
         return hasNewerItems ? loaded : [...items, ...loaded];
@@ -244,14 +252,14 @@ function NewItemListener<T>(
         sortKey,
         uniqueKey,
         sortOrigin,
-        limit=10
+        limit = 10
     }: {
         children: Children<T>,
         backwardSentinel?: T,
         forwardSentinel?: T,
-        sortKey : keyof T,
-        uniqueKey : keyof T,
-        sortOrigin : T[keyof T],
+        sortKey: keyof T,
+        uniqueKey: keyof T,
+        sortOrigin: T[keyof T],
         loadOrigin?: T[keyof T],
         limit?: number
         registSnapshotListener: SnapshotListenerRegister<T>
@@ -259,7 +267,8 @@ function NewItemListener<T>(
 ) {
     const {
         loaded,
-        readItems
+        readItems,
+        clear
     } = useInfiniteSnapshotListener({
         loadTarget: 'new',
         sortKey,
@@ -268,10 +277,13 @@ function NewItemListener<T>(
     })
     useEffect(() => {
         readItems({
-            startAfter : sortOrigin, 
-            direction : 'older'
+            startAfter: sortOrigin,
+            direction: 'older'
         });
-    }, [sortOrigin, readItems]);
+        return () => {
+            clear();
+        }
+    }, [sortOrigin, readItems, clear]);
 
     if (!forwardSentinel || !backwardSentinel) {
         return children(loaded, () => { }, false, false);
@@ -284,7 +296,7 @@ function NewItemListener<T>(
         uniqueKey={uniqueKey}
         backwardSentinel={backwardSentinel}
         forwardSentinel={forwardSentinel}
-        startDate={loadOrigin||sortOrigin}
+        startDate={loadOrigin || sortOrigin}
         limit={limit}
         registSnapshotListener={registSnapshotListener}
     />;
