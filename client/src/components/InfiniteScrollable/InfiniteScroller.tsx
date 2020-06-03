@@ -93,11 +93,15 @@ function ScrollableContainer<T extends HTMLElement>({
         const clientHeight = parentNode?.clientHeight || 0;
         const scrollTop = parentNode?.scrollTop || 0;
         if (scrollHeight === clientHeight &&
-            canScrollDown && 
+            canScrollDown &&
             scrollTop === 0) {
-                loadMore(true);
+            loadMore(true);
+        } else if (scrollHeight === clientHeight &&
+            canScrollUp &&
+            scrollTop === 0) {
+            loadMore(false);
         }
-    }, [loadMore, canScrollDown, children])
+    }, [loadMore, canScrollDown, children, canScrollUp])
 
     return useMemo(() => {
         const childProps = {

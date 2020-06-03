@@ -2,11 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
-import EditIcon from '@material-ui/icons/Edit';
-import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
+import SettingsIcon from '@material-ui/icons/Settings';
 import RecordVoiceOverIcon from '@material-ui/icons/RecordVoiceOver';
-import TextField from '@material-ui/core/TextField';
-import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
+import ShareIcon from '@material-ui/icons/Share';
 import Avatar from '@material-ui/core/Avatar';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -44,11 +42,22 @@ const Wrapper = styled.div`
                 color : ${({ theme }) => `${theme.palette.secondary.main}`};
             }
         }
-        > .user-icon {
-            margin : 0;
-            padding : 1px;
+        > .menu-share{
+            border-right : 1.5px solid ${({ theme }) => `${theme.palette.divider}`};
+            margin-right : ${({ theme }) => `${theme.spacing(1)}px`};
+            padding-right : ${({ theme }) => `${theme.spacing(0.5)}px`};
+        }
+        > .menu-users{
+            border-right : 1.5px solid ${({ theme }) => `${theme.palette.divider}`};
+            margin-right : ${({ theme }) => `${theme.spacing(1)}px`};
+            padding-right : ${({ theme }) => `${theme.spacing(1)}px`};
         }
     }
+`;
+
+const MenuIconButton = styled(IconButton)`
+    margin : 0;
+    padding : 1px;
 `;
 
 const CustomAvatar = styled(Avatar)`
@@ -56,6 +65,17 @@ const CustomAvatar = styled(Avatar)`
     height: ${({ theme }) => `${theme.spacing(3)}px`};
     font-size : 15px;
 `;
+
+type Props<T> = {
+    roomName: string,
+    profiles: T[],
+    className?: string,
+    requestCount: number,
+    owner: boolean,
+    onClickShowMoreUser: () => void,
+    onClickRequest: () => void,
+    onClickSetting: () => void
+}
 
 function HeaderPresenter<T extends {
     nickname: string,
@@ -65,49 +85,24 @@ function HeaderPresenter<T extends {
     profiles,
     className,
     requestCount,
-    nameEditable,
     owner,
     onClickShowMoreUser,
-    onClickEditName,
     onClickRequest,
-    onChangeRoomName
-}: {
-    roomName: string,
-    profiles: T[],
-    className?: string,
-    nameEditable: boolean,
-    requestCount: number,
-    owner: boolean,
-    onClickEditName: (editable: boolean) => void,
-    onClickShowMoreUser: () => void,
-    onClickRequest: ()=> void,
-    onChangeRoomName : (roomName:string) => void
-}) {
+    onClickSetting
+}: Props<T>) {
     return (
         <Wrapper className={className} >
             <div className='room-name'>
-                {owner && nameEditable ? (
-                    <TextField value={roomName} onChange={(e)=>{
-                        onChangeRoomName(e.target.value);
-                    }}/>
-                ) : (
-                        <Typography variant='h6' >{roomName}</Typography>
-                    )}
-                {owner && (
-                    <React.Fragment>{
-                        nameEditable ? (
-                            <IconButton className='edit-roomname-button' onClick={() => { onClickEditName(false) }}>
-                                <CheckCircleOutlineIcon fontSize='small' className='edit-roomname-icon' />
-                            </IconButton>
-                        ) : (
-                                <IconButton className='edit-roomname-button' onClick={() => { onClickEditName(true) }}>
-                                    <EditIcon fontSize='small' className='edit-roomname-icon' />
-                                </IconButton>
-                            )
-                    }</React.Fragment>
-                )}
+                <Typography variant='h6' >{roomName}</Typography>
             </div>
             <div className='menu-icons'>
+                <div className='menu-share'>
+                    <Tooltip title={`Share this room`}>
+                        <MenuIconButton>
+                            <ShareIcon />{/** tbd */}
+                        </MenuIconButton>
+                    </Tooltip>
+                </div>
                 {owner && requestCount > 0 && (
                     <Tooltip title={`${requestCount} join requests`} aria-label="join-requests">
                         <IconButton className='join-request-icon' onClick={onClickRequest}>
@@ -118,16 +113,22 @@ function HeaderPresenter<T extends {
                         </IconButton>
                     </Tooltip>
                 )}
-                {profiles.slice(0, MAX_PROFILE_COUNT).map(p => (
-                    <Tooltip key={p.id} title={p.nickname} aria-label="chat-users">
-                        <IconButton className='user-icon'>
-                            <CustomAvatar className='user-avatar'>{p.nickname[0]}</CustomAvatar>
-                        </IconButton>
-                    </Tooltip>
-                ))}
-                <IconButton className='user-icon' onClick={onClickShowMoreUser}>
-                    <KeyboardArrowRightIcon className='user-avatar' />
-                </IconButton>
+                {profiles.length > 0 && (
+                    <div className='menu-users'>
+                        {profiles.slice(0, MAX_PROFILE_COUNT).map(p => (
+                            <Tooltip key={p.id} title={p.nickname} aria-label="chat-users">
+                                <MenuIconButton>
+                                    <CustomAvatar className='user-avatar'>{p.nickname[0]}</CustomAvatar>
+                                </MenuIconButton>
+                            </Tooltip>
+                        ))}
+                    </div>
+                )}
+                <div>
+                    <MenuIconButton onClick={onClickSetting}>
+                        <SettingsIcon />
+                    </MenuIconButton>
+                </div>
             </div>
         </Wrapper >
     )

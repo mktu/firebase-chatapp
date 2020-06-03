@@ -9,12 +9,10 @@ export default {
 
 export const Default = () => <HeaderPresenter
     requestCount={0}
-    nameEditable={false}
     owner={false}
     onClickRequest={action('click request')}
-    onClickEditName={action('click edit name')}
+    onClickSetting={action('clisk setting')}
     roomName='Test1'
-    onChangeRoomName={action('change room name')}
     onClickShowMoreUser={action('click more')}
     profiles={[
         { id: 'test1', nickname: 'First User' },
@@ -24,11 +22,9 @@ export const Default = () => <HeaderPresenter
 export const UserIconsMax = () => <HeaderPresenter
     requestCount={0}
     owner={true}
-    nameEditable={true}
     onClickRequest={action('click request')}
-    onClickEditName={action('click edit name')}
+    onClickSetting={action('clisk setting')}
     roomName='Test2'
-    onChangeRoomName={action('change room name')}
     onClickShowMoreUser={action('click more')}
     profiles={[
         { id: 'test1', nickname: 'First User' },
@@ -42,10 +38,8 @@ export const UserIconsMax = () => <HeaderPresenter
     export const JoinRequests = () => <HeaderPresenter
     requestCount={3}
     owner={true}
-    nameEditable={false}
     onClickRequest={action('click request')}
-    onChangeRoomName={action('change room name')}
-    onClickEditName={action('click edit name')}
+    onClickSetting={action('clisk setting')}
     roomName='Test3'
     onClickShowMoreUser={action('click more')}
     profiles={[

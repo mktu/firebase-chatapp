@@ -221,15 +221,15 @@ function ExistingItemListener<T>(
         return hasNewerItems ? loaded : [...items, ...loaded];
     }, [items, loaded, hasNewerItems]);
 
-    const handleReadMore = useCallback((toNewer?: boolean) => {
+    const handleReadMore = useCallback((scrolldown?: boolean) => {
         if (allItems.length > 0) {
-            if (!toNewer && hasOlderItems) {
+            if (!scrolldown && hasOlderItems) {
                 readItems({
                     startAfter: allItems[allItems.length - 1][sortKey],
                     direction: 'older'
                 });
             }
-            else if (toNewer && hasNewerItems) {
+            else if (scrolldown && hasNewerItems) {
                 readItems({
                     startAfter: allItems[0][sortKey],
                     direction: 'newer'
