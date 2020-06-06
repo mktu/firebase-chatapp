@@ -68,7 +68,7 @@ const Container: React.FC<Props> = ({
         return (
             <HeaderContainer
                 className={style}
-                owenr={owenr}
+                owner={owenr}
                 requests={requests}
                 room={room}
                 profiles={profiles}

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import Scroller from '../InfiniteScroller';
+import Scroller from 'react-simple-infinite-scroller';
 import { Props } from '../types';
 import { domutil } from '../../../utils'
 

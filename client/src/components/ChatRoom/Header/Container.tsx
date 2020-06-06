@@ -10,7 +10,7 @@ const HeaderContainer: React.FC<{
     room: Room,
     profiles: Profile[],
     requests: JoinRequest[],
-    owenr: boolean,
+    owner: boolean,
     modifyRoom: (room: Room) => void,
     updateRequest: (roomId: string, request: JoinRequest) => void
     className?: string,
@@ -18,7 +18,7 @@ const HeaderContainer: React.FC<{
     className,
     profiles,
     room,
-    owenr,
+    owner,
     requests,
     modifyRoom,
     updateRequest
@@ -52,7 +52,7 @@ const HeaderContainer: React.FC<{
                     roomName={room.roomName}
                     profiles={profiles}
                     className={className}
-                    owner={owenr}
+                    owner={owner}
                     requestCount={requests.length}
                     onClickSetting={() => {
                         setShowSetting(true);
@@ -64,9 +64,9 @@ const HeaderContainer: React.FC<{
                         setSharePortalAnchor(e.currentTarget);
                     }}
                 />
-                {owenr && (
+                {owner && (
                     <RequestsDialog
-                        show={showRequests && owenr}
+                        show={showRequests && owner}
                         requests={requests}
                         handleAcceptRequest={handleAcceptRequest}
                         handleRejectRequest={handleRejectRequest}
@@ -79,7 +79,7 @@ const HeaderContainer: React.FC<{
                     show={showSetting}
                     room={room}
                     modifyRoom={modifyRoom}
-                    owner={owenr}
+                    owner={owner}
                     profiles={profiles}
                     onClose={() => {
                         setShowSetting(false);

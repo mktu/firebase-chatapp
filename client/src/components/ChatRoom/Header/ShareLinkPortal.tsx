@@ -68,7 +68,7 @@ function ShareLinkPortal({
             <Wrapper>
                 <div className='title'>
                     <Typography variant='subtitle1'>INVITE FRIENDS</Typography>
-                    <Typography variant='body1'>You can invite friends from this link</Typography>
+                    <Typography variant='body1'>Give this link to your friends</Typography>
                 </div>
                 <div className='actions'>
                     <InputWrapper>
