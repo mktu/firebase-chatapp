@@ -1,18 +1,18 @@
 import React from 'react';
-import { 
-    createRoom, 
+import {
+    createRoom,
     registRoomsListener,
     modifyRoom
 } from '../services/room';
 import { updateRequest, listenJoinRequests } from '../services/request';
-import { 
-    registMessagesListener, 
-    getMessage, 
-    getLatestMessage, 
+import {
+    registMessagesListener,
+    getMessage,
+    getLatestMessage,
     getOldestMessage,
-    addReaction, 
-    createMessage, 
-    editMessage, 
+    addReaction,
+    createMessage,
+    editMessage,
     disableMessage,
     addReadFlags
 } from '../services/message';
@@ -39,6 +39,27 @@ export const defaultServices = {
     // profile
     getProfiles
 };
+
+export const createMock = (func: (name: string) => (...args: any[]) => void) => {
+    const mock: typeof defaultServices = {
+        createRoom: func('createRoom'),
+        modifyRoom: func('modifyRoom'),
+        registRoomsListener: () => {func('registRoomsListener')(); return ()=>{}},
+        getMessage: func('getMessage'),
+        getLatestMessage: func('getLatestMessage'),
+        getOldestMessage: () => { },
+        registMessagesListener: () => {func('registMessagesListener')(); return ()=>{}},
+        addReaction: func('addReaction'),
+        createMessage: func('createMessage'),
+        editMessage: func('editMessage'),
+        disableMessage: func('disableMessage'),
+        addReadFlags: func('addReadFlags'),
+        updateRequest: func('updateRequest'),
+        listenJoinRequests: () => {func('listenJoinRequests')(); return ()=>{}},
+        getProfiles: func('getProfiles'),
+    }
+    return mock;
+}
 
 const ServiceContext = React.createContext(defaultServices);
 

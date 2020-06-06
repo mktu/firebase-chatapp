@@ -4,7 +4,7 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import SettingsIcon from '@material-ui/icons/Settings';
 import RecordVoiceOverIcon from '@material-ui/icons/RecordVoiceOver';
-import ShareIcon from '@material-ui/icons/Share';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import Avatar from '@material-ui/core/Avatar';
 import Tooltip from '@material-ui/core/Tooltip';
 
@@ -72,7 +72,7 @@ type Props<T> = {
     className?: string,
     requestCount: number,
     owner: boolean,
-    onClickShowMoreUser: () => void,
+    onClickShare: (e:React.MouseEvent<HTMLButtonElement>) => void,
     onClickRequest: () => void,
     onClickSetting: () => void
 }
@@ -86,7 +86,7 @@ function HeaderPresenter<T extends {
     className,
     requestCount,
     owner,
-    onClickShowMoreUser,
+    onClickShare,
     onClickRequest,
     onClickSetting
 }: Props<T>) {
@@ -97,9 +97,9 @@ function HeaderPresenter<T extends {
             </div>
             <div className='menu-icons'>
                 <div className='menu-share'>
-                    <Tooltip title={`Share this room`}>
-                        <MenuIconButton>
-                            <ShareIcon />{/** tbd */}
+                    <Tooltip title={`Invite user`}>
+                        <MenuIconButton onClick={onClickShare}>
+                            <PersonAddIcon />
                         </MenuIconButton>
                     </Tooltip>
                 </div>

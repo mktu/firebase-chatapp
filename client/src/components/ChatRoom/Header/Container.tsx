@@ -1,10 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { Room, JoinRequest } from '../../../../../types/room';
 import { Profile } from '../../../../../types/profile';
-import UsersDialog from './UsersDialog';
 import SettingDialog from './SettingDialog';
 import RequestsDialog from './RequestsDialog';
 import HeaderPresenter from './Presenter';
+import ShareLinkPortal from './ShareLinkPortal';
 
 const HeaderContainer: React.FC<{
     room: Room,
@@ -23,9 +23,10 @@ const HeaderContainer: React.FC<{
     modifyRoom,
     updateRequest
 }) => {
-        const [showUserEditor, setShowUserEditor] = useState(false);
+        const [sharePortalAnchor, setSharePortalAnchor] = useState<HTMLButtonElement|null>(null);
         const [showRequests, setShowRequests] = useState(false);
         const [showSetting, setShowSetting] = useState(false);
+        const loc = window.location.href;
 
         const handleAcceptRequest = (request: JoinRequest) => {
             updateRequest(room.id,
@@ -45,14 +46,6 @@ const HeaderContainer: React.FC<{
                     status: 'rejected'
                 });
         }
-
-        const onDelete = useCallback((profileId: string) => {
-            modifyRoom({
-                ...room,
-                users: profiles.filter(p => p.id !== profileId).map(p => p.id)
-            })
-        }, [profiles, room, modifyRoom]);
-
         return (
             <React.Fragment>
                 <HeaderPresenter
@@ -67,8 +60,8 @@ const HeaderContainer: React.FC<{
                     onClickRequest={() => {
                         setShowRequests(true);
                     }}
-                    onClickShowMoreUser={() => {
-                        setShowUserEditor(true);
+                    onClickShare={(e) => {
+                        setSharePortalAnchor(e.currentTarget);
                     }}
                 />
                 {owenr && (
@@ -82,15 +75,6 @@ const HeaderContainer: React.FC<{
                         }}
                     />
                 )}
-                <UsersDialog
-                    show={showUserEditor}
-                    onDelete={onDelete}
-                    owner={owenr}
-                    profiles={profiles}
-                    onClose={() => {
-                        setShowUserEditor(false);
-                    }}
-                />
                 <SettingDialog
                     show={showSetting}
                     room={room}
@@ -99,6 +83,13 @@ const HeaderContainer: React.FC<{
                     profiles={profiles}
                     onClose={() => {
                         setShowSetting(false);
+                    }}
+                />
+                <ShareLinkPortal 
+                    link={loc}
+                    anchor={sharePortalAnchor}
+                    onClose={()=>{
+                        setSharePortalAnchor(null);
                     }}
                 />
             </React.Fragment>

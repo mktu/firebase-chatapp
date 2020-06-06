@@ -1,11 +1,12 @@
 import React, { useRef } from 'react';
+import { BrowserRouter as Router } from "react-router-dom";
 import styled from 'styled-components';
 import { Room } from '../../../../types/room';
 import { JoinRequest } from '../../../../types/request';
 import { Message } from '../../../../types/message';
 import ChatRoom from '../../components/ChatRoom';
 import { ServiceContext, ProfileContext } from '../../contexts';
-import { defaultServices } from '../../contexts/ServiceContext';
+import { createMock } from '../../contexts/ServiceContext';
 import { initialState } from '../../contexts/ProfileContext';
 import { action } from '@storybook/addon-actions';
 
@@ -32,13 +33,11 @@ export default {
 type OnAdded = (message: Message) => void;
 
 const Container: React.FC<{
-    className?: string,
     requests: JoinRequest[],
     maxPageSize?: number,
     focus?: string,
     items?: Message[]
 }> = ({
-    className,
     requests,
     focus,
     items = FULL_ITEMS
@@ -61,118 +60,114 @@ const Container: React.FC<{
         }
 
         return (
-            <Wrapper>
-                <ServiceContext.Provider value={{
-                    ...defaultServices,
-                    createMessage: ({ message, mentions }) => {
-                        const added: Message = {
-                            id: message,
-                            message,
-                            roomId: room.id,
-                            roomName: room.roomName,
-                            senderId: profile.id,
-                            senderName: profile.nickname,
-                            date: Date.now() + items.length,
-                            mentions
-                        }
-                        for (const cb of callbacks.current) {
-                            cb(added);
-                        }
-                    },
-                    registMessagesListener: ({
-                        limit,
-                        order,
-                        startAfter,
-                        startAt,
-                        endAt,
-                        onAdded,
-                    }) => {
-                        const target = order?.order === 'desc' ? items.slice().reverse() : items;
-                        let startIndex = -1;
-                        let endIndex = - 1;
-                        if (startAfter) {
-                            startIndex = target.findIndex(item => order?.order === 'desc' ? item.date < startAfter : item.date > startAfter);
-                        }
-                        if (startAt) {
-                            startIndex = target.findIndex(item => order?.order === 'desc' ? item.date <= startAt : item.date >= startAt);
-                        }
+            <Router>
+                <Wrapper>
+                    <ServiceContext.Provider value={{
+                        ...createMock(action),
+                        createMessage: ({ message, mentions }) => {
+                            const added: Message = {
+                                id: message,
+                                message,
+                                roomId: room.id,
+                                roomName: room.roomName,
+                                senderId: profile.id,
+                                senderName: profile.nickname,
+                                date: Date.now() + items.length,
+                                mentions
+                            }
+                            for (const cb of callbacks.current) {
+                                cb(added);
+                            }
+                        },
+                        registMessagesListener: ({
+                            limit,
+                            order,
+                            startAfter,
+                            startAt,
+                            endAt,
+                            onAdded,
+                        }) => {
+                            const target = order?.order === 'desc' ? items.slice().reverse() : items;
+                            let startIndex = -1;
+                            let endIndex = - 1;
+                            if (startAfter) {
+                                startIndex = target.findIndex(item => order?.order === 'desc' ? item.date < startAfter : item.date > startAfter);
+                            }
+                            if (startAt) {
+                                startIndex = target.findIndex(item => order?.order === 'desc' ? item.date <= startAt : item.date >= startAt);
+                            }
 
-                        if (limit) {
-                            endIndex = startIndex + limit;
-                        }
-                        // if (endAt) {
-                        //     const end = target.findIndex(item=>order.order === 'desc' ? item.date<=endAt : item.date>=endAt);
-                        // }
-                        startIndex > -1 && endIndex > -1 && setTimeout(() => {
-                            const values = target.slice(startIndex, endIndex);
-                            onAdded(values);
-                        }, 500);
+                            if (limit) {
+                                endIndex = startIndex + limit;
+                            }
+                            // if (endAt) {
+                            //     const end = target.findIndex(item=>order.order === 'desc' ? item.date<=endAt : item.date>=endAt);
+                            // }
+                            startIndex > -1 && endIndex > -1 && setTimeout(() => {
+                                const values = target.slice(startIndex, endIndex);
+                                onAdded(values);
+                            }, 500);
 
-                        const cb = (msg: Message) => {
-                            // Can be added only when input from Input component( latest loader )
-                            if (order?.order === 'asc' && startAfter) {
-                                if (msg.date > startAfter && !endAt) {
-                                    onAdded([msg]);
+                            const cb = (msg: Message) => {
+                                // Can be added only when input from Input component( latest loader )
+                                if (order?.order === 'asc' && startAfter) {
+                                    if (msg.date > startAfter && !endAt) {
+                                        onAdded([msg]);
+                                    }
                                 }
                             }
-                        }
-                        callbacks.current.push(cb)
-                        return () => {
-                            callbacks.current.pop();
-                        };
-                    },
-                    getMessage: ({
-                        messageId,
-                        onSucceeded
-                    }) => {
-                        setTimeout(() => {
-                            const item = items.find(item => item.id === messageId);
-                            item && onSucceeded(item);
-                        }, 500);
-                    },
-                    getOldestMessage: ({ onAdded }) => {
-                        setTimeout(() => {
-                            onAdded(items[0])
-                        }, 500);
-                    },
-                    getLatestMessage: ({ onAdded }) => {
-                        setTimeout(() => {
-                            onAdded(items[items.length - 1])
-                        }, 500);
-                    },
-                    addReaction: action('add reaction'),
-                    editMessage: action('edit message'),
-                    disableMessage: action('delete message'),
-                    modifyRoom: action('modify room'),
-                    updateRequest: action('updateRequest'),
-                    listenJoinRequests: (_, onAdded) => {
-                        onAdded(requests);
-                        return () => { }
-                    },
-                    getProfiles: (_, onSucceeded) => {
-                        onSucceeded(profiles)
-                    },
-                    addReadFlags: action('read flags'),
-                }}>
-                    <ProfileContext.Provider value={{
-                        profileState: {
-                            ...initialState,
-                            profile
+                            callbacks.current.push(cb)
+                            return () => {
+                                callbacks.current.pop();
+                            };
                         },
-                        actions: {
-                            set: () => { },
-                            unset: () => { },
-                            loading: () => { }
-                        }
+                        getMessage: ({
+                            messageId,
+                            onSucceeded
+                        }) => {
+                            setTimeout(() => {
+                                const item = items.find(item => item.id === messageId);
+                                item && onSucceeded(item);
+                            }, 500);
+                        },
+                        getOldestMessage: ({ onAdded }) => {
+                            setTimeout(() => {
+                                onAdded(items[0])
+                            }, 500);
+                        },
+                        getLatestMessage: ({ onAdded }) => {
+                            setTimeout(() => {
+                                onAdded(items[items.length - 1])
+                            }, 500);
+                        },
+                        listenJoinRequests: (_, onAdded) => {
+                            onAdded(requests);
+                            return () => { }
+                        },
+                        getProfiles: (_, onSucceeded) => {
+                            onSucceeded(profiles)
+                        },
                     }}>
-                        <ChatRoom
-                            room={room}
-                            show
-                            focusMessageId={focus}
-                        />
-                    </ProfileContext.Provider>
-                </ServiceContext.Provider>
-            </Wrapper>
+                        <ProfileContext.Provider value={{
+                            profileState: {
+                                ...initialState,
+                                profile
+                            },
+                            actions: {
+                                set: () => { },
+                                unset: () => { },
+                                loading: () => { }
+                            }
+                        }}>
+                            <ChatRoom
+                                room={room}
+                                show
+                                focusMessageId={focus}
+                            />
+                        </ProfileContext.Provider>
+                    </ServiceContext.Provider>
+                </Wrapper>
+            </Router>
         )
     };
 

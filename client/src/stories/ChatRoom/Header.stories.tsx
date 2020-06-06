@@ -13,7 +13,7 @@ export const Default = () => <HeaderPresenter
     onClickRequest={action('click request')}
     onClickSetting={action('clisk setting')}
     roomName='Test1'
-    onClickShowMoreUser={action('click more')}
+    onClickShare={action('click more')}
     profiles={[
         { id: 'test1', nickname: 'First User' },
         { id: 'test2', nickname: 'Second User' },
@@ -25,7 +25,7 @@ export const UserIconsMax = () => <HeaderPresenter
     onClickRequest={action('click request')}
     onClickSetting={action('clisk setting')}
     roomName='Test2'
-    onClickShowMoreUser={action('click more')}
+    onClickShare={action('click more')}
     profiles={[
         { id: 'test1', nickname: 'First User' },
         { id: 'test2', nickname: 'Second User' },
@@ -41,7 +41,7 @@ export const UserIconsMax = () => <HeaderPresenter
     onClickRequest={action('click request')}
     onClickSetting={action('clisk setting')}
     roomName='Test3'
-    onClickShowMoreUser={action('click more')}
+    onClickShare={action('click more')}
     profiles={[
         { id: 'test1', nickname: 'First User' },
         { id: 'test2', nickname: 'Second User' },
