@@ -1,8 +1,8 @@
 import Container from './Container';
 import Presenter from './Presenter';
-import Provider from './Provider';
+import Entry from './Entry';
 
-export default Provider;
+export default Entry;
 export {
     Container,
     Presenter

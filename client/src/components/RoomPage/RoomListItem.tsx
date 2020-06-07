@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import styled from 'styled-components';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import CustomTheme, {ThemeType} from './ThemeContext';
 import Avatar from '@material-ui/core/Avatar';
 import { Room } from '../../../../types/room';
 
@@ -16,6 +17,16 @@ type Props = {
     className?: string
 };
 
+type ThemeProps = {
+    customtheme : ThemeType,
+    theme : any
+}
+
+const StyledListItem = styled(ListItem)`
+    &:hover {
+        background-color : ${({ customtheme } : ThemeProps) => `${customtheme.primary.hover}`};
+    }
+`;
 
 const UserAvatar = styled(Avatar)`
     color: ${({ theme }) => `${theme.palette.getContrastText(theme.palette.primary.light)}`};
@@ -41,9 +52,9 @@ export default ({
     handleSelectRoom,
     room
 }: Props) => {
-
+    const customTheme = useContext(CustomTheme);
     return (
-        <ListItem className={className} button onClick={() => {
+        <StyledListItem customtheme={customTheme} className={className} button onClick={() => {
             handleSelectRoom(room);
         }}>
             <ListItemAvatar>
@@ -62,6 +73,6 @@ export default ({
                 </ListItemSecondaryAction>
             )}
 
-        </ListItem>
+        </StyledListItem>
     )
 };

@@ -24,7 +24,7 @@ function Presenter<T extends {
     handleRejectRequest: (req: T) => void,
     show: boolean,
     requests: T[],
-    onClose : ()=>void
+    onClose: () => void
 }) {
     return <Dialog open={show} fullWidth maxWidth='sm' onClose={onClose}>
         <DialogContent>

@@ -72,7 +72,7 @@ type Props<T> = {
     className?: string,
     requestCount: number,
     owner: boolean,
-    onClickShare: (e:React.MouseEvent<HTMLButtonElement>) => void,
+    onClickShare: (e: React.MouseEvent<HTMLButtonElement>) => void,
     onClickRequest: () => void,
     onClickSetting: () => void
 }
@@ -124,11 +124,13 @@ function HeaderPresenter<T extends {
                         ))}
                     </div>
                 )}
-                <div>
-                    <MenuIconButton onClick={onClickSetting}>
-                        <SettingsIcon />
-                    </MenuIconButton>
-                </div>
+                {owner && (
+                    <div>
+                        <MenuIconButton onClick={onClickSetting}>
+                            <SettingsIcon />
+                        </MenuIconButton>
+                    </div>
+                )}
             </div>
         </Wrapper >
     )

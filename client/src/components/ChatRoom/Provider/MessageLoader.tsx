@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState, useContext, useMemo } from 'react';
-import { Message } from '../../../../types/message';
-import InfiniteSnapshotListener, { SnapshotListenerRegister } from '../Loaders/InfiniteSnapshotListener';
-import { ServiceContext } from '../../contexts';
-import { LoadingStatusType, LoadingStatus } from '../../constants';
+import { Message } from '../../../../../types/message';
+import InfiniteSnapshotListener, { SnapshotListenerRegister } from '../../Loaders/InfiniteSnapshotListener';
+import { ServiceContext } from '../../../contexts';
+import { LoadingStatusType, LoadingStatus } from '../../../constants';
 
 const Container: React.FC<{
     roomId: string,
@@ -69,11 +69,15 @@ const Container: React.FC<{
 
         // loading timeout
         useEffect(() => {
+            let unmounted = false;
             status === 'loading' && setTimeout(() => {
-                setStatus(prev => {
+                !unmounted && setStatus(prev => {
                     return prev === 'loading' ? 'succeeded' : prev;
                 })
             }, 3000);
+            return ()=>{
+                unmounted = true;
+            }
         }, [status]);
 
         const registSnapshotListener: SnapshotListenerRegister<Message> = useCallback((args) => {

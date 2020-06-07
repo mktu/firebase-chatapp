@@ -3,6 +3,7 @@ import { RoomContext, MessagesContext } from '../../contexts';
 import { initialState as roomInitialState } from '../../contexts/RoomContext';
 import { initialState as messageInitialState } from '../../contexts/MessagesContext';
 import Container, { Props } from './Container';
+import CustomTheme, { initialTheme } from './ThemeContext';
 import { createRoomActions, createMessageAction } from '../../actions';
 import { roomReducer, messageReducer } from '../../reducers';
 
@@ -15,7 +16,9 @@ const Provider: React.FC<Props> = (props) => {
     return (
         <RoomContext.Provider value={{ roomState, actions: roomActions }}>
             <MessagesContext.Provider value={{ messageState, actions: messageActions }} >
-                <Container {...props} />
+                <CustomTheme.Provider value={initialTheme}>
+                    <Container {...props} />
+                </CustomTheme.Provider>
             </MessagesContext.Provider>
         </RoomContext.Provider>
     )

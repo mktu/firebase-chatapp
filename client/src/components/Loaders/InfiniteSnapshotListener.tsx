@@ -112,6 +112,9 @@ function useInfiniteSnapshotListener<T>({
                 startAt,
                 endAt,
                 onAdded: (results) => {
+                    if(unsubscribes.current.length === 0){
+                        return;
+                    }
                     if (results.length > 0) {
                         if (direction === 'older') {
                             if (loadTarget === 'existing') {
@@ -130,6 +133,9 @@ function useInfiniteSnapshotListener<T>({
                     }
                 },
                 onModified: (results) => {
+                    if(unsubscribes.current.length === 0){
+                        return;
+                    }
                     setMessages(prev => {
                         return prev.map(mes => {
                             const found = results.find(m => m[uniqueKey] === mes[uniqueKey]);
@@ -141,6 +147,9 @@ function useInfiniteSnapshotListener<T>({
                     })
                 },
                 onDeleted: (results) => {
+                    if(unsubscribes.current.length === 0){
+                        return;
+                    }
                     setMessages(prev => {
                         return prev.filter(mes => {
                             const found = results.find(m => m[uniqueKey] === mes[uniqueKey]);

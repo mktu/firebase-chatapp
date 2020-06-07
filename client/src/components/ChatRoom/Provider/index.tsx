@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Room } from '../../../../types/room';
-import { Profile } from '../../../../types/profile';
-import { ServiceContext } from '../../contexts';
-import { JoinRequest } from '../../../../types/request';
-import Container from './Container';
+import { Room } from '../../../../../types/room';
+import { Profile } from '../../../../../types/profile';
+import { ServiceContext } from '../../../contexts';
+import { JoinRequest } from '../../../../../types/request';
+import Container from '../Container';
 import MessageLoader from './MessageLoader';
 
-type Props = {
+export type Props = {
     room: Room,
     show: boolean,
     className?: string,
