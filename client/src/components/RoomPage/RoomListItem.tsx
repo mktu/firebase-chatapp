@@ -4,6 +4,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import { MessagesContext } from '../../contexts';
 import CustomTheme, {ThemeType} from './ThemeContext';
 import Avatar from '@material-ui/core/Avatar';
 import { Room } from '../../../../types/room';
@@ -11,7 +12,6 @@ import { Room } from '../../../../types/room';
 
 type Props = {
     room: Room,
-    unreads: number,
     selected: boolean,
     handleSelectRoom: (room: Room) => void,
     className?: string
@@ -48,11 +48,12 @@ const EmphasisText = styled.span`
 export default ({
     className,
     selected,
-    unreads,
     handleSelectRoom,
     room
 }: Props) => {
     const customTheme = useContext(CustomTheme);
+    const { messageState } = useContext(MessagesContext);
+    const unreads = messageState[room.id] ?  messageState[room.id] : 0;
     return (
         <StyledListItem customtheme={customTheme} className={className} button onClick={() => {
             handleSelectRoom(room);

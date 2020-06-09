@@ -15,6 +15,7 @@ const Wrapper = styled.div`
     height : 100%;
     display : flex;
     align-items : center;
+    justify-content : center;
 `;
 
 const InactiveRoom : React.FC<Props> = ({
@@ -35,13 +36,16 @@ const InactiveRoom : React.FC<Props> = ({
             <div>
                 {owenr ? (
                 <div>
-                    <Typography variant='subtitle1'>This room is inactive. Do you want to activate again ?</Typography>
-                    <Button color='secondary' onClick={()=>{
+                    <Typography variant='subtitle1'>This room is inactive. Do you want to activate again ? Or, you can delete this room permanently.</Typography>
+                    <div>
+                    <Button color='primary' variant='contained' onClick={()=>{
                         modifyRoom({
                             ...room,
                             disabled : false
                         })
                     }}>Activate this room</Button>
+                    <Button color='secondary'>Delete Permanently</Button>
+                    </div>
                 </div>
                 ) : (
                     <Typography variant='subtitle1'>This room is inactive. Please contact to room's owner</Typography>

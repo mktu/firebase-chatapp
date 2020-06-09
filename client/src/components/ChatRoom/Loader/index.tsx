@@ -13,7 +13,7 @@ export type Props = {
     focusMessageId?: string,
 }
 
-const Provider: React.FC<Props> = ({
+const Loader: React.FC<Props> = ({
     room,
     focusMessageId,
     show
@@ -84,4 +84,4 @@ const Provider: React.FC<Props> = ({
 }
 
 
-export default Provider;
+export default Loader;

@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { RoomContext, ProfileContext, MessagesContext } from '../../contexts';
+import { RoomContext, ProfileContext } from '../../contexts';
 import { LoadingStatusType } from '../../constants';
 import RoomDialog from '../RoomDialog';
 import RoomList from './RoomList';
@@ -25,7 +25,6 @@ const Container: React.FC<Props> = ({
     const [newRoomName, setNewRoomName] = useState<string>('');
     const [status, setStatus] = useState<LoadingStatusType>('loading');
     const { roomState, actions } = useContext(RoomContext);
-    const { messageState } = useContext(MessagesContext);
     const { createRoom, registRoomsListener } = useContext(ServiceContext);
     const { rooms } = roomState;
     const { profileState } = useContext(ProfileContext);
@@ -87,8 +86,6 @@ const Container: React.FC<Props> = ({
                         renderRoomListItem={(room) => (
                             <RoomListItem
                                 key={room.id}
-                                unreads={messageState[room.id] ? 
-                                    messageState[room.id] : 0}
                                 selected={room.id === currentRoomId}
                                 room={room}
                                 handleSelectRoom={({ id }) => {
