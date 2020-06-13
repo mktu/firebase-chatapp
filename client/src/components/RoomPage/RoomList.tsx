@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 import Button from '@material-ui/core/Button';
 import ButtonBase from '@material-ui/core/ButtonBase';
@@ -77,7 +77,12 @@ export default ({
     const customtheme = useContext(CustomTheme);
     const [showActive, setShowActive] = useState(true);
     const [showInactive, setShowInactive] = useState(false);
-    const disabledRooms = rooms.filter(r => Boolean(r.disabled));
+    const disabledRooms = useMemo(()=>rooms.filter(r => Boolean(r.disabled)),[rooms]);
+    useEffect(()=>{
+        if(Boolean(disabledRooms.find(r=>currentRoomId===r.id))){
+            setShowInactive(true);
+        }
+    },[setShowInactive, disabledRooms, currentRoomId]);
     return (
         <Wrapper className={className} customtheme={customtheme}>
             <div className='menu-header'>
@@ -103,7 +108,7 @@ export default ({
                     }}>Inactive Rooms<StyledExpandIcon expand={showInactive.toString()}/></ButtonBase>
                 </div>
                 <List>
-                    {(showInactive || Boolean(disabledRooms.find(r=>currentRoomId===r.id)) ) && disabledRooms.map(renderRoomListItem)}
+                    {(showInactive ) && disabledRooms.map(renderRoomListItem)}
                 </List>
             </div>
             <Divider />

@@ -48,7 +48,7 @@ const Loader: React.FC<Props> = ({
                     return found;
                 }
                 return req;
-            }));
+            }).filter(r=>r.status==='requesting'));
         }, (deleted) => {
             !unsubscribed && setRequests(reqs => reqs.filter(req => {
                 return !deleted.find(r => r.id === req.id);

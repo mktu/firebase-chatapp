@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Room, JoinRequest } from '../../../../../types/room';
 import { Profile } from '../../../../../types/profile';
 import SettingDialog from './SettingDialog';
-import RequestsDialog from './RequestsDialog';
 import HeaderPresenter from './Presenter';
 import ShareLinkPortal from './ShareLinkPortal';
+import RequestsPortal from './RequestsPortal';
 
 const HeaderContainer: React.FC<{
     room: Room,
@@ -24,10 +24,10 @@ const HeaderContainer: React.FC<{
     updateRequest
 }) => {
         const [sharePortalAnchor, setSharePortalAnchor] = useState<HTMLButtonElement|null>(null);
-        const [showRequests, setShowRequests] = useState(false);
+        const [requestsPortalAnchor, setRequestsPortalAnchor] = useState<HTMLButtonElement|null>(null);
         const [showSetting, setShowSetting] = useState(false);
         const loc = window.location.href;
-
+console.log(requestsPortalAnchor)
         const handleAcceptRequest = (request: JoinRequest) => {
             updateRequest(room.id,
                 {
@@ -57,21 +57,21 @@ const HeaderContainer: React.FC<{
                     onClickSetting={() => {
                         setShowSetting(true);
                     }}
-                    onClickRequest={() => {
-                        setShowRequests(true);
+                    onClickRequest={(e) => {
+                        setRequestsPortalAnchor(e.currentTarget);
                     }}
                     onClickShare={(e) => {
                         setSharePortalAnchor(e.currentTarget);
                     }}
                 />
                 {owner && (
-                    <RequestsDialog
-                        show={showRequests && owner}
+                    <RequestsPortal
+                        anchor={requestsPortalAnchor}
                         requests={requests}
                         handleAcceptRequest={handleAcceptRequest}
                         handleRejectRequest={handleRejectRequest}
                         onClose={() => {
-                            setShowRequests(false);
+                            setRequestsPortalAnchor(null);
                         }}
                     />
                 )}

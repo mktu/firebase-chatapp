@@ -73,7 +73,7 @@ type Props<T> = {
     requestCount: number,
     owner: boolean,
     onClickShare: (e: React.MouseEvent<HTMLButtonElement>) => void,
-    onClickRequest: () => void,
+    onClickRequest: (e: React.MouseEvent<HTMLButtonElement>) => void,
     onClickSetting: () => void
 }
 
