@@ -8,6 +8,7 @@ import { consoleError, ErrorHandler, Notifier } from '../utils';
 import { getCollectionListener, getDocumentListener } from './db';
 
 const db = firebase.firestore();
+const ff = firebase.functions();
 
 export function registRoomsListener(
     onAdded: RoomsTransfer,
@@ -104,5 +105,23 @@ export function modifyRoom(
     }, { merge: true })
         .then(onSucceeded)
         .catch(onFailed);
+}
+
+export function deleteRoomPermanently(
+    room: Room,
+    profileId: string,
+    uid: string,
+    onSucceeded ?: () => void,
+    onFailed: ErrorHandler = consoleError
+){
+    const deleteFn = ff.httpsCallable('recursiveDelete');
+    deleteFn({ path: `/rooms/${room.id}`, room, profileId, uid })
+        .then(function(result) {
+            console.log('Delete success: ' + JSON.stringify(result));
+            onSucceeded && onSucceeded();
+        })
+        .catch(function(err) {
+            onFailed(err)
+        });
 }
 

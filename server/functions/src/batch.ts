@@ -7,6 +7,7 @@ import admin from './admin';
 export const modifyMessage = async (req: https.Request, res: Response) => {
     const rooms: Room[] = [];
     const profiles: Profile[] = [];
+    
     const roomDocs = await admin.firestore()
         .collection('rooms')
         .get();

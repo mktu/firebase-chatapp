@@ -18,7 +18,9 @@ const Target: React.FC = () => {
                 history.replace(`/rooms/${roomId}`);
             }}
             renderChatRoom={(room) => (
-                <ChatRoom key={room.id} show={roomId === room.id} room={room} focusMessageId={messageId} />
+                <ChatRoom key={room.id} show={roomId === room.id} room={room} focusMessageId={messageId} onClose={()=>{
+                    history.replace(`/rooms`);
+                }}/>
             )}
             renderRequestRoom={(id) => (
                 <Redirect

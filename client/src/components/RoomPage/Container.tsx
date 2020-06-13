@@ -83,6 +83,7 @@ const Container: React.FC<Props> = ({
                     <RoomList
                         className={style}
                         showDialog={showDialog}
+                        currentRoomId={currentRoomId}
                         renderRoomListItem={(room) => (
                             <RoomListItem
                                 key={room.id}

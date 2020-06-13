@@ -13,7 +13,8 @@ type Props = {
     showDialog: () => void,
     rooms: Room[],
     renderRoomListItem: (room: Room) => React.ReactElement,
-    className?: string
+    className?: string,
+    currentRoomId?: string
 };
 
 type WrapperProps = {
@@ -70,12 +71,13 @@ export default ({
     className,
     showDialog,
     rooms,
-    renderRoomListItem
+    renderRoomListItem,
+    currentRoomId
 }: Props) => {
     const customtheme = useContext(CustomTheme);
     const [showActive, setShowActive] = useState(true);
     const [showInactive, setShowInactive] = useState(false);
-
+    const disabledRooms = rooms.filter(r => Boolean(r.disabled));
     return (
         <Wrapper className={className} customtheme={customtheme}>
             <div className='menu-header'>
@@ -101,7 +103,7 @@ export default ({
                     }}>Inactive Rooms<StyledExpandIcon expand={showInactive.toString()}/></ButtonBase>
                 </div>
                 <List>
-                    {showInactive && rooms.filter(r => Boolean(r.disabled)).map(renderRoomListItem)}
+                    {(showInactive || Boolean(disabledRooms.find(r=>currentRoomId===r.id)) ) && disabledRooms.map(renderRoomListItem)}
                 </List>
             </div>
             <Divider />

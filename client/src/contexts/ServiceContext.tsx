@@ -2,7 +2,8 @@ import React from 'react';
 import {
     createRoom,
     registRoomsListener,
-    modifyRoom
+    modifyRoom,
+    deleteRoomPermanently
 } from '../services/room';
 import { updateRequest, listenJoinRequests } from '../services/request';
 import {
@@ -23,6 +24,7 @@ export const defaultServices = {
     createRoom,
     modifyRoom,
     registRoomsListener,
+    deleteRoomPermanently,
     // message
     getMessage,
     getLatestMessage,
@@ -45,6 +47,7 @@ export const createMock = (func: (name: string) => (...args: any[]) => void) => 
         createRoom: func('createRoom'),
         modifyRoom: func('modifyRoom'),
         registRoomsListener: () => {func('registRoomsListener')(); return ()=>{}},
+        deleteRoomPermanently : func('deleteRoomPermanently'),
         getMessage: func('getMessage'),
         getLatestMessage: func('getLatestMessage'),
         getOldestMessage: () => { },
