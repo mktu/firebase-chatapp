@@ -27,7 +27,6 @@ const HeaderContainer: React.FC<{
         const [requestsPortalAnchor, setRequestsPortalAnchor] = useState<HTMLButtonElement|null>(null);
         const [showSetting, setShowSetting] = useState(false);
         const loc = window.location.href;
-console.log(requestsPortalAnchor)
         const handleAcceptRequest = (request: JoinRequest) => {
             updateRequest(room.id,
                 {

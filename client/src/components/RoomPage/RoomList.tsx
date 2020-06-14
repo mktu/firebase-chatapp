@@ -78,6 +78,7 @@ export default ({
     const [showActive, setShowActive] = useState(true);
     const [showInactive, setShowInactive] = useState(false);
     const disabledRooms = useMemo(()=>rooms.filter(r => Boolean(r.disabled)),[rooms]);
+    const activeRooms = useMemo(()=>rooms.filter(r=>Boolean(!r.disabled)),[rooms]);
     useEffect(()=>{
         if(Boolean(disabledRooms.find(r=>currentRoomId===r.id))){
             setShowInactive(true);
@@ -97,15 +98,15 @@ export default ({
                 <div className='menu-rooms-subtitle'>
                     <ButtonBase color='inherit' onClick={()=>{
                         setShowActive(prev=>!prev);
-                    }}>Active Rooms<StyledExpandIcon expand={showActive.toString()}/></ButtonBase>
+                    }}>{`Active Rooms (${activeRooms.length})`}<StyledExpandIcon expand={showActive.toString()}/></ButtonBase>
                 </div>
                 <List>
-                    {showActive && rooms.filter(r => !Boolean(r.disabled)).map(renderRoomListItem)}
+                    {showActive && activeRooms.map(renderRoomListItem)}
                 </List>
                 <div className='menu-rooms-subtitle'>
                     <ButtonBase color='inherit' onClick={()=>{
                         setShowInactive(prev=>!prev);
-                    }}>Inactive Rooms<StyledExpandIcon expand={showInactive.toString()}/></ButtonBase>
+                    }}>{`Inactive Rooms (${disabledRooms.length})`}<StyledExpandIcon expand={showInactive.toString()}/></ButtonBase>
                 </div>
                 <List>
                     {(showInactive ) && disabledRooms.map(renderRoomListItem)}
