@@ -5,7 +5,16 @@ import {
     modifyRoom,
     deleteRoomPermanently
 } from '../services/room';
+import { 
+    deleteToken, 
+    saveToken,
+    requestPermission, 
+    getToken, 
+    getSavedToken, 
+    getPermission
+ } from '../services/notification';
 import { updateRequest, listenJoinRequests } from '../services/request';
+import { modifyProfile, getProfile, getProfiles, addProfile, uploadProfileImage } from '../services/profile';
 import {
     registMessagesListener,
     getMessage,
@@ -17,7 +26,6 @@ import {
     disableMessage,
     addReadFlags
 } from '../services/message';
-import { getProfiles } from '../services/profile';
 
 export const defaultServices = {
     // room
@@ -39,7 +47,18 @@ export const defaultServices = {
     updateRequest,
     listenJoinRequests,
     // profile
-    getProfiles
+    getProfiles,
+    getProfile,
+    modifyProfile,
+    addProfile,
+    uploadProfileImage,
+    // token
+    deleteToken,
+    saveToken,
+    requestPermission,
+    getToken,
+    getSavedToken,
+    getPermission
 };
 
 export const createMock = (func: (name: string) => (...args: any[]) => void) => {
@@ -60,6 +79,16 @@ export const createMock = (func: (name: string) => (...args: any[]) => void) => 
         updateRequest: func('updateRequest'),
         listenJoinRequests: () => {func('listenJoinRequests')(); return ()=>{}},
         getProfiles: func('getProfiles'),
+        getProfile: func('getProfile'),
+        modifyProfile: func('modifyProfile'),
+        addProfile : func('addProfile'),
+        deleteToken : func('deleteToken'),
+        saveToken : func('saveToken'),
+        requestPermission : func('requestPermission'),
+        getToken : func('getToken'),
+        getSavedToken : func('getSavedToken'),
+        getPermission : ()=>{func('getPermission')(); return 'default'},
+        uploadProfileImage : func('uploadProfileImage')
     }
     return mock;
 }

@@ -30,7 +30,7 @@ const Container = ({
     const [loaded, setLoaded] = useState<Hit<Message>[]>([]);
     useEffect(() => {
         setLoaded(items.slice(0, MAX_PAGE_SIZE));
-    }, [])
+    }, [items,setLoaded])
 
     return (
         <Presenter

@@ -1,44 +1,99 @@
-import React from 'react';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
+import React, { useState, useEffect, useContext } from 'react';
 import Notification from './Notification';
-import {useRegisterProfileState} from './useProfileState';
-import {Wrapper, Paper} from './Common';
+import AuthContext from '../../contexts/AuthContext';
+import ServiceContext from '../../contexts/ServiceContext';
+import { useImageState, useNotifierState } from './useProfileState';
+import Presenter from './Presenter';
+import Avatar from './Avatar';
 
 
-const RegisterProfile : React.FC<{
-    onSucceeded : ()=> React.ReactElement
+const RegisterProfile: React.FC<{
+    renderSucceeded: () => React.ReactElement
 }> = ({
-    onSucceeded
-}) =>{
-    const { 
-        onChangeNickname, 
-        nickname, 
-        registerProfile,
-        registrable, 
-        succeeded ,
-        notifiable,
-        onLoadToken,
-        onSwitchNotifiable
-    } = useRegisterProfileState();
-    if(succeeded){
-        return onSucceeded();
+    renderSucceeded
+}) => {
+        const {
+            uploadProfileImage,
+            imageFile,
+            ...avatarProps
+        } = useImageState();
+        const {
+            updateToken,
+            enqueueSnackbar,
+            ...notifierProps
+        } = useNotifierState();
+
+        const [nickname, setNickname] = useState('');
+        const [succeeded, setSucceeded] = useState<boolean>(false);
+        const { getProfile, addProfile, modifyProfile } = useContext(ServiceContext);
+        const { userState } = useContext(AuthContext);
+        const { user } = userState;
+        const registrable = Boolean(nickname !== '' && user);
+        useEffect(() => {
+            if (user) {
+                setNickname(user.name || '');
+            }
+        }, [user, setNickname]);
+        useEffect(() => {
+            if (user) {
+                getProfile(user, (prof) => {
+                    if (prof.uid === user.uid) {
+                        setSucceeded(true);
+                    }
+                }, () => {
+                    console.log('Profile is not registered');
+                })
+            }
+        }, [user, setSucceeded, getProfile]);
+
+        const onSubmit = () => {
+            if (registrable) {
+                addProfile(nickname, user!, (profile) => {
+                    if (imageFile) {
+                        uploadProfileImage(profile.id, imageFile, (url) => {
+                            modifyProfile({
+                                ...profile,
+                                imageUrl: url
+                            }, () => {
+                                enqueueSnackbar(`Succeeded register profile`, { variant: 'success' })
+                                setSucceeded(true);
+                                updateToken(profile.id);
+                            })
+                        }, (progress) => {
+                            console.log(`progress:${progress}%`)
+                        }, (error) => {
+                            enqueueSnackbar(`Uploadimage error: ${error.message}`, { variant: 'error' });
+                        })
+                    } else {
+                        enqueueSnackbar(`Succeeded register profile`, { variant: 'success' })
+                        setSucceeded(true);
+                        updateToken(profile.id);
+                    }
+
+                });
+            }
+        }
+
+        if (succeeded) {
+            return renderSucceeded();
+        }
+        return (
+            <Presenter
+                title='REGISTER YOUR PROFILE'
+                onChangeNickname={(e) => {
+                    setNickname(e.target.value);
+                }}
+                nickname={nickname}
+                registrable={registrable}
+                onSubmit={onSubmit}
+                avatar={
+                    <Avatar {...avatarProps} />
+                }
+                notification={
+                    <Notification className='notification' {...notifierProps} />
+                }
+            />
+        )
     }
-    return (
-        <Wrapper>
-            <Paper>
-                <Typography variant='subtitle1'>Register your profile</Typography>
-                <div className='content'>
-                    <Notification className='notification' notifiable={notifiable} onLoadToken={onLoadToken} onSwitchNotifiable={onSwitchNotifiable}/>
-                    <TextField onChange={onChangeNickname} value={nickname} required fullWidth label="Nick Name" />
-                </div>
-                <div className='submit-actions'>
-                    <Button disabled={!registrable} onClick={registerProfile} variant='contained' color='secondary'>SUBMIT</Button>
-                </div>
-            </Paper>
-        </Wrapper>
-    )
-}
 
 export default RegisterProfile;

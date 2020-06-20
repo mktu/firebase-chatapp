@@ -1,155 +1,79 @@
-import { useState, useContext, useEffect, useCallback } from 'react';
+import React, { useState, useContext, useCallback } from 'react';
 import { useSnackbar } from 'notistack';
-import AuthContext from '../../contexts/AuthContext';
-import ProfileContext from '../../contexts/ProfileContext';
-import { addProfile, getProfile, modifyProfile } from '../../services/profile';
-import { deleteToken, saveToken } from '../../services/notification';
-import useErrorState from '../../hooks/useErrorState';
+import ServiceContext from '../../contexts/ServiceContext';
+import { useDropzone } from 'react-dropzone';
 import { Token } from '../../../../types/notification';
 
-const useCommonState = () => {
-    const { setError, error, hasError } = useErrorState();
-    const { userState } = useContext(AuthContext);
-    const { user } = userState;
-    const [nickname, setNickname] = useState('');
-    const [notifiable, setNotifiable] = useState(false);
-    const [token,setToken] = useState<string>();
-    const { enqueueSnackbar } = useSnackbar();
-    
-    const onChangeNickname = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNickname(e.target.value);
+export const useImageState = () => {
+    const {
+        acceptedFiles,
+        getRootProps,
+        getInputProps,
+        isDragActive,
+        isDragAccept,
+        isDragReject
+    } = useDropzone({ noClick: true });
+
+    const [image, setImage] = useState<File>();
+    const imgUrl = (image && URL.createObjectURL(image)) || (acceptedFiles.length === 1 ? URL.createObjectURL(acceptedFiles[0]) : undefined);
+    const imageFile = image || (acceptedFiles.length === 1 ? acceptedFiles[0] : undefined);
+    const dropZoneInputProps = getInputProps();
+    const dropZoneProps = getRootProps({ isDragActive, isDragAccept, isDragReject });
+    const { uploadProfileImage } = useContext(ServiceContext);
+
+    return {
+        dropZoneInputProps,
+        dropZoneProps,
+        imgUrl,
+        setImage,
+        imageFile,
+        uploadProfileImage
     }
+}
+
+export const useNotifierState = () => {
+    const { deleteToken, saveToken } = useContext(ServiceContext);
+    const [notifiable, setNotifiable] = useState<'disabled'|'init'|'enabled'>('init');
+    const [token, setToken] = useState<string>();
+    const { enqueueSnackbar } = useSnackbar();
+
     const onSwitchNotifiable = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
-            setNotifiable(true);
+            setNotifiable('enabled');
         } else {
-            setNotifiable(false);
+            setNotifiable('disabled');
         }
     }
-    const onLoadToken = useCallback((rawToken:string, token?:Token) => {
+    const onLoadToken = useCallback((rawToken: string, token?: Token) => {
         setToken(rawToken);
-        if(token){
-            setNotifiable(true);
+        if (token) {
+            setNotifiable('enabled');
         }
-    },[]);
-    const updateToken = useCallback((profileId:string)=>{
-        if(notifiable){
-            token && saveToken(profileId, token, ()=>{
+    }, []);
+    const updateToken = useCallback((profileId: string) => {
+        if (notifiable === 'enabled') {
+            token && saveToken(profileId, token, () => {
                 console.log('Token saved successfully');
-            }, (error)=>{
+            }, (error) => {
                 console.error(error);
-                enqueueSnackbar('An error occurred while saving token',{variant:'error'});
+                enqueueSnackbar('An error occurred while saving token', { variant: 'error' });
             });
-        }else{
-            token && deleteToken(token, ()=>{
+        } else if(notifiable === 'disabled'){
+            token && deleteToken(token, () => {
                 console.log('Token deleted successfully');
-            },(error)=>{
+            }, (error) => {
                 console.error(error);
-                enqueueSnackbar('An error occurred while deleting token',{variant:'error'});
+                enqueueSnackbar('An error occurred while deleting token', { variant: 'error' });
             });
         }
-    },[token,notifiable,enqueueSnackbar]);
+    }, [token, notifiable, enqueueSnackbar, deleteToken, saveToken]);
+
+
     return {
-        nickname,
-        setNickname,
-        onChangeNickname,
-        setError,
-        error,
-        hasError,
-        user,
-        onSwitchNotifiable,
-        notifiable,
         onLoadToken,
-        updateToken,
-        enqueueSnackbar
-    }
-}
-
-export function useRegisterProfileState() {
-    const {
-        nickname,
-        setNickname,
-        setError,
-        user,
+        onSwitchNotifiable,
+        notifiable : notifiable === 'enabled',
         updateToken,
         enqueueSnackbar,
-        ...other
-    } = useCommonState();
-    const [succeeded, setSucceeded] = useState<boolean>(false);
-    const registrable = nickname !== '' && user;
-    useEffect(() => {
-        if (user) {
-            setNickname(user.name || '');
-        }
-    }, [user, setNickname]);
-
-    useEffect(() => {
-        if (user) {
-            getProfile(user, (prof) => {
-                if (prof.uid === user.uid) {
-                    setSucceeded(true);
-                }
-            }, () => {
-                console.log('Profile is not registered');
-            })
-        }
-    }, [user,setSucceeded]);
-
-    const registerProfile = () => {
-        if (registrable) {
-            addProfile(nickname, user!, (profile) => {
-                enqueueSnackbar(`Succeeded register profile`,{variant:'success'})
-                setSucceeded(true);
-                updateToken(profile.id);
-            }, setError);
-        }
     }
-
-    return {
-        nickname,
-        registerProfile,
-        registrable,
-        succeeded,
-        ...other
-    };
-}
-
-export function useUpdateProfileState() {
-    const {
-        nickname,
-        setNickname,
-        setError,
-        updateToken,
-        enqueueSnackbar,
-        ...other
-    } = useCommonState();
-    const { profileState } = useContext(ProfileContext);
-    const { profile } = profileState;
-
-    const updatable = nickname !== '' && profile;
-
-    useEffect(() => {
-        if (profile) {
-            setNickname(profile.nickname || '');
-        }
-    }, [profile, setNickname]);
-
-    const updateProfile = () => {
-        if (updatable) {
-            modifyProfile({
-                ...profile!,
-                nickname
-            }, () => {
-                updateToken(profile!.id);
-                enqueueSnackbar(`Succeeded update profile`,{variant:'success'});
-            }, setError);
-        }
-    }
-
-    return {
-        nickname,
-        updatable,
-        updateProfile,
-        ...other
-    };
 }

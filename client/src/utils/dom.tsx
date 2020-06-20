@@ -52,8 +52,8 @@ export const calcRelativePosition = (portalElement: HTMLElement, parentElement?:
         const relativeParentRect = parentElement.getBoundingClientRect();
         relativeLeft = portalRect.left - relativeParentRect.left;
         relativeTop = portalRect.top - relativeParentRect.top;
-        relativeBottom = portalRect.bottom - relativeParentRect.bottom;
-        relativeRight = portalRect.right - relativeParentRect.right;
+        relativeBottom = relativeParentRect.bottom - portalRect.bottom;
+        relativeRight = relativeParentRect.right - portalRect.right;
 
     } else {
         relativeScrollTop =
@@ -67,15 +67,14 @@ export const calcRelativePosition = (portalElement: HTMLElement, parentElement?:
 
         relativeTop = portalRect.top;
         relativeLeft = portalRect.left;
-        relativeBottom = portalRect.bottom;
-        relativeRight = portalRect.right;
+        relativeBottom = document.documentElement.clientHeight - portalRect.bottom;
+        relativeRight = document.documentElement.clientWidth - portalRect.right;
     }
     const left = relativeLeft + relativeScrollLeft;
     const top = relativeTop + relativeScrollTop;
     const bottom = relativeBottom + relativeScrollBottom;
     const right = relativeRight + relativeScrollRight;
-    
-    //console.log(`relativeScrollHeight:${relativeScrollHeight},relativeScrollTop:${relativeScrollTop},bottom:${bottom},portalRect.bottom:${portalRect.bottom}`)
+    //console.log(`relativeScrollHeight:${relativeScrollHeight},relativeBottom:${relativeBottom},bottom:${bottom},portalRect.bottom:${portalRect.bottom}`)
     // https://qiita.com/hoto17296/items/be4c1362647dd241905d
     const rect = {
         left,

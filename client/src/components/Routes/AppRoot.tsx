@@ -38,7 +38,7 @@ const RequiresUserRoot: React.FC<{}> = () => {
     }}>
         <Switch>
             <Route exact path='/profile/create'>
-                <RegisterProfile onSucceeded={() => (
+                <RegisterProfile renderSucceeded={() => (
                     <RedirectBack defaultPath='/' />
                 )} />
             </Route>

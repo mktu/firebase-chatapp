@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { requestPermission, getToken, getSavedToken, getPermission } from '../../services/notification';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
+
+import ServiceContext from '../../contexts/ServiceContext';
 import { LoadingStatusType } from '../../constants';
 import { Token } from '../../../../types/notification';
 
@@ -17,6 +18,7 @@ const TokenLoader: React.FC<{
     onLoadToken
 }) => {
     const [status,setStatus] = useState<LoadingStatusType>('loading');
+    const { getToken, getSavedToken } = useContext(ServiceContext);
     useEffect(() => {
         getToken((rawToken) => {
             getSavedToken(rawToken,(token)=>{
@@ -29,7 +31,7 @@ const TokenLoader: React.FC<{
         }, ()=>{
             setStatus('failed');
         });
-    }, [onLoadToken]);
+    }, [onLoadToken,getToken,getSavedToken]);
     if(status==='loading'){
         return loading;
     }
@@ -49,16 +51,17 @@ const PermissionLoader: React.FC<{
     children
 }) =>{
     const [permission, setPermission] = useState<NotificationPermission>('default');
+    const { getPermission, requestPermission } = useContext(ServiceContext);
     useEffect(()=>{
         setPermission(getPermission());
-    },[]);
+    },[getPermission]);
     const onPermissionRequest = useCallback(()=>{
         requestPermission(()=>{
             setPermission('granted');
         },()=>{
             setPermission('denied');
         })
-    },[])
+    },[requestPermission])
 
     if(permission==='default'){
         return renderDefault(onPermissionRequest);

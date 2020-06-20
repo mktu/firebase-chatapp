@@ -5,11 +5,12 @@ import { getCollectionListener } from './db';
 import { consoleError, ErrorHandler } from '../utils';
 
 const db = firebase.firestore();
+const storageRef = firebase.storage().ref();
 
 export function addProfile(
     nickname: string,
     user: User,
-    onSucceeded : Transfer | undefined,
+    onSucceeded: Transfer | undefined,
     onFailed: ErrorHandler = consoleError
 ) {
     db.collection('profiles').add({
@@ -17,13 +18,13 @@ export function addProfile(
         nickname,
         lastUpdate: Date.now()
     })
-        .then((docRef)=>{
-            if(onSucceeded){
-                docRef.get().then(doc=>{
-                    if(doc.exists){
+        .then((docRef) => {
+            if (onSucceeded) {
+                docRef.get().then(doc => {
+                    if (doc.exists) {
                         onSucceeded({
                             ...doc.data() as Profile,
-                            id : doc.id
+                            id: doc.id
                         })
                     }
                 }).catch(onFailed)
@@ -33,7 +34,7 @@ export function addProfile(
 }
 
 export function listenProfile(
-    uid : string,
+    uid: string,
     onAdded: ProfilesTransfer,
     onModified: ProfilesTransfer,
     onDeleted: ProfilesTransfer
@@ -83,8 +84,8 @@ export function getProfiles(
                 onFailed(Error('Not found a profile of the selected user'))
                 return;
             }
-            const dataset = querySnapshot.docs.map(doc=>({
-                id:doc.id,
+            const dataset = querySnapshot.docs.map(doc => ({
+                id: doc.id,
                 ...doc.data()
             } as Profile));
             onSucceeded(dataset);
@@ -94,8 +95,8 @@ export function getProfiles(
 
 export function modifyProfile(
     profile: Profile,
-    onSucceeded : ()=>void | undefined,
-    onFailed : ErrorHandler = consoleError
+    onSucceeded: () => void | undefined,
+    onFailed: ErrorHandler = consoleError
 ) {
     const { id, ...data } = profile;
     db.collection('profiles').doc(id).set({
@@ -107,10 +108,35 @@ export function modifyProfile(
 }
 export function deleteProfile(
     profile: Profile,
-    onFailed : ErrorHandler = consoleError
+    onFailed: ErrorHandler = consoleError
 ) {
     db.collection('profiles')
         .doc(profile.id)
         .delete()
         .catch(onFailed);
+}
+
+export function uploadProfileImage(
+    profileId: string,
+    image: File,
+    onSucceeded: (url: string) => void,
+    onProgress?: (progress: number, status: 'paused' | 'running') => void,
+    onFailed?: ErrorHandler
+) {
+    const task = storageRef.child(`profiles/${profileId}`).put(image);
+    task.on('state_changed', (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        switch (snapshot.state) {
+            case firebase.storage.TaskState.PAUSED: // or 'paused'
+                onProgress && onProgress(progress, 'paused');
+                break;
+            case firebase.storage.TaskState.RUNNING: // or 'running'
+                onProgress && onProgress(progress, 'running');
+                break;
+        }
+    }, onFailed, () => {
+        task.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+            onSucceeded(downloadURL);
+        });
+    })
 }

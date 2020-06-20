@@ -4,6 +4,7 @@ export type Profile = {
     nickname : string,
     uid : string,
     id : string,
+    imageUrl?: string
 };
 
 export type Action = {
