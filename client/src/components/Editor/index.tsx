@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import {
     Editor,
     EditorState,
@@ -56,9 +56,12 @@ const ChatEditor: React.FC<{
             ]);
         }, [onChangeMentionCandidate, onMountMention]);
 
-        const [editorState, setEditorState] = useState(
-            EditorState.createEmpty(constructDecorator())
-        );
+        const initialState = useMemo(() => EditorState.createEmpty(constructDecorator()), [constructDecorator])
+        const [editorState, setEditorState] = useState<EditorState>(initialState);
+        useEffect(() => {
+            setEditorState(initialState)
+        }, [initialState])
+
         const onChange = (editorState: EditorState) => {
             setEditorState(editorState);
         }
@@ -97,7 +100,7 @@ const ChatEditor: React.FC<{
                 setMention: getMentionReplacer(setEditorState),
                 initMention: getMentionInitializer(setEditorState),
             })
-        }, [attachModifier, setEditorState, constructDecorator]);
+        }, [attachModifier, setEditorState]);
 
         useEffect(() => {
             onChangeText(plainText);

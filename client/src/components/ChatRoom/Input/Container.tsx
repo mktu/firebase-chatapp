@@ -11,7 +11,7 @@ const Container = ({
     onCancel,
     initText,
     presenter = DefaultPresenter,
-    initMentions=[],
+    initMentions = [],
     suggestionPlacement = 'above'
 }: {
     className?: string,
@@ -21,8 +21,8 @@ const Container = ({
         mentions: string[]
     ) => void,
     onCancel?: () => void,
-    initText?:string,
-    initMentions?:string[],
+    initText?: string,
+    initMentions?: string[],
     presenter?: React.FC<types.PresenterProps<Profile>>,
     suggestionPlacement?: 'above' | 'below'
 }) => {
@@ -31,20 +31,19 @@ const Container = ({
     const [modifier, setModifier] = useState<EditorModifier>();
     const [suggestion, setSuggestion] = useState<SuggestionType>();
     const [focusSuggestion, setFocusSuggestion] = useState(false);
-    const hasText = inputMessage && inputMessage !=='';
-
-    useEffect(()=>{
-        if(hasText && initMentions.length > 0){
-            const mentions = initMentions.map(mention=>{
-                const profile = profiles.find(p=>p.id===mention);
+    const hasText = inputMessage && inputMessage !== '';
+    useEffect(() => {
+        if (hasText && initMentions.length > 0) {
+            const mentions = initMentions.map(mention => {
+                const profile = profiles.find(p => p.id === mention);
                 return profile && {
-                    mention : profile.nickname,
-                    profileId : mention
+                    mention: profile.nickname,
+                    profileId: mention
                 }
-            }).filter(Boolean).map(m=>m!);
+            }).filter(Boolean).map(m => m!);
             modifier?.initMention(mentions);
         }
-    },[hasText,initMentions,modifier,profiles]);
+    }, [hasText, initMentions, modifier, profiles]);
 
     const onChangeText = useCallback((text: string) => {
         setInputMessage(text);
@@ -52,8 +51,8 @@ const Container = ({
 
     const onCancelInput = useCallback(() => {
         modifier?.initialize();
-        onCancel&&onCancel();
-    }, [modifier,onCancel]);
+        onCancel && onCancel();
+    }, [modifier, onCancel]);
 
     const handleSubmitMessage = useCallback(() => {
         if (inputMessage) {
@@ -79,6 +78,7 @@ const Container = ({
             setFocusSuggestion(false);
             return;
         }
+        console.log(profiles)
         if (text.length === 1) {
             setSuggestion({
                 profiles,
@@ -115,7 +115,7 @@ const Container = ({
             if (suggestionPlacement === 'above' && key === 'UpArrow') {
                 setFocusSuggestion(true);
             }
-            else if (suggestionPlacement === 'below' && key === 'DownArrow'){
+            else if (suggestionPlacement === 'below' && key === 'DownArrow') {
                 setFocusSuggestion(true);
             }
         }
@@ -125,7 +125,7 @@ const Container = ({
         setFocusSuggestion(false);
         modifier?.focus();
     }, [setFocusSuggestion, modifier]);
-    
+
     const onCloseSuggestion = useCallback(() => {
         setSuggestion(undefined);
     }, [setSuggestion]);
