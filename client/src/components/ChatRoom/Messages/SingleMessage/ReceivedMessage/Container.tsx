@@ -4,6 +4,7 @@ import { EmojiReactions, AddEmojiReaction } from '../../../../Emoji';
 import Presenter from './Presenter';
 import { ReceivedMessageProps } from '../../../types';
 import { getDateAsString, getReactionsAsUserName } from '../../../utils';
+import User from '../User';
 
 const Container: React.FC<ReceivedMessageProps> = ({
     className,
@@ -32,11 +33,26 @@ const Container: React.FC<ReceivedMessageProps> = ({
                 onMouseLeave={() => {
                     setHover(false);
                 }}
-                renderBaloon={() => (
+                baloon={(
                     <Baloon
                         message={message.message}
                     />
                 )}
+                avatar={(
+                    <User imageUrl={sender?.imageUrl}>
+                        {sender?.nickname[0] || '-'}
+                    </User>
+                )}
+                reactionAdder={!hover ? (
+                    <div />
+                ) : (
+                        <AddEmojiReaction
+                            handleAddReaction={(reactionId) => {
+                                addReaction(message.id, reactionId, me.id);
+                            }}
+                        />
+                    )
+                }
                 renderReactions={(style) => (
                     <EmojiReactions
                         className={style}
@@ -46,16 +62,6 @@ const Container: React.FC<ReceivedMessageProps> = ({
                         }}
                     />
                 )}
-                renderReactionAdder={() => {
-                    if (!hover) return <div />;
-                    return (
-                        <AddEmojiReaction
-                            handleAddReaction={(reactionId) => {
-                                addReaction(message.id, reactionId, me.id);
-                            }}
-                        />
-                    )
-                }}
             />
         </React.Fragment>)
 };

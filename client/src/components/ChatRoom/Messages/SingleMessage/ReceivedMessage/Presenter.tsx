@@ -1,8 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
-import User from '../User';
-
 
 const Wrapper = styled.div`
     display : flex;
@@ -28,8 +26,9 @@ type PropsType = {
     className?: string,
     time: string,
     renderReactions: (style?: string) => React.ReactElement,
-    renderReactionAdder: (style?: string) => React.ReactElement,
-    renderBaloon: (style?: string) => React.ReactElement,
+    reactionAdder: React.ReactElement,
+    baloon: React.ReactElement,
+    avatar: React.ReactElement,
     onMouseEnter: (e: React.MouseEvent<HTMLDivElement>) => void,
     onMouseLeave: (e: React.MouseEvent<HTMLDivElement>) => void,
     sender: string,
@@ -42,8 +41,9 @@ const ReceivedMessage = React.forwardRef<HTMLDivElement, PropsType>(({
     time,
     className,
     renderReactions,
-    renderReactionAdder,
-    renderBaloon,
+    reactionAdder,
+    baloon,
+    avatar,
     onMouseEnter,
     onMouseLeave,
     update = false
@@ -55,16 +55,14 @@ const ReceivedMessage = React.forwardRef<HTMLDivElement, PropsType>(({
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}>
             <div className='emoji-reaction-sender'>
-                {renderReactionAdder()}
+                {reactionAdder}
             </div>
             {renderReactions('reactions')}
             <div className='message-wrapper' >
                 <Typography variant='caption' color='textSecondary'>{sender} {time} {update && 'UPDATED'}</Typography>
-                {renderBaloon()}
+                {baloon}
             </div>
-            <User>
-                {sender[0]}
-            </User>
+            {avatar}
         </Wrapper>)
 });
 

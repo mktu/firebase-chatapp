@@ -99,7 +99,7 @@ const Avatar: React.FC<Props> = ({
             <div className='avatar-wrapper'>
                 <AvatarImg alt='Avatar image' src={imgUrl || 'https://via.placeholder.com/200?text=200+x+200+image'} ref={(elm) => {
                     elm && setElement(elm);
-                }} />
+                }} width='200' height='200'/>
                 <Portal container={parent}>
                     <PortalWrapper bottom={pos.bottom} left={pos.left + 100}>
                         <label htmlFor="file-upload" className='upload-label'>

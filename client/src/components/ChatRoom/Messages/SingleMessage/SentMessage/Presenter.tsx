@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import VisibilityIcon from '@material-ui/icons/Visibility';
-import User from '../User';
 
 const Wrapper = styled.div`
     display : flex;
@@ -32,7 +31,8 @@ const EditorStyle = styled.div`
 type PropsType = {
     className?: string,
     time: string,
-    renderBaloon: (style?: string) => React.ReactElement,
+    avatar: React.ReactElement,
+    baloon: React.ReactElement,
     onMouseEnter: (e: React.MouseEvent<HTMLDivElement>) => void,
     onMouseLeave: (e: React.MouseEvent<HTMLDivElement>) => void,
     sender: string,
@@ -43,7 +43,8 @@ type PropsType = {
 const Presenter = React.forwardRef<HTMLDivElement, PropsType>(({
     className,
     time,
-    renderBaloon,
+    avatar,
+    baloon,
     onMouseEnter,
     onMouseLeave,
     sender,
@@ -55,9 +56,7 @@ const Presenter = React.forwardRef<HTMLDivElement, PropsType>(({
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
         >
-            <User>
-                {sender[0]}
-            </User>
+            {avatar}
             <div className='message-wrapper'>
                 <div className='message-header'>
                     <div>
@@ -72,7 +71,7 @@ const Presenter = React.forwardRef<HTMLDivElement, PropsType>(({
                         </div>)}
                 </div>
                 <div>
-                    {renderBaloon()}
+                    {baloon}
                 </div>
             </div>
         </Wrapper>)

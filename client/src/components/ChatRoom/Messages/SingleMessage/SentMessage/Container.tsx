@@ -6,6 +6,7 @@ import PortalPresenter from './PortalPresenter';
 import ConfirmDeletePopover from '../ConfirmDeletePopover';
 import EditActionPanel from '../EditActionPanel';
 import Input, { EditMessagePresenter } from '../../../Input';
+import User from '../User';
 import { SentMessageProps } from '../../../types';
 import { getDateAsString, getReactionsAsUserName } from '../../../utils';
 
@@ -52,14 +53,19 @@ const Container: React.FC<SentMessageProps> = ({
                 readCount={message.readers?.length}
                 onMouseEnter={() => { setHover(true) }}
                 onMouseLeave={() => { setHover(false) }}
-                renderBaloon={() => (
+                avatar={(
+                    <User imageUrl={sender.imageUrl}>
+                        {sender.nickname[0]}
+                    </User>
+                )}
+                baloon={(
                     <Baloon
                         message={message.message}
                         renderPortal={(rect) => (
                             <PortalPresenter
                                 showEditActions={hover}
                                 bottom={rect.bottom}
-                                left={rect.left+rect.width}
+                                left={rect.left + rect.width}
                                 renderEditActions={(style) => (
                                     <EditActionPanel
                                         className={style}

@@ -11,14 +11,22 @@ const Wrapper = styled.div`
 
 const User: React.FC<{
     children: React.ReactElement | string,
-    className?: string
+    className?: string,
+    imageUrl?: string,
 }> = ({
     children,
-    className
-}) => (<Wrapper className={className}>
-    <Avatar>
-        {children}
-    </Avatar>
-</Wrapper>);
+    className,
+    imageUrl
+}) => (
+            <Wrapper className={className}>
+                {imageUrl ? (
+                    <Avatar alt='User avatar' src={imageUrl} />
+                ) : (
+                        <Avatar>
+                            {children}
+                        </Avatar>
+                    )}
+
+            </Wrapper >);
 
 export default User;
