@@ -14,6 +14,7 @@ import {
     getPermission
  } from '../services/notification';
 import { updateRequest, listenJoinRequests } from '../services/request';
+import { logout } from '../services/auth';
 import { modifyProfile, getProfile, getProfiles, addProfile, uploadProfileImage } from '../services/profile';
 import {
     registMessagesListener,
@@ -58,7 +59,9 @@ export const defaultServices = {
     requestPermission,
     getToken,
     getSavedToken,
-    getPermission
+    getPermission,
+    // auth
+    logout,
 };
 
 export const createMock = (func: (name: string) => (...args: any[]) => void) => {
@@ -88,7 +91,8 @@ export const createMock = (func: (name: string) => (...args: any[]) => void) => 
         getToken : func('getToken'),
         getSavedToken : func('getSavedToken'),
         getPermission : ()=>{func('getPermission')(); return 'default'},
-        uploadProfileImage : func('uploadProfileImage')
+        uploadProfileImage : func('uploadProfileImage'),
+        logout : func('logout')
     }
     return mock;
 }

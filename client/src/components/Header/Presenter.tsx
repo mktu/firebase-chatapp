@@ -2,10 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import AppBar from '@material-ui/core/AppBar';
 import ToolbarBase from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
+import ButtonBase from '@material-ui/core/ButtonBase';
 import { Person } from '@material-ui/icons';
-import SearchBox from './SearchBox';
 
 const Toolbar = styled(ToolbarBase)`
     & > :last-child{
@@ -25,24 +24,37 @@ const LoginMenu = styled.div`
     }
 `;
 
+const AppButton = styled(ButtonBase)`
+    font-size : ${({ theme }) => `${theme.typography.h6.fontSize}`};
+    font-weight : ${({ theme }) => `${theme.typography.h6.fontWeight}`};
+    font-family : ${({ theme }) => `${theme.typography.h6.fontFamily}`};
+    display : block;
+    padding : ${({ theme }) => `${theme.spacing(0.5)}px`};
+    border-radius : 5px;
+`;
+
 function Presenter<T extends {
     nickname: string
 }>({
     profile,
     handleLogout,
     jumpToProfile,
-    handleSubmit
+    onClickApp,
+    searchBox
 }: {
     profile: T | null,
     handleLogout: () => void,
     jumpToProfile: () => void,
-    handleSubmit:(text:string)=>void
+    onClickApp : ()=>void,
+    searchBox : React.ReactElement
 }) {
     return (
         <AppBar position="static">
             <Toolbar>
-                <Typography variant='h6'>Chat App</Typography>
-                <SearchBox className='search-box' handleSubmit={handleSubmit}/>
+                <AppButton onClick={onClickApp}>
+                    Chat App
+                </AppButton>
+                {searchBox}
                 <div>
                     {profile && (
                         <LoginMenu>
