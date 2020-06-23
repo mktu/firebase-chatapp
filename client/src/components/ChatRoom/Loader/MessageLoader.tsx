@@ -4,7 +4,7 @@ import InfiniteSnapshotListener, { SnapshotListenerRegister } from '../../Loader
 import { ServiceContext } from '../../../contexts';
 import { LoadingStatusType, LoadingStatus } from '../../../constants';
 
-const Container: React.FC<{
+const MessageLoader: React.FC<{
     roomId: string,
     messageId?: string,
     children : (
@@ -104,4 +104,4 @@ const Container: React.FC<{
 
     }
 
-export default Container;
+export default MessageLoader;

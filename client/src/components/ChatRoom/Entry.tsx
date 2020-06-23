@@ -1,17 +1,46 @@
 import React from 'react';
-import Loader, {Props as LoaderProps} from './Loader';
-import InactiveRoom, {Props as InactiveRoomProps} from './InactiveRoom';
+import * as Loaders from './Loader';
+import InactiveRoom, { Props as InactiveRoomProps } from './InactiveRoom';
+import { Room } from '../../../../types/room';
+import Container from './Container';
 
-type Props = LoaderProps & InactiveRoomProps;
+export type Props = {
+    room: Room,
+    show: boolean,
+    className?: string,
+    focusMessageId?: string,
+} & InactiveRoomProps;
 
-const Entry: React.FC<Props> = (props) => {
-    
-    if (props.room.disabled) {
-        return <InactiveRoom room={props.room} show={props.show} onClose={props.onClose}/>;
+const Entry: React.FC<Props> = ({ room, show, onClose, focusMessageId }) => {
+
+    if (room.disabled) {
+        return <InactiveRoom room={room} show={show} onClose={onClose} />;
     }
-    return <Loader
-        {...props}
-    />;
+    return (
+        <Loaders.ProfileLoader room={room}>
+            {(profiles) => (
+                <Loaders.RequestsLoader room={room}>
+                    {(requests) => (
+                        <Loaders.MessageLoader roomId={room.id} messageId={focusMessageId}>
+                            {(messages, readMore, backwardListenable, forwardListenable) => (
+                                <Container
+                                    messages={messages}
+                                    readMore={readMore}
+                                    backwardListenable={backwardListenable}
+                                    forwardListenable={forwardListenable}
+                                    profiles={profiles}
+                                    requests={requests}
+                                    room={room}
+                                    show={show}
+                                    focusMessageId={focusMessageId}
+                                />
+                            )}
+                        </Loaders.MessageLoader>
+                    )}
+                </Loaders.RequestsLoader>
+            )}
+        </Loaders.ProfileLoader>
+    )
 }
 
 

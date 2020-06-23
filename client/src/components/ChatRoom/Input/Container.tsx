@@ -78,7 +78,6 @@ const Container = ({
             setFocusSuggestion(false);
             return;
         }
-        console.log(profiles)
         if (text.length === 1) {
             setSuggestion({
                 profiles,
