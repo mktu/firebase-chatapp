@@ -4,16 +4,7 @@ import { Profile } from '../../../../../types/profile';
 import DefaultPresenter, { types } from './Presenters';
 import { SuggestionType } from './types';
 
-const Container = ({
-    className,
-    profiles,
-    submitMessage,
-    onCancel,
-    initText,
-    presenter = DefaultPresenter,
-    initMentions = [],
-    suggestionPlacement = 'above'
-}: {
+type Props = {
     className?: string,
     profiles: Profile[],
     submitMessage: (
@@ -25,7 +16,18 @@ const Container = ({
     initMentions?: string[],
     presenter?: React.FC<types.PresenterProps<Profile>>,
     suggestionPlacement?: 'above' | 'below'
-}) => {
+}
+
+const Container = ({
+    className,
+    profiles,
+    submitMessage,
+    onCancel,
+    initText,
+    presenter = DefaultPresenter,
+    initMentions = [],
+    suggestionPlacement = 'above'
+}: Props) => {
     const [inputMessage, setInputMessage] = useState<string>();
     const [mentions, setMentions] = useState<string[]>([]);
     const [modifier, setModifier] = useState<EditorModifier>();

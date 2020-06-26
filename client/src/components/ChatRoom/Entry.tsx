@@ -21,21 +21,13 @@ const Entry: React.FC<Props> = ({ room, show, onClose, focusMessageId }) => {
             {(profiles) => (
                 <Loaders.RequestsLoader room={room}>
                     {(requests) => (
-                        <Loaders.MessageLoader roomId={room.id} messageId={focusMessageId}>
-                            {(messages, readMore, backwardListenable, forwardListenable) => (
-                                <Container
-                                    messages={messages}
-                                    readMore={readMore}
-                                    backwardListenable={backwardListenable}
-                                    forwardListenable={forwardListenable}
-                                    profiles={profiles}
-                                    requests={requests}
-                                    room={room}
-                                    show={show}
-                                    focusMessageId={focusMessageId}
-                                />
-                            )}
-                        </Loaders.MessageLoader>
+                        <Container
+                            profiles={profiles}
+                            requests={requests}
+                            room={room}
+                            show={show}
+                            focusMessageId={focusMessageId}
+                        />
                     )}
                 </Loaders.RequestsLoader>
             )}

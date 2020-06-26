@@ -7,12 +7,14 @@ import { LoadingStatusType, LoadingStatus } from '../../../constants';
 const MessageLoader: React.FC<{
     roomId: string,
     messageId?: string,
-    children : (
-        messages:Message[],
-        readMore : (forward?:boolean)=>void,
-        backwardListenable: boolean,
-        forwardListenable: boolean
-    )=>React.ReactElement
+    children: (props:
+        {
+            messages: Message[],
+            readMore: (forward?: boolean) => void,
+            backwardListenable: boolean,
+            forwardListenable: boolean
+        }
+    ) => React.ReactElement
 }> = ({
     roomId,
     messageId,
@@ -22,7 +24,7 @@ const MessageLoader: React.FC<{
         const [backwardSentinel, setBackwardSentinel] = useState<Message>();
         const [forwardSentinel, setForwardSentinel] = useState<Message>();
         const [start, setStart] = useState<Message>();
-        const {getLatestMessage, getOldestMessage, getMessage, registMessagesListener} = useContext(ServiceContext);
+        const { getLatestMessage, getOldestMessage, getMessage, registMessagesListener } = useContext(ServiceContext);
         useEffect(() => {
             let unmounted = false;
             if (messageId) {
@@ -75,16 +77,16 @@ const MessageLoader: React.FC<{
                     return prev === 'loading' ? 'succeeded' : prev;
                 })
             }, 3000);
-            return ()=>{
+            return () => {
                 unmounted = true;
             }
         }, [status]);
 
         const registSnapshotListener: SnapshotListenerRegister<Message> = useCallback((args) => {
-            return registMessagesListener({...args,roomId});
-        }, [roomId,registMessagesListener]);
+            return registMessagesListener({ ...args, roomId });
+        }, [roomId, registMessagesListener]);
 
-        const startDate = useMemo(()=>Date.now(),[]);
+        const startDate = useMemo(() => Date.now(), []);
 
         return (
             <InfiniteSnapshotListener
@@ -97,7 +99,17 @@ const MessageLoader: React.FC<{
                 registSnapshotListener={registSnapshotListener}
             >
                 {
-                    children
+                    (
+                        messages,
+                        readMore,
+                        backwardListenable,
+                        forwardListenable
+                    ) => children({
+                        messages,
+                        readMore,
+                        backwardListenable,
+                        forwardListenable
+                    })
                 }
             </InfiniteSnapshotListener>
         )
