@@ -1,7 +1,9 @@
-import HeaderContainer from './Container';
-import HeaderPresenter from './Presenter';
+import Container from './Container';
+import Presenter from './Presenter';
+import Entry from './Entry';
 
-export default HeaderContainer;
+export default Entry;
 export {
-    HeaderPresenter
+    Container,
+    Presenter
 }

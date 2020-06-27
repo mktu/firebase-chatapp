@@ -6,7 +6,7 @@ import HeaderPresenter from './Presenter';
 import ShareLinkPortal from './ShareLinkPortal';
 import RequestsPortal from './RequestsPortal';
 
-const HeaderContainer: React.FC<{
+type Props = {
     room: Room,
     profiles: Profile[],
     requests: JoinRequest[],
@@ -14,7 +14,9 @@ const HeaderContainer: React.FC<{
     modifyRoom: (room: Room) => void,
     updateRequest: (roomId: string, request: JoinRequest) => void
     className?: string,
-}> = ({
+}
+
+const HeaderContainer: React.FC<Props> = ({
     className,
     profiles,
     room,

@@ -2,8 +2,7 @@ import React, { useCallback, useContext } from 'react';
 import { ProfileContext, ServiceContext } from '../../contexts';
 import { Room } from '../../../../types/room';
 import { Profile } from '../../../../types/profile';
-import { JoinRequest } from '../../../../types/request';
-import HeaderContainer from './Header';
+import Header from './Header';
 import Messages from './Messages';
 import InputContainer from './Input';
 import Presenter from './Presenter';
@@ -13,7 +12,6 @@ export type Props = {
     room: Room,
     focusMessageId?: string,
     profiles: Profile[],
-    requests: JoinRequest[],
     show: boolean
 }
 
@@ -21,7 +19,6 @@ const Container: React.FC<Props> = ({
     className,
     profiles,
     room,
-    requests,
     focusMessageId,
     show
 }) => {
@@ -36,17 +33,16 @@ const Container: React.FC<Props> = ({
 
     const renderHeader = useCallback((style) => {
         return (
-            <HeaderContainer
+            <Header
                 className={style}
                 owner={owenr}
-                requests={requests}
                 room={room}
                 profiles={profiles}
                 modifyRoom={modifyRoom}
                 updateRequest={updateRequest}
             />
         );
-    }, [room, profiles, owenr, modifyRoom, requests, updateRequest]);
+    }, [room, profiles, owenr, modifyRoom, updateRequest]);
 
     const renderMessages = useCallback((style) => {
         return (

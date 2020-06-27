@@ -19,17 +19,12 @@ const Entry: React.FC<Props> = ({ room, show, onClose, focusMessageId }) => {
     return (
         <Loaders.ProfileLoader room={room}>
             {(profiles) => (
-                <Loaders.RequestsLoader room={room}>
-                    {(requests) => (
-                        <Container
-                            profiles={profiles}
-                            requests={requests}
-                            room={room}
-                            show={show}
-                            focusMessageId={focusMessageId}
-                        />
-                    )}
-                </Loaders.RequestsLoader>
+                <Container
+                    profiles={profiles}
+                    room={room}
+                    show={show}
+                    focusMessageId={focusMessageId}
+                />
             )}
         </Loaders.ProfileLoader>
     )
