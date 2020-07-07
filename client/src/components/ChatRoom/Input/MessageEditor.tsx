@@ -1,36 +1,43 @@
 import React, { useCallback, useMemo, useContext } from 'react';
 import ChatEditor, { KeyEvent } from '../../Editor';
 import { useDropMultiImageState } from '../../../hooks/useDropImageState';
-import { ChatInputPresenter } from './Presenters';
+import { EditMessagePresenter } from './Presenters';
 import { ImageSubmitDialog, ImageSumitContainer } from './ImageSubmitDialog';
 import useChatTextState from './useChatTextState';
-import SuggestionPortal from './SuggestionPortal';
 import Suggestion from './Suggestion';
-import { MyProfileContext, UsersContext, ChatroomContext } from '../ChatroomContext';
+import { MyProfileContext, ChatroomContext, UsersContext } from '../ChatroomContext';
 import { ServiceContext } from '../../../contexts';
 
 type Props = {
     className?: string,
+    messageId: string,
+    onSubmit: () => void,
+    onCancel?: () => void,
     initText?: string,
     initMentions?: string[],
+    suggestionPlacement?: 'above' | 'below'
 }
 
 const Container = ({
     className,
+    messageId,
+    onSubmit,
+    onCancel,
     initText,
     initMentions = [],
 }: Props) => {
     const { dropZoneInputProps, dropZoneProps, imgUrls, clearImages, imageFiles } = useDropMultiImageState();
-    const profiles  = useContext(UsersContext);
-    const {id : roomId}  = useContext(ChatroomContext);
-    const {id : senderId, nickname : senderName}  = useContext(MyProfileContext);
-    const { createMessage, uploadMessageImage } = useContext(ServiceContext)
+    const { editMessage, uploadMessageImage } = useContext(ServiceContext);
+    const { id: roomId } = useContext(ChatroomContext);
+    const { id: profileId } = useContext(MyProfileContext);
+    const profiles = useContext(UsersContext);
     const {
         inputMessage,
         mentions,
         focusSuggestion,
         suggestion,
         onChangeText,
+        onCancelInput,
         onSelectEmoji,
         attachModifier,
         onChangeMentionCandidate,
@@ -42,22 +49,25 @@ const Container = ({
         onKeyPress: handleKeyEvent,
     } = useChatTextState({
         profiles,
-        suggestionPlacement : 'above',
+        onCancel,
+        suggestionPlacement: 'below',
         initMentions,
     })
 
     const handleSubmitMessage = useCallback(() => {
         if (inputMessage) {
-            createMessage({
-                roomId,
-                senderId,
-                senderName,
-                message:inputMessage,
-                mentions
-            });
+            editMessage(
+                {
+                    roomId,
+                    messageId,
+                    message : inputMessage,
+                    mentions
+                }
+            );
             clearInput();
+            onSubmit();
         }
-    }, [inputMessage, senderId, senderName, roomId, clearInput, createMessage, mentions])
+    }, [inputMessage, clearInput, editMessage, messageId, mentions, onSubmit, roomId])
 
     const onKeyPress = useCallback((key: KeyEvent) => {
         if (key === 'CtrlEnter') {
@@ -79,28 +89,26 @@ const Container = ({
             />
         )
     }, [onChangeText, attachModifier, onMountMention, onChangeMentionCandidate, onKeyPress, initText])
+
     return (
         <React.Fragment>
-            <ChatInputPresenter
+            <EditMessagePresenter
                 className={className}
                 richEditor={richEditor}
                 onSelectEmoji={onSelectEmoji}
                 handleSubmitMessage={handleSubmitMessage}
                 suggestion={
-                    suggestion ?
-                        <SuggestionPortal
-                            node={suggestion.node}
-                        >
-                            <Suggestion
-                                suggestion={suggestion.profiles}
-                                handleSelect={handleSelectMention}
-                                onClose={onCloseSuggestion}
-                                focus={focusSuggestion}
-                                onLeaveFocus={onLeaveSuggenstionFocus}
-                                startAt='bottom'
-                            />
-                        </SuggestionPortal> : <div />
+                    suggestion ? <Suggestion
+                        suggestion={suggestion.profiles}
+                        handleSelect={handleSelectMention}
+                        focus={focusSuggestion}
+                        onLeaveFocus={onLeaveSuggenstionFocus}
+                        onClose={onCloseSuggestion}
+                        startAt='top'
+                        variant='small'
+                    /> : <div />
                 }
+                onCancel={onCancelInput}
                 dropZoneRootProps={dropZoneProps}
                 dropZoneInputProps={dropZoneInputProps}
             />
@@ -112,28 +120,28 @@ const Container = ({
                     images={imageFiles}
                     onClose={clearImages}
                     onSubmit={(message, mentions, images) => {
-                        if(images.length > 0){
+                        if(images.length>0){
                             const promises = images.map((image)=>{
-                                return uploadMessageImage(senderId, image, (progress)=>{
+                                return uploadMessageImage(profileId, image, (progress)=>{
                                     console.log(`${image.name}:${progress}`);
                                 })
                             });
                             Promise.all(promises).then((imageUrls)=>{
-                                createMessage({
+                                editMessage({
                                     roomId,
-                                    senderId,
-                                    senderName,
+                                    messageId,
                                     message,
                                     mentions,
                                     imageUrls
                                 });
                                 clearInput();
                                 clearImages();
+                                onSubmit();
                             })
-                            
                         }
                     }}
                     profiles={profiles}
+                    onCancel={onCancel}
                     initText={inputMessage}
                     initMentions={mentions}
                 />

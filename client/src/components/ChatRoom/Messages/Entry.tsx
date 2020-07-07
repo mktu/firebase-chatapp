@@ -1,48 +1,38 @@
-import React from 'react';
+import React, { useContext, useMemo } from 'react';
 import { MessageLoader } from '../Loader';
-import { Profile } from '../../../../../types/profile';
 import Container from './Container';
+import { ChatroomContext } from '../ChatroomContext';
 
 export type Props = {
     className?: string,
-    roomId: string,
     show: boolean,
-    profile: Profile | null,
-    profiles: Profile[],
     focusMessageId?: string,
 };
 
 const Entry: React.FC<Props> = ({
     className,
-    roomId,
     show,
-    profile,
-    profiles,
     focusMessageId
 }) => {
 
-    if(!profile){
-        return <div />
-    }
-
-    return (
+    const { id } = useContext(ChatroomContext);
+    const component = useMemo(() => (
         <MessageLoader
-            roomId={roomId}
+            roomId={id}
             messageId={focusMessageId}
         >
             {(args) => (
                 <Container
                     className={className}
-                    roomId={roomId}
+                    roomId={id}
                     focusMessageId={focusMessageId}
-                    profile={profile}
-                    profiles={profiles}
                     show={show}
                     {...args}
                 />
             )}
         </MessageLoader>
-    )
+    ),[id,show,focusMessageId,className])
+    return component;
 }
 
 

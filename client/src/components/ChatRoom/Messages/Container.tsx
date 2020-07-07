@@ -7,15 +7,13 @@ import InfiniteScrollable from '../../InfiniteScrollable';
 import NewItemNotification from '../../InfiniteScrollable/NewItemNotification';
 import SingleMessage from './SingleMessage';
 import { Message } from '../../../../../types/message';
-import { Profile } from '../../../../../types/profile';
+import { MyProfileContext } from '../ChatroomContext';
 
 type Props = {
     className?: string,
     messages: Message[],
     roomId: string,
     show : boolean,
-    profile: Profile,
-    profiles : Profile[],
     readMore: (forward?: boolean) => void,
     backwardListenable: boolean,
     forwardListenable: boolean,
@@ -26,22 +24,21 @@ const Container: React.FC<Props> = ({
     className,
     messages,
     roomId,
-    profile,
-    profiles,
     show,
     readMore,
     backwardListenable,
     forwardListenable,
     focusMessageId,
 }) => {
-
+    const {id:profileId} = useContext(MyProfileContext);
     const { actions: messageActions } = useContext(MessagesContext);
-    const { addReadFlags, addReaction, editMessage, disableMessage } = useContext(ServiceContext);
+    const { addReadFlags, addReaction, disableMessage } = useContext(ServiceContext);
     const unreads = messages.filter(m => {
-        if (m.senderId === profile.id) return false;
+        if (m.senderId === profileId) return false;
         if (!m.readers) return true;
-        return !m.readers.includes(profile.id);
+        return !m.readers.includes(profileId);
     }).length;
+    console.log(roomId)
 
     useEffect(() => {
         messageActions.update(roomId, unreads);
@@ -49,9 +46,9 @@ const Container: React.FC<Props> = ({
 
     useEffect(() => {
         if(show) {
-            addReadFlags(roomId, profile.id, messages);
+            addReadFlags(roomId, profileId, messages);
         }
-    }, [show, messages, addReadFlags, profile, roomId])
+    }, [show, messages, addReadFlags, profileId, roomId])
 
     return <Presenter className={className}>
         {
@@ -71,8 +68,6 @@ const Container: React.FC<Props> = ({
                     {(message) => (
                             <SingleMessage
                                 message={message}
-                                profile={profile}
-                                profiles={profiles}
                                 addReaction={(messageId, reactionId, profileId) => {
                                     addReaction({
                                         roomId,
@@ -80,14 +75,6 @@ const Container: React.FC<Props> = ({
                                         reactionId,
                                         profileId
                                     });
-                                }}
-                                editMessage={(messageId, message, mentions) => {
-                                    editMessage({
-                                        roomId,
-                                        messageId,
-                                        message,
-                                        mentions
-                                    })
                                 }}
                                 disableMessage={(messageId) => {
                                     disableMessage(roomId, messageId);

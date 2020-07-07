@@ -7,6 +7,7 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Avatar from '@material-ui/core/Avatar';
 import Paper from '@material-ui/core/Paper';
+import { Profile } from '../../../../../types/profile';
 
 type Variant = 'small' | 'normal';
 
@@ -45,10 +46,7 @@ const Wrapper = styled(Paper)`
     }}
 `;
 
-function Sugestion<T extends {
-    id: string,
-    nickname: string
-}>({
+function Sugestion({
     className,
     suggestion,
     handleSelect,
@@ -59,8 +57,8 @@ function Sugestion<T extends {
     variant = 'normal'
 }: {
     className?: string,
-    suggestion: T[],
-    handleSelect: (profile: T) => void,
+    suggestion: Profile[],
+    handleSelect: (profile: Profile) => void,
     focus?: boolean,
     startAt?: 'bottom' | 'top',
     onClose: ()=>void,
@@ -69,7 +67,6 @@ function Sugestion<T extends {
 }) {
     const ref = useRef<HTMLDivElement | null>(null);
     const [focusIndex, setFocusIndex] = useState(0);
-
     useEffect(() => {
         startAt === 'bottom' ? setFocusIndex(suggestion.length - 1) : setFocusIndex(0);
     }, [startAt, suggestion]);

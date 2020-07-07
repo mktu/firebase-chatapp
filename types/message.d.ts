@@ -39,6 +39,7 @@ export type Message = {
     mentions? : string[],
     disable?: boolean,
     update?: number,
+    imageUrls?: string[],
     id : string
 };
 

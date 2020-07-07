@@ -5,7 +5,7 @@ import Presenter, { EditorStyle } from './Presenter';
 import PortalPresenter from './PortalPresenter';
 import ConfirmDeletePopover from '../ConfirmDeletePopover';
 import EditActionPanel from '../EditActionPanel';
-import Input, { EditMessagePresenter } from '../../../Input';
+import {MessageEditor} from '../../../Input';
 import User from '../User';
 import { SentMessageProps } from '../../../types';
 import { getDateAsString, getReactionsAsUserName } from '../../../utils';
@@ -15,7 +15,6 @@ const Container: React.FC<SentMessageProps> = ({
     profiles,
     message,
     sender,
-    editMessage,
     disableMessage
 }) => {
     const ref = useRef<HTMLDivElement | null>(null);
@@ -27,17 +26,12 @@ const Container: React.FC<SentMessageProps> = ({
     if (editable) {
         return (
             <EditorStyle>
-                <Input
-                    profiles={profiles}
-                    submitMessage={(messageText, mentions) => {
-                        editMessage(message.id, messageText, mentions);
-                        setEditable(false);
-                    }}
+                <MessageEditor
+                    messageId={message.id}
+                    onSubmit={()=>{ setEditable(false) }}
                     onCancel={() => { setEditable(false) }}
-                    presenter={EditMessagePresenter}
                     initText={message.message}
                     initMentions={message.mentions}
-                    suggestionPlacement='below'
                 />
             </EditorStyle>
         )

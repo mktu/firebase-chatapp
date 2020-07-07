@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 import { action } from '@storybook/addon-actions';
 import { SnackbarProvider } from 'notistack';
 import { UpdateProfile } from '../../components/Profile';

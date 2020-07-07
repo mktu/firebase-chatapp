@@ -25,7 +25,8 @@ import {
     createMessage,
     editMessage,
     disableMessage,
-    addReadFlags
+    addReadFlags,
+    uploadMessageImage
 } from '../services/message';
 
 export const defaultServices = {
@@ -44,6 +45,7 @@ export const defaultServices = {
     editMessage,
     disableMessage,
     addReadFlags,
+    uploadMessageImage,
     // request
     updateRequest,
     listenJoinRequests,
@@ -79,6 +81,7 @@ export const createMock = (func: (name: string) => (...args: any[]) => void) => 
         editMessage: func('editMessage'),
         disableMessage: func('disableMessage'),
         addReadFlags: func('addReadFlags'),
+        uploadMessageImage : ()=>{return new Promise<string>((resolve)=>{func('uploadMessageImage');resolve()})},
         updateRequest: func('updateRequest'),
         listenJoinRequests: () => {func('listenJoinRequests')(); return ()=>{}},
         getProfiles: func('getProfiles'),

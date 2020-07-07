@@ -87,7 +87,6 @@ const MessageLoader: React.FC<{
         }, [roomId, registMessagesListener]);
 
         const startDate = useMemo(() => Date.now(), []);
-
         return (
             <InfiniteSnapshotListener
                 loadOrigin={start?.date}

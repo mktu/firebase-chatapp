@@ -8,6 +8,7 @@ import { Notifier, ErrorHandler, consoleError } from '../utils';
 import { getCollectionListener, UnsubscribeNotifier } from './db';
 
 const db = firebase.firestore();
+const storageRef = firebase.storage().ref();
 
 export type Order = {
     key: string,
@@ -58,8 +59,8 @@ export function registMessagesListener(
     if (endAt) {
         query = query.endAt(endAt);
     }
-    const notifier : UnsubscribeNotifier = {
-        unsubscribe : false
+    const notifier: UnsubscribeNotifier = {
+        unsubscribe: false
     }
     const unsubscribe = query
         .onSnapshot(getCollectionListener<Message>(
@@ -68,7 +69,7 @@ export function registMessagesListener(
             onDeleted,
             notifier
         ))
-    return ()=>{
+    return () => {
         notifier.unsubscribe = true;
         unsubscribe();
     }
@@ -190,21 +191,21 @@ export function getOldestMessage(
 export function createMessage(
     {
         roomId,
-        roomName,
         message,
         senderId,
         senderName,
         mentions,
+        imageUrls,
         onSucceeded,
         onFailed = consoleError
     }:
         {
             roomId: string,
-            roomName: string,
             message: string,
             senderId: string,
             senderName: string,
             mentions?: string[],
+            imageUrls?: string[],
             onSucceeded?: Notifier,
             onFailed?: ErrorHandler
         }
@@ -214,11 +215,11 @@ export function createMessage(
         .collection('messages')
         .add({
             message,
-            roomName,
             roomId,
             senderId,
             senderName,
             mentions,
+            imageUrls,
             date: Date.now()
         })
         .then(onSucceeded)
@@ -231,6 +232,7 @@ export function editMessage(
         messageId,
         message,
         mentions,
+        imageUrls,
         onSucceeded,
         onFailed = consoleError
     }
@@ -239,6 +241,7 @@ export function editMessage(
             messageId: string,
             message: string,
             mentions?: string[],
+            imageUrls?: string[],
             onSucceeded?: Notifier,
             onFailed?: ErrorHandler
         }
@@ -250,6 +253,7 @@ export function editMessage(
         .set({
             message,
             mentions,
+            imageUrls,
             update: Date.now()
         }, { merge: true })
         .then(onSucceeded)
@@ -352,4 +356,30 @@ export function addReadFlags(
     batch.commit()
         .then(onSucceeded)
         .catch(onFailed)
+}
+
+export function uploadMessageImage(
+    profileId: string,
+    image: File,
+    onProgress?: (progress: number, status: 'paused' | 'running') => void,
+) {
+    return new Promise<string>((resolve, reject) => {
+        const task = storageRef.child(`messages/${profileId}/${image.name}`).put(image);
+        task.on('state_changed', (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            switch (snapshot.state) {
+                case firebase.storage.TaskState.PAUSED: // or 'paused'
+                    onProgress && onProgress(progress, 'paused');
+                    break;
+                case firebase.storage.TaskState.RUNNING: // or 'running'
+                    onProgress && onProgress(progress, 'running');
+                    break;
+            }
+        }, reject, () => {
+            task.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+                resolve(downloadURL);
+            });
+        })
+    })
+
 }

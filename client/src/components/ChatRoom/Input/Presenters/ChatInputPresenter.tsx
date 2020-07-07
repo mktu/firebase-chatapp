@@ -1,13 +1,63 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import styled from 'styled-components';
+import styled, {css} from 'styled-components';
+import { DropzoneRootProps, DropzoneInputProps } from 'react-dropzone';
 import 'emoji-mart/css/emoji-mart.css';
 import IconButton from '@material-ui/core/IconButton';
 import { Send } from '@material-ui/icons';
 import { EmojiPicker } from '../../../Emoji';
-import Suggestion from '../Suggestion';
-import { PresenterProps } from '../types';
-import { domutil } from '../../../../utils';
+
+type DropProps = { [key: string]: any };
+
+const dragAccept = css`
+    border-color : #00e676;
+    border-style: dashed;
+    border-width: 2px;
+`;
+const dragActive = css`
+    border-color : #2196f3;
+    border-style: dashed;
+    border-width: 2px;
+`;
+const rejected = css`
+    border-color : #ff1744;
+    border-style: dashed;
+    border-width: 2px;
+`;
+const normal = css`
+    border-color : ${({ theme }) => `${theme.palette.divider}`};
+    border-style: solid;
+    border-width: 1px;
+`;
+
+const getBorderStyle = ({
+    isDragAccept,
+    isDragReject,
+    isDragActive
+}: DropProps) => {
+    if (isDragAccept) {
+        return dragAccept;
+    }
+    if (isDragReject) {
+        return rejected;
+    }
+    if (isDragActive) {
+        return dragActive;
+    }
+    return normal;
+}
+
+const InputContent = styled.div`
+    overflow: hidden;
+    ${(props: DropProps) => getBorderStyle(props)};
+    border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
+    > .input-editor {
+        font-size : 14px;
+        max-height: 20vh;
+        overflow: scroll;
+        padding : ${({ theme }) => `${theme.spacing(1)}px`};
+    }
+`;
+
 
 const Wrapper = styled.div`
     display : grid;
@@ -16,88 +66,41 @@ const Wrapper = styled.div`
     & > .input-options {
         display : flex;
     }
-
-    & > .input-content {
-        overflow: hidden;
-        > .input-editor {
-            font-size : 14px;
-            max-height: 20vh;
-            overflow: scroll;
-            border : ${({ theme }) => `1px solid ${theme.palette.divider}`};
-            border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
-            padding : ${({ theme }) => `${theme.spacing(1)}px`};
-        }
-        > .input-suggestion{
-
-        }
-    }
 `;
 
-const Portal: React.FC<{
-    container: HTMLElement,
-    children: React.ReactElement
-}> = ({
-    container,
-    children
-}) => {
-        return ReactDOM.createPortal(children, container);
-    }
+export type Props = {
+    className?: string,
+    onSelectEmoji: (emoji: string) => void,
+    suggestion : React.ReactElement,
+    richEditor : React.ReactElement,
+    dropZoneRootProps : DropzoneRootProps,
+    dropZoneInputProps : DropzoneInputProps,
+    handleSubmitMessage: () => void,
+}
 
-const SuggestionWrapper = styled.div(({ bottom, left }: { bottom: number, left: number }) => `
-    position : absolute;
-    bottom : ${bottom}px;
-    left : ${left}px;
-`)
-
-function Presenter<T extends {
-    id: string,
-    nickname: string
-}>({
+function Presenter({
     className,
     suggestion,
-    handleSubmitMessage,
     onSelectEmoji,
-    renderRichEditor,
-    handleSelectMention,
-    focusSuggestion,
-    onCloseSuggestion,
-    onLeaveSuggenstionFocus
-}: PresenterProps<T>) {
-    let suggestionRect, container;
-    if(suggestion && suggestion.node){
-        container = (suggestion.node.ownerDocument?.body) || document.body;
-        suggestionRect = domutil.calcRelativePosition(suggestion.node, container);
-    }
+    richEditor,
+    dropZoneInputProps,
+    dropZoneRootProps,
+    handleSubmitMessage
+}: Props) {
     return (
         <Wrapper className={className} >
-            <div className='input-options'>
+            <div className='input-options' >
                 <EmojiPicker onSelectEmoji={onSelectEmoji} />
             </div>
-            <div className='input-content'>
-                <div className='input-editor'>
-                    {renderRichEditor()}
+            <InputContent {...dropZoneRootProps}>
+                <div className='input-editor' >
+                    <input {...dropZoneInputProps}/>
+                    {richEditor}
                 </div>
-                {suggestion && container && suggestionRect && (
-                    <Portal container={container}>
-                        <SuggestionWrapper
-                            bottom={suggestionRect.bottom + suggestionRect.height}
-                            left={suggestionRect.left}
-                        >
-                            <Suggestion
-                                suggestion={suggestion.profiles}
-                                handleSelect={handleSelectMention}
-                                onClose={onCloseSuggestion}
-                                focus={focusSuggestion}
-                                onLeaveFocus={onLeaveSuggenstionFocus}
-                                startAt='bottom'
-                            />
-                        </SuggestionWrapper>
-                    </Portal>
-
-                )}
-            </div>
+                {suggestion}
+            </InputContent>
             <div>
-                <IconButton onClick={handleSubmitMessage}><Send /></IconButton>
+                <IconButton onClick={handleSubmitMessage} ><Send /></IconButton>
             </div>
         </Wrapper>
     )

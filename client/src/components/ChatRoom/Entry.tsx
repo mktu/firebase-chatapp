@@ -1,8 +1,8 @@
 import React from 'react';
-import * as Loaders from './Loader';
 import InactiveRoom, { Props as InactiveRoomProps } from './InactiveRoom';
 import { Room } from '../../../../types/room';
 import Container from './Container';
+import Provider from './Provider';
 
 export type Props = {
     room: Room,
@@ -12,21 +12,16 @@ export type Props = {
 } & InactiveRoomProps;
 
 const Entry: React.FC<Props> = ({ room, show, onClose, focusMessageId }) => {
-
     if (room.disabled) {
         return <InactiveRoom room={room} show={show} onClose={onClose} />;
     }
     return (
-        <Loaders.ProfileLoader room={room}>
-            {(profiles) => (
-                <Container
-                    profiles={profiles}
-                    room={room}
-                    show={show}
-                    focusMessageId={focusMessageId}
-                />
-            )}
-        </Loaders.ProfileLoader>
+        <Provider room={room}>
+            <Container
+                show={show}
+                focusMessageId={focusMessageId}
+            />
+        </Provider>
     )
 }
 

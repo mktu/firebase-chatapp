@@ -1,18 +1,64 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 import 'emoji-mart/css/emoji-mart.css';
+import { DropzoneRootProps, DropzoneInputProps } from 'react-dropzone';
 import IconButton from '@material-ui/core/IconButton';
 import CheckIcon from '@material-ui/icons/Check';
 import ClearIcon from '@material-ui/icons/Clear';
 import { EmojiPicker } from '../../../Emoji';
-import Suggestion from '../Suggestion';
-import { PresenterProps } from '../types';
+
+type DropProps = { [key: string]: any };
+
+const dragAccept = css`
+    border-color : ${({ theme }) => `${theme.palette.primary.light}`};
+    border-style: dashed;
+    border-width: 2px;
+`;
+const dragActive = css`
+    border-color : #2196f3;
+    border-style: dashed;
+    border-width: 2px;
+`;
+const rejected = css`
+    border-color : #ff1744;
+    border-style: dashed;
+    border-width: 2px;
+`;
+
+const getBorderStyle = ({
+    isDragAccept,
+    isDragReject,
+    isDragActive
+}: DropProps) => {
+    if (isDragAccept) {
+        return dragAccept;
+    }
+    if (isDragReject) {
+        return rejected;
+    }
+    if (isDragActive) {
+        return dragActive;
+    }
+    return undefined;
+}
 
 const IconButtonStyle = css`
     padding : 1px;
     color : white;
     &:hover{
         background-color : ${({ theme }) => `${theme.palette.action.hover}`};
+    }
+`;
+
+const InputContent = styled.div`
+    padding : ${({ theme }) => `${theme.spacing(1)}px`};
+    overflow: hidden;
+    ${(props: DropProps) => getBorderStyle(props)};
+    > .input-editor {
+        font-size : 14px;
+        max-height: 20vh;
+        overflow: scroll;
+        
     }
 `;
 
@@ -25,17 +71,6 @@ const Wrapper = styled.div`
     border : ${({ theme }) => `1px solid ${theme.palette.divider}`};
     border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
     
-    & > .input-content {
-        padding : ${({ theme }) => `${theme.spacing(1)}px`};
-        overflow: hidden;
-        > .input-editor {
-            font-size : 14px;
-            max-height: 20vh;
-            overflow: scroll;
-            
-        }
-    }
-
     & > .input-menu {
         display : flex;
         justify-content : space-between;
@@ -53,25 +88,29 @@ const Wrapper = styled.div`
             }
         }
     }
-    
-   
 `;
 
-function Presenter<T extends {
-    id: string,
-    nickname: string
-}>({
+type Props = {
+    className?: string,
+    onSelectEmoji: (emoji: string) => void,
+    suggestion : React.ReactElement,
+    richEditor : React.ReactElement,
+    dropZoneRootProps : DropzoneRootProps,
+    dropZoneInputProps : DropzoneInputProps,
+    handleSubmitMessage: () => void,
+    onCancel?: () => void,
+}
+
+function Presenter({
     className,
     suggestion,
     handleSubmitMessage,
     onSelectEmoji,
-    renderRichEditor,
-    handleSelectMention,
-    focusSuggestion,
-    onCloseSuggestion,
-    onLeaveSuggenstionFocus,
-    onCancel
-}: PresenterProps<T>) {
+    richEditor,
+    onCancel,
+    dropZoneInputProps,
+    dropZoneRootProps
+}: Props) {
     return (
         <Wrapper className={className} >
             <div className='input-menu'>
@@ -86,22 +125,13 @@ function Presenter<T extends {
                     <IconButton className='submit-button' onClick={handleSubmitMessage}><CheckIcon /></IconButton>
                 </div>
             </div>
-            <div className='input-content'>
-                <div className='input-editor'>
-                    {renderRichEditor()}
+            <InputContent {...dropZoneRootProps}>
+                <div className='input-editor' >
+                    <input {...dropZoneInputProps} />
+                    {richEditor}
                 </div>
-                {suggestion && (
-                    <Suggestion
-                        suggestion={suggestion.profiles}
-                        handleSelect={handleSelectMention}
-                        onClose={onCloseSuggestion}
-                        focus={focusSuggestion}
-                        onLeaveFocus={onLeaveSuggenstionFocus}
-                        startAt='top'
-                        variant='small'
-                    />
-                )}
-            </div>
+                {suggestion}
+            </InputContent>
         </Wrapper>
     )
 };

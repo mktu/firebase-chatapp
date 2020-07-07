@@ -1,16 +1,16 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import ReceivedMessage from './ReceivedMessage';
 import SentMessage from './SentMessage';
 import { SingleMessageProps } from '../../types';
+import { MyProfileContext, UsersContext } from '../../ChatroomContext';
 
 const Container: React.FC<SingleMessageProps> = ({
-    profiles,
-    profile,
     message,
     addReaction,
-    editMessage,
     disableMessage
 }) => {
+    const profile = useContext(MyProfileContext);
+    const profiles = useContext(UsersContext);
     const sender = profiles.find(p => p.id === message.senderId);
     const amISender = sender?.id === profile.id;
 
@@ -25,7 +25,6 @@ const Container: React.FC<SingleMessageProps> = ({
                     message={message}
                     sender={profile}
                     profiles={profiles}
-                    editMessage={editMessage}
                     disableMessage={disableMessage}
                 />
             ) : (

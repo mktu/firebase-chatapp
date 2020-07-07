@@ -52,11 +52,8 @@ export type MessagesProps = {
 
 export type SingleMessageProps = {
     className?:string,
-    profiles: Profile[],
-    profile: Profile,
     message: Message,
     addReaction: AddReaction,
-    editMessage: EditMessage,
     disableMessage: DisableMessage
 }
 
@@ -65,7 +62,6 @@ export type SentMessageProps = {
     profiles: Profile[],
     sender : Profile,
     message: Message,
-    editMessage: EditMessage,
     disableMessage: DisableMessage
 }
 

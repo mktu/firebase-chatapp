@@ -3,11 +3,11 @@ import {State, ContextType} from '../../../types/message';
 
 export const initialState : State = { };
 
-const ProfileContext = React.createContext<ContextType>({
+const MessageContext = React.createContext<ContextType>({
     messageState : initialState,
     actions : {
         update : ()=>{}
     }
 });
 
-export default ProfileContext;
+export default MessageContext;
