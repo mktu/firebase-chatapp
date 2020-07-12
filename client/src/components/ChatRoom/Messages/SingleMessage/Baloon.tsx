@@ -11,7 +11,7 @@ import { domutil } from '../../../../utils';
 const innerStyle = css`
     display : inline-block;
     padding : ${({ theme }) => `${theme.spacing(1)}px`};
-    background-color : ${({ theme }) => `${theme.palette.grey['200']}`};
+    background-color : #E8EDF2;
     border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
 `;
 
@@ -19,7 +19,7 @@ const Wrapper = styled.div`
     width : 100%;
     position : relative;
     & > span {
-        max-width : 500px;
+        max-width : 50vw;
         display : inline-block;
         white-space : pre-wrap;
         overflow-wrap: break-word;
@@ -92,13 +92,16 @@ const Baloon: React.FC<PropsType> = ({
             <span ref={(r) => {
                 setSpanElement(r || undefined)
             }}>
-                <span>
-                    {urls.length > 0 ? (
-                        <Linkify componentDecorator={LinkDecorator}>
-                            {mentionDecorated}
-                        </Linkify>
-                    ) : mentionDecorated}
-                </span>
+                {message.length > 0 ? (
+                    <span>
+                        {urls.length > 0 ? (
+                            <Linkify componentDecorator={LinkDecorator}>
+                                {mentionDecorated}
+                            </Linkify>
+                        ) : mentionDecorated}
+                    </span>
+                ) : <React.Fragment />}
+
                 {urls.length > 0 && (<LinkPreview url={urls[0].href} />)}
             </span>
             {renderPortal && rect && (

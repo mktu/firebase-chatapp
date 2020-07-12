@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useContext } from 'react';
 import ChatEditor, { KeyEvent } from '../../Editor';
-import { useDropMultiImageState } from '../../../hooks/useDropImageState';
+import { useDropMultiFileState } from '../../../hooks/useDropImageState';
 import { ChatInputPresenter } from './Presenters';
 import { ImageSubmitDialog, ImageSumitContainer } from './ImageSubmitDialog';
 import useChatTextState from './useChatTextState';
@@ -20,11 +20,11 @@ const Container = ({
     initText,
     initMentions = [],
 }: Props) => {
-    const { dropZoneInputProps, dropZoneProps, imgUrls, clearImages, imageFiles } = useDropMultiImageState();
+    const { dropZoneInputProps, dropZoneProps, fileUrls, clearFiles, files } = useDropMultiFileState();
     const profiles  = useContext(UsersContext);
     const {id : roomId}  = useContext(ChatroomContext);
     const {id : senderId, nickname : senderName}  = useContext(MyProfileContext);
-    const { createMessage, uploadMessageImage } = useContext(ServiceContext)
+    const { createMessage } = useContext(ServiceContext)
     const {
         inputMessage,
         mentions,
@@ -105,33 +105,23 @@ const Container = ({
                 dropZoneInputProps={dropZoneInputProps}
             />
             <ImageSubmitDialog
-                show={imgUrls.length > 0}
-                onClose={clearImages}
+                show={fileUrls.length > 0}
+                onClose={clearFiles}
             >
                 <ImageSumitContainer
-                    images={imageFiles}
-                    onClose={clearImages}
+                    files={files}
+                    onClose={clearFiles}
                     onSubmit={(message, mentions, images) => {
-                        if(images.length > 0){
-                            const promises = images.map((image)=>{
-                                return uploadMessageImage(senderId, image, (progress)=>{
-                                    console.log(`${image.name}:${progress}`);
-                                })
-                            });
-                            Promise.all(promises).then((imageUrls)=>{
-                                createMessage({
-                                    roomId,
-                                    senderId,
-                                    senderName,
-                                    message,
-                                    mentions,
-                                    imageUrls
-                                });
-                                clearInput();
-                                clearImages();
-                            })
-                            
-                        }
+                        createMessage({
+                            roomId,
+                            senderId,
+                            senderName,
+                            message,
+                            mentions,
+                            images
+                        });
+                        clearInput();
+                        clearFiles();
                     }}
                     profiles={profiles}
                     initText={inputMessage}

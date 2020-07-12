@@ -27,6 +27,13 @@ export type ContextType = {
 
 export type Dispatch = (action : Action) => void;
 
+export type MessageImage = {
+    url : string,
+    name: string,
+    type : string,
+    size : number,
+}
+
 export type Message = {
     roomId: string,
     message : string,
@@ -39,7 +46,7 @@ export type Message = {
     mentions? : string[],
     disable?: boolean,
     update?: number,
-    imageUrls?: string[],
+    images?: MessageImage[],
     id : string
 };
 

@@ -1,15 +1,15 @@
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 
-export const useDropMultiImageState = () => {
-    const [images, setImages] = useState<File[]>([]);
+export const useDropMultiFileState = () => {
+    const [files, setFiles] = useState<File[]>([]);
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (acceptedFiles.length > 0) {
-            setImages(acceptedFiles)
+            setFiles(acceptedFiles)
         }
     }, []);
-    const clearImages = useCallback(()=>{
-        setImages([]);
+    const clearFiles = useCallback(()=>{
+        setFiles([]);
     },[]);
     const {
         getRootProps,
@@ -18,18 +18,17 @@ export const useDropMultiImageState = () => {
         isDragAccept,
         isDragReject,
     } = useDropzone({ noClick: true, onDrop });
-    const imgUrls = images.map(image => image && URL.createObjectURL(image));
-    const imageFiles = images;
+    const fileUrls = files.map(image => image && URL.createObjectURL(image));
     const dropZoneInputProps = getInputProps();
     const dropZoneProps = getRootProps({ isDragActive, isDragAccept, isDragReject });
 
     return {
         dropZoneInputProps,
         dropZoneProps,
-        imgUrls,
-        setImages,
-        imageFiles,
-        clearImages
+        fileUrls,
+        setFiles,
+        files,
+        clearFiles
     }
 }
 

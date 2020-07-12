@@ -5,6 +5,7 @@ import Presenter from './Presenter';
 import { ReceivedMessageProps } from '../../../types';
 import { getDateAsString, getReactionsAsUserName } from '../../../utils';
 import User from '../User';
+import FileImage from '../FileImage';
 
 const Container: React.FC<ReceivedMessageProps> = ({
     className,
@@ -27,6 +28,12 @@ const Container: React.FC<ReceivedMessageProps> = ({
                 time={time}
                 sender={sender?.nickname || 'Unknown'}
                 update={Boolean(message.update)}
+                images={
+                    <FileImage
+                        pos='right'
+                        images={message.images}
+                    />
+                }
                 onMouseEnter={() => {
                     setHover(true);
                 }}

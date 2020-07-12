@@ -69,6 +69,18 @@ const Container: React.FC<{
                 <Wrapper>
                     <ServiceContext.Provider value={{
                         ...createMock(action),
+                        uploadMessageImage : (_1,_2,cb)=>{
+                            return new Promise<string>((resolve)=>{
+                                let callCount = 0;
+                                setInterval(()=>{
+                                    cb && cb(callCount/5*100, 'running');
+                                    if(callCount++ > 5){
+                                        resolve('https://yeah')
+                                    }
+                                }, 500)
+                                
+                            })
+                        },
                         createMessage: ({ message, mentions }) => {
                             const added: Message = {
                                 id: message,

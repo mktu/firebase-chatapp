@@ -1,6 +1,7 @@
 import firebase from './firebase';
 import {
     Message,
+    MessageImage,
     MessagesTransfer,
     MessageTransfer
 } from '../../../types/message';
@@ -195,7 +196,7 @@ export function createMessage(
         senderId,
         senderName,
         mentions,
-        imageUrls,
+        images,
         onSucceeded,
         onFailed = consoleError
     }:
@@ -205,7 +206,7 @@ export function createMessage(
             senderId: string,
             senderName: string,
             mentions?: string[],
-            imageUrls?: string[],
+            images?: MessageImage[],
             onSucceeded?: Notifier,
             onFailed?: ErrorHandler
         }
@@ -218,8 +219,8 @@ export function createMessage(
             roomId,
             senderId,
             senderName,
-            mentions,
-            imageUrls,
+            mentions : mentions || [],
+            images : images || [],
             date: Date.now()
         })
         .then(onSucceeded)
@@ -232,7 +233,7 @@ export function editMessage(
         messageId,
         message,
         mentions,
-        imageUrls,
+        images,
         onSucceeded,
         onFailed = consoleError
     }
@@ -241,7 +242,7 @@ export function editMessage(
             messageId: string,
             message: string,
             mentions?: string[],
-            imageUrls?: string[],
+            images?: MessageImage[],
             onSucceeded?: Notifier,
             onFailed?: ErrorHandler
         }
@@ -252,8 +253,8 @@ export function editMessage(
         .doc(messageId)
         .set({
             message,
-            mentions,
-            imageUrls,
+            mentions : mentions || [],
+            images : images || [],
             update: Date.now()
         }, { merge: true })
         .then(onSucceeded)

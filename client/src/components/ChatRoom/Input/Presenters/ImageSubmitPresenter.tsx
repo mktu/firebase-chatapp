@@ -37,6 +37,7 @@ export type Props = {
     suggestion: React.ReactElement,
     richEditor: React.ReactElement,
     images: React.ReactElement,
+    fileList : React.ReactElement
 }
 
 function Presenter({
@@ -45,6 +46,7 @@ function Presenter({
     onSelectEmoji,
     richEditor,
     images,
+    fileList,
 }: Props) {
     return (
         <Wrapper className={className} >
@@ -59,7 +61,10 @@ function Presenter({
                     {suggestion}
                 </InputContent>
             </div>
-            <div >
+            <div>
+                {fileList}
+            </div>
+            <div>
                 {images}
             </div>
         </Wrapper>

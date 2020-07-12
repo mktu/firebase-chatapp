@@ -38,7 +38,6 @@ const Container: React.FC<Props> = ({
         if (!m.readers) return true;
         return !m.readers.includes(profileId);
     }).length;
-    console.log(roomId)
 
     useEffect(() => {
         messageActions.update(roomId, unreads);

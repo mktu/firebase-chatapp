@@ -1,35 +1,32 @@
 import React, { useCallback, useMemo, useContext } from 'react';
 import ChatEditor, { KeyEvent } from '../../Editor';
-import { useDropMultiImageState } from '../../../hooks/useDropImageState';
+import { useDropMultiFileState } from '../../../hooks/useDropImageState';
 import { EditMessagePresenter } from './Presenters';
 import { ImageSubmitDialog, ImageSumitContainer } from './ImageSubmitDialog';
 import useChatTextState from './useChatTextState';
 import Suggestion from './Suggestion';
-import { MyProfileContext, ChatroomContext, UsersContext } from '../ChatroomContext';
+import { ChatroomContext, UsersContext } from '../ChatroomContext';
 import { ServiceContext } from '../../../contexts';
+import { Message } from '../../../../../types/message';
 
 type Props = {
     className?: string,
-    messageId: string,
     onSubmit: () => void,
     onCancel?: () => void,
-    initText?: string,
-    initMentions?: string[],
+    message : Message,
     suggestionPlacement?: 'above' | 'below'
 }
 
 const Container = ({
     className,
-    messageId,
     onSubmit,
     onCancel,
-    initText,
-    initMentions = [],
+    message,
 }: Props) => {
-    const { dropZoneInputProps, dropZoneProps, imgUrls, clearImages, imageFiles } = useDropMultiImageState();
-    const { editMessage, uploadMessageImage } = useContext(ServiceContext);
+    const messageId = message.id;
+    const { dropZoneInputProps, dropZoneProps, fileUrls, clearFiles, files } = useDropMultiFileState();
+    const { editMessage } = useContext(ServiceContext);
     const { id: roomId } = useContext(ChatroomContext);
-    const { id: profileId } = useContext(MyProfileContext);
     const profiles = useContext(UsersContext);
     const {
         inputMessage,
@@ -51,7 +48,7 @@ const Container = ({
         profiles,
         onCancel,
         suggestionPlacement: 'below',
-        initMentions,
+        initMentions : message.mentions,
     })
 
     const handleSubmitMessage = useCallback(() => {
@@ -61,13 +58,14 @@ const Container = ({
                     roomId,
                     messageId,
                     message : inputMessage,
-                    mentions
+                    mentions,
+                    images : message.images
                 }
             );
             clearInput();
             onSubmit();
         }
-    }, [inputMessage, clearInput, editMessage, messageId, mentions, onSubmit, roomId])
+    }, [inputMessage, clearInput, editMessage, messageId, mentions, onSubmit, roomId, message.images])
 
     const onKeyPress = useCallback((key: KeyEvent) => {
         if (key === 'CtrlEnter') {
@@ -85,10 +83,10 @@ const Container = ({
                 onMountMention={onMountMention}
                 onChangeMentionCandidate={onChangeMentionCandidate}
                 onKeyPress={onKeyPress}
-                initText={initText}
+                initText={message.message}
             />
         )
-    }, [onChangeText, attachModifier, onMountMention, onChangeMentionCandidate, onKeyPress, initText])
+    }, [onChangeText, attachModifier, onMountMention, onChangeMentionCandidate, onKeyPress, message.message])
 
     return (
         <React.Fragment>
@@ -113,32 +111,24 @@ const Container = ({
                 dropZoneInputProps={dropZoneInputProps}
             />
             <ImageSubmitDialog
-                show={imgUrls.length > 0}
-                onClose={clearImages}
+                show={fileUrls.length > 0}
+                onClose={clearFiles}
             >
                 <ImageSumitContainer
-                    images={imageFiles}
-                    onClose={clearImages}
+                    files={files}
+                    storedFiles={message.images}
+                    onClose={clearFiles}
                     onSubmit={(message, mentions, images) => {
-                        if(images.length>0){
-                            const promises = images.map((image)=>{
-                                return uploadMessageImage(profileId, image, (progress)=>{
-                                    console.log(`${image.name}:${progress}`);
-                                })
-                            });
-                            Promise.all(promises).then((imageUrls)=>{
-                                editMessage({
-                                    roomId,
-                                    messageId,
-                                    message,
-                                    mentions,
-                                    imageUrls
-                                });
-                                clearInput();
-                                clearImages();
-                                onSubmit();
-                            })
-                        }
+                        editMessage({
+                            roomId,
+                            messageId,
+                            message,
+                            mentions,
+                            images
+                        });
+                        clearInput();
+                        clearFiles();
+                        onSubmit();
                     }}
                     profiles={profiles}
                     onCancel={onCancel}

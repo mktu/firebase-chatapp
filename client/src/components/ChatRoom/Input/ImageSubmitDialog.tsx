@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext, useState } from 'react';
 import styled from 'styled-components';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -9,18 +9,23 @@ import ChatEditor from '../../Editor';
 import { ImageSubmitPresenter } from './Presenters';
 import Suggestion from './Suggestion';
 import { Profile } from '../../../../../types/profile';
+import { MessageImage } from '../../../../../types/message';
 import useChatTextState from './useChatTextState';
-
+import { MyProfileContext } from '../ChatroomContext';
+import { ServiceContext } from '../../../contexts';
+import { ImageList, FileList } from './FileList';
 
 type Props = {
-    images: File[],
+    files: File[],
+    storedFiles?: MessageImage[],
     initText?: string,
     onClose: () => void,
-    onSubmit: (message: string, mentions: string[], images: File[]) => void,
+    onSubmit: (message: string, mentions: string[], images: MessageImage[]) => void,
     profiles: Profile[],
     onCancel?: () => void,
     initMentions?: string[],
 };
+
 
 const ImageDialogTitle = styled(DialogTitle)`
     background-color : ${({ theme }) => `${theme.palette.primary.main}`};
@@ -28,29 +33,10 @@ const ImageDialogTitle = styled(DialogTitle)`
     color : white;
 `;
 
-const ImageContent = styled.div`
-    > .image-src{
-        display : flex;
-        align-items : center;
-        justify-content : center;
-    }
-    > .image-description{
-        display : flex;
-        flex-direction : column;
-        align-items : flex-end;
-        justify-content : center;
-        font-size : 0.8rem;
-        padding: ${({ theme }) => `${theme.spacing(1)}px`};
-    }
-`;
-
-const Img = styled.img`
-    max-width : 90%;
-    height : auto;
-`;
 
 function ImageSumitContainer({
-    images,
+    files,
+    storedFiles,
     profiles,
     onCancel,
     onClose,
@@ -58,27 +44,13 @@ function ImageSumitContainer({
     onSubmit,
     initText
 }: Props) {
+    const [progress, setProgress] = useState<{ [key: string]: number }>();
+    const { id: senderId } = useContext(MyProfileContext);
+    const { uploadMessageImage } = useContext(ServiceContext);
+    const imageList = useMemo(() => {
+        return <ImageList files={files} storedFiles={storedFiles}/>;
+    }, [files,storedFiles]);
 
-    const imageComps = useMemo(() => {
-        return (
-            <div>
-                {images.map(image => {
-                    const imageUrl = URL.createObjectURL(image);
-                    return (
-                        <ImageContent key={imageUrl}>
-                            <div className='image-src'>
-                                <Img src={imageUrl} />
-                            </div>
-                            <div className='image-description'>
-                                <div>{image.name}</div>
-                                <div>{image.size / 1000} KB</div>
-                            </div>
-                        </ImageContent>
-                    )
-                })}
-            </div>
-        )
-    }, [images])
     const {
         inputMessage,
         mentions,
@@ -96,7 +68,7 @@ function ImageSumitContainer({
     } = useChatTextState({
         profiles,
         onCancel,
-        suggestionPlacement : "below",
+        suggestionPlacement: "below",
         initMentions,
     })
 
@@ -105,6 +77,9 @@ function ImageSumitContainer({
             <ImageDialogTitle>SUBMIT IMAGE</ImageDialogTitle>
             <DialogContent>
                 <ImageSubmitPresenter
+                    fileList={
+                        <FileList files={files} uploadProgresses={progress} storedFiles={storedFiles}/>
+                    }
                     richEditor={
                         <ChatEditor
                             attachModifier={attachModifier}
@@ -127,13 +102,31 @@ function ImageSumitContainer({
                                 variant='small'
                             /> : <div />
                     }
-                    images={imageComps}
+                    images={imageList}
                     onSelectEmoji={onSelectEmoji}
                 />
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => {
-                    onSubmit(inputMessage || '', mentions, images)
+                    if (files.length > 0) {
+                        const promises = files.map((image) => {
+                            return uploadMessageImage(senderId, image, (progress) => {
+                                setProgress(prev => ({
+                                    ...prev,
+                                    [image.name]: progress
+                                }))
+                            })
+                        });
+                        Promise.all(promises).then((imageUrls) => {
+                            const uploadImages = imageUrls.map((url,idx)=>({
+                                url, 
+                                name : files[idx].name, 
+                                size : files[idx].size,
+                                type : files[idx].type,
+                            }))
+                            onSubmit(inputMessage || '', mentions, uploadImages)
+                        })
+                    }
                 }} color="primary">
                     SUBMIT
                 </Button>

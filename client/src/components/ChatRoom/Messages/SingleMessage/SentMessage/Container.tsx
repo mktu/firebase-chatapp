@@ -5,10 +5,11 @@ import Presenter, { EditorStyle } from './Presenter';
 import PortalPresenter from './PortalPresenter';
 import ConfirmDeletePopover from '../ConfirmDeletePopover';
 import EditActionPanel from '../EditActionPanel';
-import {MessageEditor} from '../../../Input';
+import { MessageEditor } from '../../../Input';
 import User from '../User';
 import { SentMessageProps } from '../../../types';
 import { getDateAsString, getReactionsAsUserName } from '../../../utils';
+import FileImage from '../FileImage';
 
 const Container: React.FC<SentMessageProps> = ({
     className,
@@ -27,11 +28,9 @@ const Container: React.FC<SentMessageProps> = ({
         return (
             <EditorStyle>
                 <MessageEditor
-                    messageId={message.id}
-                    onSubmit={()=>{ setEditable(false) }}
+                    onSubmit={() => { setEditable(false) }}
                     onCancel={() => { setEditable(false) }}
-                    initText={message.message}
-                    initMentions={message.mentions}
+                    message={message}
                 />
             </EditorStyle>
         )
@@ -45,6 +44,11 @@ const Container: React.FC<SentMessageProps> = ({
                 sender={sender.nickname}
                 update={Boolean(message.update)}
                 readCount={message.readers?.length}
+                images={
+                    <FileImage
+                        images={message.images}
+                    />
+                }
                 onMouseEnter={() => { setHover(true) }}
                 onMouseLeave={() => { setHover(false) }}
                 avatar={(

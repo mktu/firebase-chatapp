@@ -4,15 +4,18 @@ import Typography from '@material-ui/core/Typography';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 
 const Wrapper = styled.div`
-    display : flex;
-    justify-content : flex-start;
-    align-items : center;
-    width : 100%;
-    &>.message-wrapper{
-        margin-left : ${({ theme }) => `${theme.spacing(1)}px`};
-        >.message-header{
-            display : flex;
-            align-items : center;
+
+    & >.message{
+        display : flex;
+        justify-content : flex-start;
+        align-items : center;
+        width : 100%;
+        >.message-wrapper{
+            margin-left : ${({ theme }) => `${theme.spacing(1)}px`};
+            >.message-header{
+                display : flex;
+                align-items : center;
+            }
         }
     }
 `;
@@ -38,6 +41,7 @@ type PropsType = {
     sender: string,
     update?: boolean,
     readCount?: number,
+    images?: React.ReactElement
 };
 
 const Presenter = React.forwardRef<HTMLDivElement, PropsType>(({
@@ -49,31 +53,35 @@ const Presenter = React.forwardRef<HTMLDivElement, PropsType>(({
     onMouseLeave,
     sender,
     update = false,
-    readCount
+    readCount,
+    images
 }, ref) => {
     return (
-        <Wrapper className={className} ref={ref}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
-        >
-            {avatar}
-            <div className='message-wrapper'>
-                <div className='message-header'>
-                    <div>
-                        <Typography variant='caption' color='textSecondary'>{sender} {time} {update && 'UPDATED'}</Typography>
-                    </div>
-                    {readCount && (
+        <Wrapper className={className} ref={ref}>
+            <div className='message'
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
+            >
+                {avatar}
+                <div className='message-wrapper'>
+                    <div className='message-header'>
                         <div>
-                            <StyledVisibilityIcon />
-                            <Typography variant='caption' color='textSecondary'>
-                                {readCount}
-                            </Typography>
-                        </div>)}
-                </div>
-                <div>
-                    {baloon}
+                            <Typography variant='caption' color='textSecondary'>{sender} {time} {update && 'UPDATED'}</Typography>
+                        </div>
+                        {readCount && (
+                            <div>
+                                <StyledVisibilityIcon />
+                                <Typography variant='caption' color='textSecondary'>
+                                    {readCount}
+                                </Typography>
+                            </div>)}
+                    </div>
+                    <div>
+                        {baloon}
+                    </div>
                 </div>
             </div>
+            {images}
         </Wrapper>)
 });
 

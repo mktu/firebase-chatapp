@@ -50,7 +50,15 @@ export const EditMessage = () => <Provider
 >
     <MessageEditor
         onCancel={action('onCancel')}
-        messageId={'test'}
+        message={{
+            id:'test',
+            message:'test',
+            senderId : 'testuser',
+            senderName : 'testuser',
+            date : 1,
+            roomName : 'testroom',
+            roomId:'testroom'
+        }}
         onSubmit={action('onSubmit')}
     />
 </Provider>
