@@ -9,7 +9,7 @@ import { MessageEditor } from '../../../Input';
 import User from '../User';
 import { SentMessageProps } from '../../../types';
 import { getDateAsString, getReactionsAsUserName } from '../../../utils';
-import FileImage from '../FileImage';
+import FileImages from '../FileImages';
 
 const Container: React.FC<SentMessageProps> = ({
     className,
@@ -45,7 +45,7 @@ const Container: React.FC<SentMessageProps> = ({
                 update={Boolean(message.update)}
                 readCount={message.readers?.length}
                 images={
-                    <FileImage
+                    <FileImages
                         images={message.images}
                     />
                 }

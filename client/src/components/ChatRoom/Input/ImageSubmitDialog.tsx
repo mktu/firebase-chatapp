@@ -124,7 +124,8 @@ function ImageSumitContainer({
                                 size : files[idx].size,
                                 type : files[idx].type,
                             }))
-                            onSubmit(inputMessage || '', mentions, uploadImages)
+                            const mergedFiles = storedFiles ? [...storedFiles,...uploadImages] : uploadImages;
+                            onSubmit(inputMessage || '', mentions, mergedFiles)
                         })
                     }
                 }} color="primary">

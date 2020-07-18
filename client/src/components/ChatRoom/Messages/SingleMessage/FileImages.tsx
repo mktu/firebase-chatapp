@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Link from '@material-ui/core/Link';
 import PhotoCameraIcon from '@material-ui/icons/PhotoCamera';
@@ -10,7 +10,7 @@ const Wrapper = styled.div`
     margin-top : ${({ theme }) => `${theme.spacing(1)}px`};
     font-size : 0.8rem;
         > div{
-            ${({ pos } : {pos ?: string}) => pos === 'right' && `
+            ${({ pos }: { pos?: string }) => pos === 'right' && `
                 display : flex;
                 justify-content : flex-end;
                 align-items : flex-end;
@@ -42,13 +42,31 @@ const ImageSrc = styled.img`
     }
 `;
 
+const Placeholder = styled.div`
+    background: ${({ theme }) => `${theme.palette.grey[200]}`};
+    width: 200px;
+    height : 200px;
+`;
+
+const Image: React.FC<{
+    image: MessageImage
+}> = ({ image }) => {
+    const [loaded, setLoaded] = useState(false);
+    return <div>
+        <ImageSrc onLoad={()=>{ setLoaded(true)}} src={image.url} alt={image.name} onClick={() => {
+        window && window.open(image.url, '_blank');
+    }} />
+    {!loaded && <Placeholder />}
+    </div> 
+}
+
 type Props = {
     className?: string,
     images?: MessageImage[],
     pos?: 'left' | 'right'
 };
 
-const Image : React.FC<Props>= ({
+const FileImages: React.FC<Props> = ({
     className,
     images,
     pos
@@ -60,21 +78,19 @@ const Image : React.FC<Props>= ({
                 return result ? (
                     <div key={image.url}>
                         <Link href={image.url} target="_blank" rel="noopener" download className='image-name'>
-                            <ImageIcon /> {image.name}
+                            <ImageIcon /> {image.name} ({image.size / 1000} KB)
                         </Link>
-                        <ImageSrc src={image.url} alt={image.name} onClick={()=>{
-                            window && window.open(image.url, '_blank');
-                        }}/>
+                        <Image image={image} />
                     </div>
                 ) : (
-                    <div key={image.url}>
-                        <Link href={image.url} target="_blank" rel="noopener" download className='image-name'>
-                            <FileIcon /> {image.name}
-                        </Link>
-                    </div>
-                )
+                        <div key={image.url}>
+                            <Link href={image.url} target="_blank" rel="noopener" download className='image-name'>
+                                <FileIcon /> {image.name} ({image.size / 1000} KB)
+                            </Link>
+                        </div>
+                    )
             })}
         </Wrapper>)
 };
 
-export default Image;
+export default FileImages;

@@ -62,9 +62,14 @@ const InputContent = styled.div`
     }
 `;
 
+const Divider = styled.div`
+    border-bottom : 1px solid ${({ theme }) => `${theme.palette.divider}`};
+    width : 100%;
+`;
+
 const Wrapper = styled.div`
     display : grid;
-    grid-template-rows: 1fr auto;
+    grid-template-rows: 1fr auto auto;
     align-items : center;
     overflow : hidden;
 
@@ -95,6 +100,7 @@ type Props = {
     onSelectEmoji: (emoji: string) => void,
     suggestion : React.ReactElement,
     richEditor : React.ReactElement,
+    fileList ?: React.ReactElement,
     dropZoneRootProps : DropzoneRootProps,
     dropZoneInputProps : DropzoneInputProps,
     handleSubmitMessage: () => void,
@@ -107,6 +113,7 @@ function Presenter({
     handleSubmitMessage,
     onSelectEmoji,
     richEditor,
+    fileList,
     onCancel,
     dropZoneInputProps,
     dropZoneRootProps
@@ -132,6 +139,14 @@ function Presenter({
                 </div>
                 {suggestion}
             </InputContent>
+            <div className='input-files'>
+                {fileList && (
+                    <div>
+                        <Divider/>
+                        {fileList}
+                    </div>
+                )}
+            </div>
         </Wrapper>
     )
 };

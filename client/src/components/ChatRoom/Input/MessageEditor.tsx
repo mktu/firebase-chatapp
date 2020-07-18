@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useContext } from 'react';
+import React, { useCallback, useMemo, useContext, useEffect, useState } from 'react';
 import ChatEditor, { KeyEvent } from '../../Editor';
 import { useDropMultiFileState } from '../../../hooks/useDropImageState';
 import { EditMessagePresenter } from './Presenters';
@@ -8,6 +8,7 @@ import Suggestion from './Suggestion';
 import { ChatroomContext, UsersContext } from '../ChatroomContext';
 import { ServiceContext } from '../../../contexts';
 import { Message } from '../../../../../types/message';
+import { FilePreviewList } from './FileList';
 
 type Props = {
     className?: string,
@@ -23,9 +24,13 @@ const Container = ({
     onCancel,
     message,
 }: Props) => {
+    const [images,setImages] = useState(message.images);
+    useEffect(()=>{
+        setImages(message.images);
+    },[message.images])
     const messageId = message.id;
     const { dropZoneInputProps, dropZoneProps, fileUrls, clearFiles, files } = useDropMultiFileState();
-    const { editMessage } = useContext(ServiceContext);
+    const { editMessage, disableMessage } = useContext(ServiceContext);
     const { id: roomId } = useContext(ChatroomContext);
     const profiles = useContext(UsersContext);
     const {
@@ -52,20 +57,27 @@ const Container = ({
     })
 
     const handleSubmitMessage = useCallback(() => {
-        if (inputMessage) {
+        if(!inputMessage && (!images || images.length === 0)){
+            disableMessage(
+                roomId,
+                messageId
+            );
+            onSubmit();
+        }else{
             editMessage(
                 {
                     roomId,
                     messageId,
-                    message : inputMessage,
+                    message : inputMessage || '',
                     mentions,
-                    images : message.images
+                    images
                 }
             );
             clearInput();
             onSubmit();
         }
-    }, [inputMessage, clearInput, editMessage, messageId, mentions, onSubmit, roomId, message.images])
+        
+    }, [inputMessage, clearInput, editMessage, messageId, mentions, onSubmit, roomId, images,disableMessage])
 
     const onKeyPress = useCallback((key: KeyEvent) => {
         if (key === 'CtrlEnter') {
@@ -95,6 +107,13 @@ const Container = ({
                 richEditor={richEditor}
                 onSelectEmoji={onSelectEmoji}
                 handleSubmitMessage={handleSubmitMessage}
+                fileList={images && (
+                    <FilePreviewList storedFiles={images} onDelete={(deleteImg)=>{
+                        setImages(imgs=>{
+                            return imgs?.filter(img=>img.url!==deleteImg.url)
+                        })
+                    }}/>
+                )}
                 suggestion={
                     suggestion ? <Suggestion
                         suggestion={suggestion.profiles}
@@ -116,7 +135,7 @@ const Container = ({
             >
                 <ImageSumitContainer
                     files={files}
-                    storedFiles={message.images}
+                    storedFiles={images}
                     onClose={clearFiles}
                     onSubmit={(message, mentions, images) => {
                         editMessage({

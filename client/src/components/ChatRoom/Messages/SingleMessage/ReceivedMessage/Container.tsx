@@ -5,7 +5,7 @@ import Presenter from './Presenter';
 import { ReceivedMessageProps } from '../../../types';
 import { getDateAsString, getReactionsAsUserName } from '../../../utils';
 import User from '../User';
-import FileImage from '../FileImage';
+import FileImages from '../FileImages';
 
 const Container: React.FC<ReceivedMessageProps> = ({
     className,
@@ -29,7 +29,7 @@ const Container: React.FC<ReceivedMessageProps> = ({
                 sender={sender?.nickname || 'Unknown'}
                 update={Boolean(message.update)}
                 images={
-                    <FileImage
+                    <FileImages
                         pos='right'
                         images={message.images}
                     />
