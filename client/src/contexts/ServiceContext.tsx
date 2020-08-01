@@ -1,9 +1,11 @@
 import React from 'react';
 import {
     createRoom,
+    getRoom,
     registRoomsListener,
     modifyRoom,
-    deleteRoomPermanently
+    deleteRoomPermanently,
+    createContact
 } from '../services/room';
 import { 
     deleteToken, 
@@ -15,7 +17,17 @@ import {
  } from '../services/notification';
 import { updateRequest, listenJoinRequests } from '../services/request';
 import { logout } from '../services/auth';
-import { modifyProfile, getProfile, getProfiles, addProfile, uploadProfileImage } from '../services/profile';
+import { 
+    modifyProfile, 
+    getProfile, 
+    getProfiles, 
+    addProfile, 
+    uploadProfileImage ,
+    listenProfile,
+    listenProfiles,
+    listenContacts,
+    addContact
+} from '../services/profile';
 import {
     registMessagesListener,
     getMessage,
@@ -35,6 +47,8 @@ export const defaultServices = {
     modifyRoom,
     registRoomsListener,
     deleteRoomPermanently,
+    createContact,
+    getRoom,
     // message
     getMessage,
     getLatestMessage,
@@ -55,6 +69,10 @@ export const defaultServices = {
     modifyProfile,
     addProfile,
     uploadProfileImage,
+    addContact,
+    listenProfile,
+    listenProfiles,
+    listenContacts,
     // token
     deleteToken,
     saveToken,
@@ -70,8 +88,10 @@ export const createMock = (func: (name: string) => (...args: any[]) => void) => 
     const mock: typeof defaultServices = {
         createRoom: func('createRoom'),
         modifyRoom: func('modifyRoom'),
+        getRoom: func('getRoom'),
         registRoomsListener: () => {func('registRoomsListener')(); return ()=>{}},
         deleteRoomPermanently : func('deleteRoomPermanently'),
+        createContact : func('createContact'),
         getMessage: func('getMessage'),
         getLatestMessage: func('getLatestMessage'),
         getOldestMessage: () => { },
@@ -89,6 +109,10 @@ export const createMock = (func: (name: string) => (...args: any[]) => void) => 
         modifyProfile: func('modifyProfile'),
         addProfile : func('addProfile'),
         deleteToken : func('deleteToken'),
+        addContact : func('addContact'),
+        listenProfile : ()=>{func('listenProfile')(); return ()=>{}},
+        listenProfiles : ()=>{func('listenProfiles')(); return ()=>{}},
+        listenContacts : ()=>{func('listenContacts')(); return ()=>{}},
         saveToken : func('saveToken'),
         requestPermission : func('requestPermission'),
         getToken : func('getToken'),

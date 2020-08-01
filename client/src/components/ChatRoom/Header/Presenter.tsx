@@ -5,10 +5,7 @@ import IconButton from '@material-ui/core/IconButton';
 import SettingsIcon from '@material-ui/icons/Settings';
 import RecordVoiceOverIcon from '@material-ui/icons/RecordVoiceOver';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
-import Avatar from '@material-ui/core/Avatar';
 import Tooltip from '@material-ui/core/Tooltip';
-
-const MAX_PROFILE_COUNT = 5;
 
 const Wrapper = styled.div`
     display : flex;
@@ -60,36 +57,27 @@ const MenuIconButton = styled(IconButton)`
     padding : 1px;
 `;
 
-const CustomAvatar = styled(Avatar)`
-    width: ${({ theme }) => `${theme.spacing(3)}px`};
-    height: ${({ theme }) => `${theme.spacing(3)}px`};
-    font-size : 15px;
-`;
-
-type Props<T> = {
+type Props = {
     roomName: string,
-    profiles: T[],
     className?: string,
     requestCount: number,
     owner: boolean,
+    avatars: React.ReactElement,
     onClickShare: (e: React.MouseEvent<HTMLButtonElement>) => void,
     onClickRequest: (e: React.MouseEvent<HTMLButtonElement>) => void,
     onClickSetting: () => void
 }
 
-function HeaderPresenter<T extends {
-    nickname: string,
-    id: string
-}>({
+function HeaderPresenter({
     roomName,
-    profiles,
     className,
     requestCount,
     owner,
+    avatars,
     onClickShare,
     onClickRequest,
     onClickSetting
-}: Props<T>) {
+}: Props) {
     return (
         <Wrapper className={className} >
             <div className='room-name'>
@@ -113,17 +101,7 @@ function HeaderPresenter<T extends {
                         </IconButton>
                     </Tooltip>
                 )}
-                {profiles.length > 0 && (
-                    <div className='menu-users'>
-                        {profiles.slice(0, MAX_PROFILE_COUNT).map(p => (
-                            <Tooltip key={p.id} title={p.nickname} aria-label="chat-users">
-                                <MenuIconButton>
-                                    <CustomAvatar className='user-avatar'>{p.nickname[0]}</CustomAvatar>
-                                </MenuIconButton>
-                            </Tooltip>
-                        ))}
-                    </div>
-                )}
+                <div className="menu-users">{avatars}</div>
                 {owner && (
                     <div>
                         <MenuIconButton onClick={onClickSetting}>

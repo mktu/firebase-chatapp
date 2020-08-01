@@ -10,6 +10,7 @@ import { getCollectionListener, UnsubscribeNotifier } from './db';
 
 const db = firebase.firestore();
 const storageRef = firebase.storage().ref();
+const ff = firebase.functions();
 
 export type Order = {
     key: string,
@@ -198,7 +199,8 @@ export function createMessage(
         mentions,
         images,
         onSucceeded,
-        onFailed = consoleError
+        onFailed = consoleError,
+        initMessage = false
     }:
         {
             roomId: string,
@@ -208,7 +210,8 @@ export function createMessage(
             mentions?: string[],
             images?: MessageImage[],
             onSucceeded?: Notifier,
-            onFailed?: ErrorHandler
+            onFailed?: ErrorHandler,
+            initMessage?: boolean
         }
 ) {
     db.collection('rooms')
@@ -219,12 +222,25 @@ export function createMessage(
             roomId,
             senderId,
             senderName,
-            mentions : mentions || [],
-            images : images || [],
+            mentions: mentions || [],
+            images: images || [],
             date: Date.now()
         })
-        .then(onSucceeded)
+        .then(() => {
+            if (initMessage) {
+                const createFn = ff.httpsCallable('activateContact');
+                createFn({ roomId })
+                    .then(function () {
+                        console.log('first message created')
+                        onSucceeded && onSucceeded();
+                    })
+                    .catch(onFailed);
+            } else {
+                onSucceeded && onSucceeded();
+            }
+        })
         .catch(onFailed);
+
 }
 
 export function editMessage(
@@ -253,8 +269,8 @@ export function editMessage(
         .doc(messageId)
         .set({
             message,
-            mentions : mentions || [],
-            images : images || [],
+            mentions: mentions || [],
+            images: images || [],
             update: Date.now()
         }, { merge: true })
         .then(onSucceeded)

@@ -1,11 +1,14 @@
 import React, { useState, useContext } from 'react';
 import { Room, JoinRequest } from '../../../../../types/room';
-import { UsersContext } from '../ChatroomContext';
+import { Profile } from '../../../../../types/profile';
+import { UsersContext, MyProfileContext } from '../ChatroomContext';
 import { ServiceContext } from '../../../contexts';
 import SettingDialog from './SettingDialog';
 import HeaderPresenter from './Presenter';
 import ShareLinkPortal from './ShareLinkPortal';
 import RequestsPortal from './RequestsPortal';
+import { UserProfileContainer, UserProfileDialog } from './UserProfileDialog';
+import Avatars from './Avatars';
 
 type Props = {
     room: Room,
@@ -21,10 +24,12 @@ const HeaderContainer: React.FC<Props> = ({
     requests,
 }) => {
     const profiles = useContext(UsersContext);
-    const { modifyRoom, updateRequest } = useContext(ServiceContext);
+    const {id : myProfileId} = useContext(MyProfileContext);
+    const { modifyRoom, updateRequest, addContact } = useContext(ServiceContext);
     const [sharePortalAnchor, setSharePortalAnchor] = useState<HTMLButtonElement | null>(null);
     const [requestsPortalAnchor, setRequestsPortalAnchor] = useState<HTMLButtonElement | null>(null);
     const [showSetting, setShowSetting] = useState(false);
+    const [userProfile, setUserProfile] = useState<Profile>();
     const loc = window.location.href;
     const handleAcceptRequest = (request: JoinRequest) => {
         updateRequest(room.id,
@@ -48,8 +53,13 @@ const HeaderContainer: React.FC<Props> = ({
         <React.Fragment>
             <HeaderPresenter
                 roomName={room.roomName}
-                profiles={profiles}
                 className={className}
+                avatars={<Avatars
+                    profiles={profiles}
+                    onClick={(user) => {
+                        setUserProfile(user)
+                    }}
+                />}
                 owner={owner}
                 requestCount={requests.length}
                 onClickSetting={() => {
@@ -90,6 +100,21 @@ const HeaderContainer: React.FC<Props> = ({
                     setSharePortalAnchor(null);
                 }}
             />
+            <UserProfileDialog
+                show={Boolean(userProfile)}
+                onClose={() => {
+                    setUserProfile(undefined);
+                }}
+            >
+                <UserProfileContainer
+                    profile={userProfile}
+                    onAddToContact={()=>{
+                        userProfile && addContact(myProfileId, userProfile.id, ()=>{
+                            console.log('succeeded')
+                        });
+                    }}
+                />
+            </UserProfileDialog>
         </React.Fragment>
     )
 };

@@ -1,5 +1,5 @@
 import firebase from './firebase';
-import { Transfer, ProfilesTransfer, Profile } from '../../../types/profile';
+import { Transfer, ProfilesTransfer, Profile , Contact, ContactsTransfer} from '../../../types/profile';
 import { User } from '../../../types/user';
 import { getCollectionListener } from './db';
 import { consoleError, ErrorHandler } from '../utils';
@@ -41,6 +41,21 @@ export function listenProfile(
 ) {
     return db.collection('profiles')
         .where('uid', '==', uid)
+        .onSnapshot(getCollectionListener<Profile>(
+            onAdded,
+            onModified,
+            onDeleted,
+        ));
+}
+
+export function listenProfiles(
+    profileIds: string[],
+    onAdded: ProfilesTransfer,
+    onModified: ProfilesTransfer,
+    onDeleted: ProfilesTransfer
+) {
+    return db.collection('profiles')
+        .where(firebase.firestore.FieldPath.documentId(), 'in', profileIds)
         .onSnapshot(getCollectionListener<Profile>(
             onAdded,
             onModified,
@@ -139,4 +154,37 @@ export function uploadProfileImage(
             onSucceeded(downloadURL);
         });
     })
+}
+
+export function addContact(
+    profileId: string,
+    targetProfileId: string,
+    onSucceeded?: () => void,
+    onFailed?: ErrorHandler
+){
+    db.collection('profiles')
+        .doc(profileId)
+        .collection('contacts')
+        .doc(targetProfileId)
+        .set({
+            enable : true
+        }, { merge: true })
+        .then(onSucceeded)
+        .catch(onFailed);
+}
+
+export function listenContacts(
+    profileId: string,
+    onAdded:ContactsTransfer,
+    onModified: ContactsTransfer,
+    onDeleted: ContactsTransfer
+){
+    return db.collection('profiles')
+    .doc(profileId)
+    .collection('contacts')
+    .onSnapshot(getCollectionListener<Contact>(
+        onAdded,
+        onModified,
+        onDeleted,
+    ));
 }

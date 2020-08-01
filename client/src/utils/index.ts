@@ -23,3 +23,36 @@ export function arraysEqual<T>(a : T[], b : T[]) {
 export const isImage = (type ?: string)=>{
   return type?.includes('image') || false;
 }
+
+export function mergeObjectArrays<T,U>(src:T[],targets:U[],comp:(s:T,v:U)=>boolean){
+  return src.map(val=>{
+    const target = targets.find(t=>comp(val,t));
+    if(target){
+      return {
+        ...target,
+        ...val
+      } as (T&U)
+    }
+    return val as (T&U);
+  })
+}
+
+export function modifyArrays<T>(list:T[],modified:T[],key:keyof T){
+    return list.map(val=>{
+      const target = modified.find(m=>m[key] === val[key]);
+      if(target){
+          return target;
+      }
+      return val;
+  })
+}
+
+export function filterArrays<T>(list:T[],filtered:T[],key:keyof T){
+  return list.filter(val=>{
+      const target = filtered.find(f=>f[key] === val[key]);
+      if(target){
+          return false;
+      }
+      return true;
+  })
+}

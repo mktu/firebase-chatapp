@@ -50,6 +50,25 @@ export function createRoom(
         .catch(onFailed);
 }
 
+export function createContact(
+    senderProfileId: string,
+    receiverProfileId: string,
+    onSucceeded: (roomId:string)=>void,
+    onFailed: ErrorHandler = consoleError
+){
+    const createFn = ff.httpsCallable('createContact');
+    createFn({ senderProfileId, receiverProfileId })
+        .then(function(result) {
+            console.log('create success: ' + JSON.stringify(result));
+            const roomId = result.data as string;
+            onSucceeded && onSucceeded(roomId);
+        })
+        .catch(function(err) {
+            onFailed(err)
+        });
+
+}
+
 export function getRoomsBelongs(
     profileId: string,
     onSucceeded: RoomsTransfer,

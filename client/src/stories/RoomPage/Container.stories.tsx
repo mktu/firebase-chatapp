@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { action } from '@storybook/addon-actions';
 import RoomPage from '../../components/RoomPage';
-import ProfileContext, { initialState } from '../../contexts/ProfileContext';
+import ProfileContext, { initialState, ContactContext } from '../../contexts/ProfileContext';
 import ServiceContext, { createMock } from '../../contexts/ServiceContext';
 
 export default {
@@ -17,6 +17,13 @@ const Wrapper = styled.div`
 const Container: React.FC<{}> = () => {
 
     const profile = { id: 'u1', nickname: 'Third User', uid: 'uid1' };
+    const [contact,setContact] = useState({
+        id : 'u2',
+        uid: 'u2',
+        imageUrl : 'https://via.placeholder.com/200',
+        nickname : 'tetsuo',
+        state : true
+    })
 
     return (
         <ProfileContext.Provider value={{
@@ -30,35 +37,45 @@ const Container: React.FC<{}> = () => {
                 loading: () => { }
             }
         }}>
-            <ServiceContext.Provider value={{
-                ...createMock(action),
-                registRoomsListener: (onAdded) => {
-                    onAdded([
-                        { roomName: 'TestRoom1', id: 'test1', users: ['u1,u2,u3'], ownerId: 'u1' },
-                        { roomName: 'TestRoom2', id: 'test2', users: ['u1,u2,u3'], ownerId: 'u2' },
-                        { roomName: 'TestRoom3', id: 'test3', users: ['u1,u2,u3'], ownerId: 'u3' },
-                        { roomName: 'TestRoom4', id: 'test4', users: ['u1,u2,u3'], ownerId: 'u3' },
-                        { roomName: 'TestRoom5', id: 'test5', users: ['u1,u2,u3'], ownerId: 'u3' },
-                        { roomName: 'TestRoom6', id: 'test5', users: ['u1,u2,u3'], ownerId: 'u3' },
-                        { roomName: 'TestRoom7', id: 'test5', users: ['u1,u2,u3'], ownerId: 'u3' },
-                    ])
-                    return () => {
+            <ContactContext.Provider value={[contact]} >
+                <ServiceContext.Provider value={{
+                    ...createMock(action),
+                    createContact: (_, __, cb) => {
+                        setTimeout(() => {
+                            setContact(c=>({...c,roomId:'test6'}))
+                            cb('test6')
+                        }, 1000);
+                    },
+                    registRoomsListener: (onAdded) => {
+                        onAdded([
+                            { roomName: 'TestRoom1', id: 'test1', users: ['u1,u2,u3'], ownerId: 'u1' },
+                            { roomName: 'TestRoom2', id: 'test2', users: ['u1,u2,u3'], ownerId: 'u2' },
+                            { roomName: 'TestRoom3', id: 'test3', users: ['u1,u2,u3'], ownerId: 'u3' },
+                            { roomName: 'TestRoom4', id: 'test4', users: ['u1,u2,u3'], ownerId: 'u3' },
+                            { roomName: 'TestRoom5', id: 'test5', users: ['u1,u2,u3'], ownerId: 'u3' },
+                            { roomName: 'TestRoom6', id: 'test5', users: ['u1,u2,u3'], ownerId: 'u3' },
+                            { roomName: 'TestRoom7', id: 'test5', users: ['u1,u2,u3'], ownerId: 'u3' },
+                        ])
+                        return () => {
 
-                    }
-                },
-            }}>
-                <Wrapper>
-                    <RoomPage
-                        renderChatRoom={(room) => room.id==='test1' ? (
-                            <div>room</div>
-                        ) : <div/>}
-                        renderRequestRoom={() => (
-                            <div>request</div>
-                        )}
-                        handleLoadRoom={action('handleLoadRoom')}
-                    />
-                </Wrapper>
-            </ServiceContext.Provider>
+                        }
+                    },
+                }}>
+                    <Wrapper>
+                        <RoomPage
+                            renderChatRoom={(room) => room.id === 'test1' ? (
+                                <div>room</div>
+                            ) : <div />}
+                            renderRequestRoom={() => (
+                                <div>request</div>
+                            )}
+                            handleLoadRoom={action('handleLoadRoom')}
+                            handleLoadContactRoom={action('handleLoadContactRoom')}
+                        />
+                    </Wrapper>
+                </ServiceContext.Provider>
+            </ContactContext.Provider>
+
         </ProfileContext.Provider>
 
     )

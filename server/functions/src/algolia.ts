@@ -2,7 +2,7 @@ import { firestore, https, EventContext, Change, Response } from 'firebase-funct
 import algoliasearch from 'algoliasearch';
 import { Message } from '../../../types/message';
 import { Room } from '../../../types/room';
-import admin from './admin';
+import firebaseAdmin from './admin';
 
 type MessageIndex = Message & {
     objectID: string,
@@ -66,7 +66,7 @@ export const restoreFirestoreToAlgolia = async (req: https.Request, res: Respons
     try {
         await index.clearObjects();
 
-        const roomDocs = await admin.firestore()
+        const roomDocs = await firebaseAdmin.firestore()
             .collection('rooms')
             .get();
         roomDocs.forEach((doc) => {
@@ -76,7 +76,7 @@ export const restoreFirestoreToAlgolia = async (req: https.Request, res: Respons
         });
         await Promise.all(rooms.map(async (room) => {
             const mesages: MessageIndex[] = [];
-            const messageDocs = await admin.firestore()
+            const messageDocs = await firebaseAdmin.firestore()
                 .collection('rooms')
                 .doc(room.id)
                 .collection('messages')

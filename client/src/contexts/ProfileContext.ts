@@ -1,5 +1,5 @@
 import React from 'react';
-import {State, ContextType} from '../../../types/profile';
+import {State, ContextType, ContactProfile} from '../../../types/profile';
 
 export const initialState : State = {
     profile: null,
@@ -15,5 +15,7 @@ const ProfileContext = React.createContext<ContextType>({
         loading : ()=>{}
     }
 });
+
+export const ContactContext = React.createContext<ContactProfile[]>([])
 
 export default ProfileContext;

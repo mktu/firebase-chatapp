@@ -7,6 +7,14 @@ export type Profile = {
     imageUrl?: string
 };
 
+export type Contact = {
+    id: string,
+    state : boolean,
+    roomId ?: string
+};
+
+export type ContactProfile = Profile & Contact;
+
 export type Action = {
     type: string,
     payload?: {
@@ -34,3 +42,4 @@ export type Dispatch = (action : Action) => void;
 
 export type Transfer = DocumentTransfer<Profile>;
 export type ProfilesTransfer = CollectionTransfer<Profile>;
+export type ContactsTransfer = CollectionTransfer<Contact>;
