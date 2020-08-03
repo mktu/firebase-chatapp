@@ -3,6 +3,7 @@ import {
     createRoom,
     getRoom,
     registRoomsListener,
+    registRoomListener,
     modifyRoom,
     deleteRoomPermanently,
     createContact
@@ -15,7 +16,13 @@ import {
     getSavedToken, 
     getPermission
  } from '../services/notification';
-import { updateRequest, listenJoinRequests } from '../services/request';
+import { 
+    updateRequest, 
+    listenJoinRequests,
+    listenJoinRequestsByUser,
+    createRequest,
+    deleteRequest
+ } from '../services/request';
 import { logout } from '../services/auth';
 import { 
     modifyProfile, 
@@ -46,6 +53,7 @@ export const defaultServices = {
     createRoom,
     modifyRoom,
     registRoomsListener,
+    registRoomListener,
     deleteRoomPermanently,
     createContact,
     getRoom,
@@ -63,6 +71,9 @@ export const defaultServices = {
     // request
     updateRequest,
     listenJoinRequests,
+    listenJoinRequestsByUser,
+    createRequest,
+    deleteRequest,
     // profile
     getProfiles,
     getProfile,
@@ -90,6 +101,7 @@ export const createMock = (func: (name: string) => (...args: any[]) => void) => 
         modifyRoom: func('modifyRoom'),
         getRoom: func('getRoom'),
         registRoomsListener: () => {func('registRoomsListener')(); return ()=>{}},
+        registRoomListener: () => {func('registRoomListener')(); return ()=>{}},
         deleteRoomPermanently : func('deleteRoomPermanently'),
         createContact : func('createContact'),
         getMessage: func('getMessage'),
@@ -104,6 +116,9 @@ export const createMock = (func: (name: string) => (...args: any[]) => void) => 
         uploadMessageImage : ()=>{return new Promise<string>((resolve)=>{func('uploadMessageImage');resolve()})},
         updateRequest: func('updateRequest'),
         listenJoinRequests: () => {func('listenJoinRequests')(); return ()=>{}},
+        listenJoinRequestsByUser: () => {func('listenJoinRequestsByUser')(); return ()=>{}},
+        createRequest: func('createRequest'),
+        deleteRequest: func('deleteRequest'),
         getProfiles: func('getProfiles'),
         getProfile: func('getProfile'),
         modifyProfile: func('modifyProfile'),

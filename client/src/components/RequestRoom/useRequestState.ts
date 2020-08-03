@@ -1,10 +1,11 @@
 import { useContext } from 'react';
 import ProfileContext from '../../contexts/ProfileContext';
-import { createRequest, deleteRequest } from '../../services/request';
+import ServiceContext from '../../contexts/ServiceContext';
 import { Room } from '../../../../types/room';
 
 export default (room: Room) => {
     const { profileState } = useContext(ProfileContext);
+    const { createRequest, deleteRequest } = useContext(ServiceContext);
     const { profile } = profileState;
     const {id:roomId} = room;
 

@@ -1,7 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react';
 import RoomContext from '../../contexts/RoomContext';
+import ServiceContext from '../../contexts/ServiceContext';
+
 import LoadingPage from '../LoadingPage';
-import { getRoom, registRoomListener } from '../../services/room';
 import { Room } from '../../../../types/room';
 import { LoadingStatus } from '../../constants';
 
@@ -52,6 +53,7 @@ const DbLoader: React.FC<LoaderProps> = ({
 }) => {
     const [room, setRoom] = useState<Room>();
     const [status, setStatus] = useState<string>(LoadingStatus.Loading);
+    const { getRoom, registRoomListener } = useContext(ServiceContext);
 
     useEffect(() => {
         let unsubscribe: ReturnType<typeof registRoomListener> = () => { }; 
@@ -67,7 +69,7 @@ const DbLoader: React.FC<LoaderProps> = ({
         return ()=>{
             unsubscribe();
         }
-    }, [roomId,setStatus])
+    }, [roomId,setStatus,getRoom,registRoomListener])
 
     if (status === LoadingStatus.Loading) {
         return <LoadingPage message='loading room' />;

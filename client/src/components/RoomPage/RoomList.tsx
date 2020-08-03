@@ -16,7 +16,6 @@ type Props = {
     rooms: Room[],
     renderRoomListItem: (room: Room) => React.ReactElement,
     renderContactListItem: (contact: ContactProfile) => React.ReactElement,
-    className?: string,
     currentRoomId?: string
 };
 
@@ -39,8 +38,7 @@ const ListSubTitle = styled.div`
 `;
 
 const Wrapper = styled.div`
-    background-color : ${({ customtheme }: WrapperProps) => `${customtheme.primary.main}`};
-    color : ${({ customtheme }: WrapperProps) => `${customtheme.primary.text}`};
+    height : 100%;
     & > .menu-header{
         padding : ${({ theme }) => `${theme.spacing(1)}px ${theme.spacing(2)}px`};
         display : flex;
@@ -78,7 +76,6 @@ const AddButton = styled(Button)`
 `;
 
 export default ({
-    className,
     showDialog,
     rooms,
     renderRoomListItem,
@@ -98,7 +95,7 @@ export default ({
         }
     }, [setShowInactive, disabledRooms, currentRoomId]);
     return (
-        <Wrapper className={className} customtheme={customtheme}>
+        <Wrapper>
             <div className='menu-header'>
                 <div>
                     <AddButton color='secondary' variant='contained' onClick={showDialog}>

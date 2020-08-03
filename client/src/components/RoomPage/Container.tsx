@@ -11,44 +11,47 @@ import ServiceContext from '../../contexts/ServiceContext';
 
 export type Props = {
     renderChatRoom: (room: Room) => React.ReactElement,
-    renderRequestRoom: (roomId: string) => React.ReactElement,
+    requestRoom?: React.ReactElement,
     currentRoomId?: string,
     handleLoadRoom: (roomId: string) => void,
-    handleLoadContactRoom: (roomId: string) => void
+    handleLoadContactRoom: (roomId: string) => void,
+    handleRequest: (roomId: string) => void,
 };
 
 const Container: React.FC<Props> = ({
     currentRoomId,
     handleLoadRoom,
     renderChatRoom,
-    renderRequestRoom,
-    handleLoadContactRoom
+    requestRoom,
+    handleLoadContactRoom,
+    handleRequest
 }) => {
     const [showNewRoom, setShowNewRoom] = useState<boolean>(false);
     const [newRoomName, setNewRoomName] = useState<string>('');
     const [status, setStatus] = useState<LoadingStatusType>('loading');
-    const [error,setError] = useState<string>();
-    const [needRequest, setNeedRequest] = useState(false);
+    const [error, setError] = useState<string>();
     const { roomState, actions } = useContext(RoomContext);
     const { createRoom, registRoomsListener, createContact, getRoom } = useContext(ServiceContext);
     const { rooms } = roomState;
     const { profileState } = useContext(ProfileContext);
     const { profile } = profileState;
     const { id: profileId } = profile || {};
-    useEffect(()=>{
-        const hasRoom = Boolean(currentRoomId) && !Boolean(rooms.find(r => r.id === currentRoomId));
-        if(!hasRoom && currentRoomId && profileId){
-            getRoom(currentRoomId,(room)=>{
-                if(!room.users.includes(profileId)){
-                    setNeedRequest(true);
+    useEffect(() => {
+        const hasRoom = Boolean(currentRoomId) && Boolean(rooms.find(r => r.id === currentRoomId));
+        
+        if (!hasRoom && currentRoomId && profileId) {
+            getRoom(currentRoomId, (room) => {
+                console.log(room)
+                if (!room.users.includes(profileId)) {
+                    handleRequest(currentRoomId);
                 }
-            },(error)=>{
+            }, (error) => {
                 console.error(error)
                 setError(`Room not found`);
             })
         }
-    },[currentRoomId,getRoom, rooms, profileId])
-    
+    }, [currentRoomId, getRoom, rooms, profileId, handleRequest])
+
     useEffect(() => {
         let unsubscribe: ReturnType<typeof registRoomsListener> = () => { };
         if (profileId) {
@@ -88,18 +91,15 @@ const Container: React.FC<Props> = ({
             hideDialog();
         }
     }
-    if (needRequest && currentRoomId) {
-        return renderRequestRoom(currentRoomId);
-    }
     return (
         <React.Fragment>
             <Presenter
                 loading={status === 'loading'}
                 showRoom={Boolean(currentRoomId) && status === 'succeeded'}
                 error={error}
-                renderRoomList={(style) => (
+                request={requestRoom}
+                roomList={
                     <RoomList
-                        className={style}
                         showDialog={showDialog}
                         currentRoomId={currentRoomId}
                         renderRoomListItem={(room) => (
@@ -117,14 +117,14 @@ const Container: React.FC<Props> = ({
                                 key={contact.id}
                                 contact={contact}
                                 selected={contact.roomId === currentRoomId}
-                                handleSelectContact={({roomId})=>{
-                                    if(!roomId){
+                                handleSelectContact={({ roomId }) => {
+                                    if (!roomId) {
                                         setStatus('loading')
-                                        if(!profileId){
+                                        if (!profileId) {
                                             console.error('my profileId is undefined')
                                             return;
                                         }
-                                        createContact(profileId, contact.id, (roomId)=>{
+                                        createContact(profileId, contact.id, (roomId) => {
                                             setStatus('succeeded');
                                             handleLoadContactRoom(roomId);
                                         })
@@ -136,7 +136,7 @@ const Container: React.FC<Props> = ({
                         )}
                         rooms={rooms}
                     />
-                )}
+                }
                 chatrooms={<React.Fragment>
                     {rooms.map(r => renderChatRoom(r))}
                 </React.Fragment>}

@@ -1,15 +1,18 @@
 import React from 'react';
 import { Route, Redirect, useHistory, useRouteMatch, useLocation, RouteProps } from "react-router-dom";
 import RoomPage from '../RoomPage';
+import RequestRoom from '../RequestRoom';
 import ChatRoom from '../ChatRoom';
 
 const Target: React.FC = () => {
     const history = useHistory();
     const roomMatch = useRouteMatch<{ roomId: string }>('/rooms/:roomId');
     const contactRoomMatch = useRouteMatch<{ roomId: string }>('/rooms/contacts/:roomId');
+    const requestMatch = useRouteMatch<{ roomId: string }>('/rooms/requests/:roomId');
     const location = useLocation();
     const roomId = (roomMatch && roomMatch.isExact && roomMatch.params.roomId) || undefined;
     const contactRoomId = (contactRoomMatch && contactRoomMatch.isExact && contactRoomMatch.params.roomId) || undefined;
+    const requestId = (requestMatch && requestMatch.isExact && requestMatch.params.roomId) || undefined;
     const urlParams = new URLSearchParams(location.search);
     const messageId = urlParams.get('message') || undefined;
     const currentRoomId = contactRoomId || roomId;
@@ -20,24 +23,38 @@ const Target: React.FC = () => {
     return (
         <RoomPage
             currentRoomId={currentRoomId}
+            requestRoom={requestId ? (
+                <RequestRoom roomId={requestId} fallback={
+                    () => (
+                        <Redirect
+                            to={{
+                                pathname: `/rooms`
+                            }}
+                        />
+                    )
+                } accepted={
+                    <Redirect
+                        to={{
+                            pathname: `/rooms/${requestId}`
+                        }}
+                    />
+                } />
+            ): undefined}
             handleLoadRoom={(roomId) => {
                 history.replace(`/rooms/${roomId}`);
             }}
-            handleLoadContactRoom={(roomId)=>{
+            handleLoadContactRoom={(roomId) => {
                 history.replace(`/rooms/contacts/${roomId}`);
             }}
+            handleRequest={(roomId)=>{
+                history.replace(`/rooms/requests/${roomId}`);
+            }}
             renderChatRoom={(room) => (
-                <ChatRoom key={room.id} show={currentRoomId === room.id} room={room} focusMessageId={messageId} onClose={()=>{
+                <ChatRoom key={room.id} show={currentRoomId === room.id} room={room} focusMessageId={messageId} onClose={() => {
                     history.replace(`/rooms`);
-                }}/>
+                }} />
             )}
-            renderRequestRoom={(id) => (
-                <Redirect
-                    to={{
-                        pathname: `/requests/${id}`
-                    }}
-                />
-            )}
+            
         />);
 }
 

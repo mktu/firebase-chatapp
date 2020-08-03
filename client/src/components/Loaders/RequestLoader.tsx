@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import ProfileContext from '../../contexts/ProfileContext';
-import { listenJoinRequestsByUser } from '../../services/request';
+import ServiceContext from '../../contexts/ServiceContext';
 import { Room } from '../../../../types/room';
 import { JoinRequest } from '../../../../types/request';
 import { LoadingStatus } from '../../constants';
@@ -20,6 +20,7 @@ const RequestLoader: React.FC<Props> = ({
 }) => {
     const [status, setStatus] = useState<string>(LoadingStatus.Loading);
     const { profileState } = useContext(ProfileContext);
+    const { listenJoinRequestsByUser } = useContext(ServiceContext);
     const { profile } = profileState;
     const [request, setRequest] = useState<JoinRequest>();
     const {id : roomId} = room;
@@ -47,7 +48,7 @@ const RequestLoader: React.FC<Props> = ({
         return () => {
             unsubscribe();
         }
-    }, [profile, roomId]);
+    }, [profile, roomId, listenJoinRequestsByUser]);
 
     if (status === LoadingStatus.Loading) {
         return loading();

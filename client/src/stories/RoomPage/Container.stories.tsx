@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { action } from '@storybook/addon-actions';
 import RoomPage from '../../components/RoomPage';
+import RequestRoom from '../../components/RequestRoom';
 import ProfileContext, { initialState, ContactContext } from '../../contexts/ProfileContext';
 import ServiceContext, { createMock } from '../../contexts/ServiceContext';
 
@@ -14,15 +15,15 @@ const Wrapper = styled.div`
     height : 100vh;
 `;
 
-const Container: React.FC<{}> = () => {
+const Container: React.FC<{ requestId?: string }> = ({ requestId }) => {
 
     const profile = { id: 'u1', nickname: 'Third User', uid: 'uid1' };
-    const [contact,setContact] = useState({
-        id : 'u2',
+    const [contact, setContact] = useState({
+        id: 'u2',
         uid: 'u2',
-        imageUrl : 'https://via.placeholder.com/200',
-        nickname : 'tetsuo',
-        state : true
+        imageUrl: 'https://via.placeholder.com/200',
+        nickname: 'tetsuo',
+        state: true
     })
 
     return (
@@ -42,7 +43,7 @@ const Container: React.FC<{}> = () => {
                     ...createMock(action),
                     createContact: (_, __, cb) => {
                         setTimeout(() => {
-                            setContact(c=>({...c,roomId:'test6'}))
+                            setContact(c => ({ ...c, roomId: 'test6' }))
                             cb('test6')
                         }, 1000);
                     },
@@ -60,17 +61,46 @@ const Container: React.FC<{}> = () => {
 
                         }
                     },
+                    getRoom: (id, onSucceed) => {
+                        onSucceed({
+                            roomName: 'TestRoom8', id: 'test6', users: ['u4'], ownerId: 'u4'
+                        })
+                    },
+                    listenJoinRequestsByUser: (roomId, profileId, onAdded) => {
+                        onAdded([{
+                            status: 'requesting',
+                            profileId: 'u2',
+                            nickName: 'tetsuo',
+                            date: Date.now(),
+                            id: '1234'
+                        }])
+
+                        return () => {
+
+                        }
+                    }
                 }}>
                     <Wrapper>
                         <RoomPage
-                            renderChatRoom={(room) => room.id === 'test1' ? (
+                            renderChatRoom={(room) => (room.id === 'test1' && !requestId) ? (
                                 <div>room</div>
                             ) : <div />}
-                            renderRequestRoom={() => (
-                                <div>request</div>
-                            )}
                             handleLoadRoom={action('handleLoadRoom')}
                             handleLoadContactRoom={action('handleLoadContactRoom')}
+                            handleRequest={action('handleRequest')}
+                            requestRoom={requestId ? (
+                                <RequestRoom roomId={requestId} fallback={
+                                    () => (
+                                        <div>
+                                            fallback
+                                        </div>
+                                    )
+                                } accepted={
+                                    <div>
+                                        accepted
+                                    </div>
+                                } />
+                            ) : undefined}
                         />
                     </Wrapper>
                 </ServiceContext.Provider>
@@ -82,3 +112,4 @@ const Container: React.FC<{}> = () => {
 }
 
 export const Default = () => <Container />;
+export const Request = () => <Container requestId={'test6'} />;
