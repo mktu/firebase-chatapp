@@ -1,7 +1,8 @@
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 import { RequestsLoader } from '../Loader';
 import { ChatroomContext } from '../ChatroomContext';
-import Container from './Container';
+import Default from './Default';
+import Contact from './Contact';
 
 type Props = {
     owner: boolean,
@@ -10,10 +11,18 @@ type Props = {
 
 const Entry: React.FC<Props> = (props) => {
     const room = useContext(ChatroomContext);
+    if (room.contact) {
+        return (
+            <Contact
+                className={props.className}
+                room={room}
+            />
+        )
+    }
     return (
         <RequestsLoader room={room}>
             {(requests) => (
-                <Container
+                <Default
                     room={room}
                     requests={requests}
                     {...props}

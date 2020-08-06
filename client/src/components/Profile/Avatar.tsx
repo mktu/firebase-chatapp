@@ -52,8 +52,16 @@ const Wrapper = styled.div`
 
 const AvatarImg = styled.img`
     width : 200px;
-	height : 200px;
+    height : auto;
+`;
+
+const AvatarWrapper = styled.div`
+    width : 200px;
+    height : 200px;
     border-radius : 50%;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
 `;
 
 type Pos = {
@@ -108,9 +116,11 @@ const Avatar: React.FC<Props> = ({
         }}>
             <input {...dropZoneInputProps} />
             <div className='avatar-wrapper'>
-                <AvatarImg alt='Avatar image' src={imgUrl || 'https://via.placeholder.com/200?text=200+x+200+image'} ref={(elm) => {
-                    elm && setElement(elm);
-                }} width='200' height='200' />
+                <AvatarWrapper ref={(elm) => {
+                        elm && setElement(elm);
+                    }} >
+                    <AvatarImg alt='Avatar image' src={imgUrl || 'https://via.placeholder.com/200?text=200+x+200+image'} />
+                </AvatarWrapper>
                 <div className='support-text'>
                     <GetAppIcon />
                     <Typography variant='subtitle1' color='inherit'>DROP IMAGE HERE</Typography>

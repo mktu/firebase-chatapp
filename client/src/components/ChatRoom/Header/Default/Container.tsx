@@ -1,14 +1,14 @@
 import React, { useState, useContext } from 'react';
-import { Room, JoinRequest } from '../../../../../types/room';
-import { Profile } from '../../../../../types/profile';
-import { UsersContext, MyProfileContext } from '../ChatroomContext';
-import { ServiceContext } from '../../../contexts';
-import SettingDialog from './SettingDialog';
+import { Room, JoinRequest } from '../../../../../../types/room';
+import { Profile } from '../../../../../../types/profile';
+import { UsersContext, MyProfileContext } from '../../ChatroomContext';
+import { ServiceContext } from '../../../../contexts';
+import SettingDialog from '../SettingDialog';
 import HeaderPresenter from './Presenter';
-import ShareLinkPortal from './ShareLinkPortal';
-import RequestsPortal from './RequestsPortal';
-import { UserProfileContainer, UserProfileDialog } from './UserProfileDialog';
-import Avatars from './Avatars';
+import ShareLinkPortal from '../ShareLinkPortal';
+import RequestsPortal from '../RequestsPortal';
+import { UserProfileContainer, UserProfileDialog } from '../UserProfileDialog';
+import Avatars from '../Avatars';
 
 type Props = {
     room: Room,
