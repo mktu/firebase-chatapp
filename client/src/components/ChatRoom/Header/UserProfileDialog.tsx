@@ -3,77 +3,93 @@ import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import AddIcon from '@material-ui/icons/Add';
-import Tooltip from '@material-ui/core/Tooltip';
-import Fab from '@material-ui/core/Fab';
+import Button from '@material-ui/core/Button';
 import { Profile } from '../../../../../types/profile';
 
 const ContentWrapper = styled(DialogContent)`
-    box-sizing: border-box;
-    display : flex;
-    flex-direction : column;
-    align-items : center;
-    justify-content : space-between;
-    width : 100%;
-    & >.profile-image{
-        width : 100%;
-        padding : 1em;
-        background-color : ${({ theme }) => `${theme.palette.grey[200]}`};
-        border-radius : 5px;
+    padding : ${({ theme }) => `${theme.spacing(2)}px`};
+    > .main {
+        display : flex;
+        justify-content : center;
+        
     }
-    & >.profile-main{
-        padding : ${({ theme }) => `${theme.spacing(1)}px`};
+    > .footer{
         display : flex;
         align-items : center;
-        width : 100%;
-        >.actions{
-            margin-left : auto;
-        }
+        justify-content : center;
     }
 `;
 
-const ProfileImage = styled.img`
+const Description = styled.div`
+    > .add-to-contact{
+        margin-top : ${({ theme }) => `${theme.spacing(1)}px`};
+    }
+`;
+
+const ProfileWrapper = styled.div`
     width : 150px;
     height : 150px;
     border-radius : 50%;
-    background-color : white;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    margin-right : ${({ theme }) => `${theme.spacing(4)}px`};
+`;
+const ProfileImage = styled.img`
+    width : 150px;
+    height : auto;
 `;
 
 type Props = {
     profile?: Profile
     className?: string,
-    onAddToContact : ()=>void
+    onAddToContact: () => void,
+    onClose: () => void,
+    state: 'addable' | 'disabled' | 'removable'
 }
 
 function UserProfileContainer({
     profile,
     className,
-    onAddToContact
+    onAddToContact,
+    onClose,
+    state
 }: Props) {
     return profile ? (
         <div className={className} >
-            <DialogTitle>{profile.nickname}</DialogTitle>
             <ContentWrapper>
-                <div className='profile-image'>
-                    <ProfileImage src={profile.imageUrl || `https://via.placeholder.com/200?text=${profile.nickname}`} width='150' height='150' />
-                </div>
-                <div className='profile-main'>
-                    <div>
-                        <Typography variant='h5'>
-                            {profile.nickname}
-                        </Typography>
-                    </div>
-                    <div className='actions'>
-                        <Tooltip title='Add to Contact'>
-                            <Fab color='primary' onClick={()=>{
-                                onAddToContact();
-                            }}><AddIcon /></Fab>
-                        </Tooltip>
-                    </div>
-                </div>
-                <div className='description'>
+                <div className='main'>
+                    <ProfileWrapper>
+                        <ProfileImage src={profile.imageUrl || `https://via.placeholder.com/200?text=${profile.nickname}`} />
+                    </ProfileWrapper>
+                    <Description>
+                        <Typography variant='h5'> {profile.nickname} </Typography>
+                        <Typography variant='subtitle1'> ID : {profile.uid} </Typography>
+                        {
+                            state === 'removable' ? (
+                                <Button className='add-to-contact' color='secondary' variant='outlined' onClick={onAddToContact}>
+                                    REMOVE FROM CONTACT
+                                </Button>
+                            ) : state === 'addable' ? (
+                                <Button className='add-to-contact' color='secondary' variant='contained' onClick={onAddToContact}>
+                                    ADD TO CONTACT
+                                </Button>
+                            ) : (
+                                <Button disabled className='add-to-contact' color='secondary' variant='contained' onClick={onAddToContact}>
+                                    ADD TO CONTACT
+                                </Button>
+                            )
+                        }
 
+                    </Description>
+                </div>
+                <div className='comment'>
+
+                </div>
+                <div className='footer'>
+                    <Button variant='contained' onClick={onClose}>
+                        CLOSE
+                    </Button>
                 </div>
             </ContentWrapper>
 

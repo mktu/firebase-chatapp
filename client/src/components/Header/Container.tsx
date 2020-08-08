@@ -4,6 +4,7 @@ import { useHistory } from "react-router-dom";
 import {ProfileContext, ServiceContext} from '../../contexts';
 import SearchBox from './SearchBox';
 import Presenter from './Presenter';
+import User from './User';
 
 const Container: React.FC<{}> = () => {
     const { profileState, actions } = useContext(ProfileContext);
@@ -29,9 +30,13 @@ const Container: React.FC<{}> = () => {
         profile={profile}
         onClickApp={handleJumpToRoot}
         handleLogout={handleLogout}
-        jumpToProfile={jumpToProfile}
         searchBox={
             <SearchBox className='search-box' handleSubmit={handleSubmit} />
+        }
+        user={
+            <User onClick={jumpToProfile} imageUrl={profile?.imageUrl} nickName={profile ? profile.nickname : ''}>
+                {profile ? profile.nickname[0] : ''}
+            </User>
         }
     />
 }

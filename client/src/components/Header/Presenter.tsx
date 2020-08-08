@@ -4,7 +4,6 @@ import AppBar from '@material-ui/core/AppBar';
 import ToolbarBase from '@material-ui/core/Toolbar';
 import Button from '@material-ui/core/Button';
 import ButtonBase from '@material-ui/core/ButtonBase';
-import { Person } from '@material-ui/icons';
 
 const Toolbar = styled(ToolbarBase)`
     & > :last-child{
@@ -38,15 +37,15 @@ function Presenter<T extends {
 }>({
     profile,
     handleLogout,
-    jumpToProfile,
     onClickApp,
-    searchBox
+    searchBox,
+    user
 }: {
     profile: T | null,
     handleLogout: () => void,
-    jumpToProfile: () => void,
-    onClickApp : ()=>void,
-    searchBox : React.ReactElement
+    onClickApp: () => void,
+    searchBox: React.ReactElement,
+    user: React.ReactElement
 }) {
     return (
         <AppBar position="static">
@@ -58,10 +57,7 @@ function Presenter<T extends {
                 <div>
                     {profile && (
                         <LoginMenu>
-                            <Button color='inherit' onClick={jumpToProfile} className='login-button'>
-                                <Person className='login-button-icon' />
-                                {profile.nickname}
-                            </Button>
+                            {user}
                             <Button color='inherit' onClick={handleLogout}>LOG OUT</Button>
                         </LoginMenu>
                     )}
