@@ -64,7 +64,7 @@ function UserProfileContainer({
                     </ProfileWrapper>
                     <Description>
                         <Typography variant='h5'> {profile.nickname} </Typography>
-                        <Typography variant='subtitle1'> ID : {profile.uid} </Typography>
+                        <Typography variant='subtitle1'> ID : {profile.id} </Typography>
                         {
                             state === 'removable' ? (
                                 <Button className='add-to-contact' color='secondary' variant='outlined' onClick={onAddToContact}>

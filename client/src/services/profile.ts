@@ -63,6 +63,27 @@ export function listenProfiles(
         ));
 }
 
+export function searchProfileById(
+    profileId : string,
+    onSucceeded: Transfer,
+    onFailed: ErrorHandler = consoleError
+){
+    db.collection('profiles')
+    .doc(profileId)
+    .get()
+    .then((doc)=>{
+        if(doc.exists){
+            const data = {
+                id : doc.id,
+                ...doc.data()
+            } as Profile;
+            onSucceeded(data);
+        }else{
+            onFailed(Error('User not found.'))
+        }
+    })
+    .catch(onFailed)
+}
 
 export function getProfile(
     user: User,

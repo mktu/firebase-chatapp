@@ -6,7 +6,7 @@ import { ServiceContext } from '../../../../contexts';
 import { ContactContext } from '../../../../contexts/ProfileContext';
 import SettingDialog from '../SettingDialog';
 import HeaderPresenter from './Presenter';
-import ShareLinkPortal from '../ShareLinkPortal';
+import { ShareLinkContainer, ShareLinkPortalPopover } from '../ShareLinkPortal';
 import RequestsPortal from '../RequestsPortal';
 import { UserProfileContainer, UserProfileDialog } from '../UserProfileDialog';
 import Avatars from '../Avatars';
@@ -25,7 +25,7 @@ const HeaderContainer: React.FC<Props> = ({
     requests,
 }) => {
     const profiles = useContext(UsersContext);
-    const {id : myProfileId} = useContext(MyProfileContext);
+    const { id: myProfileId } = useContext(MyProfileContext);
     const contacts = useContext(ContactContext);
     const { modifyRoom, updateRequest, addContact } = useContext(ServiceContext);
     const [sharePortalAnchor, setSharePortalAnchor] = useState<HTMLButtonElement | null>(null);
@@ -95,13 +95,19 @@ const HeaderContainer: React.FC<Props> = ({
                     setShowSetting(false);
                 }}
             />
-            <ShareLinkPortal
-                link={loc}
+            <ShareLinkPortalPopover
                 anchor={sharePortalAnchor}
                 onClose={() => {
                     setSharePortalAnchor(null);
                 }}
-            />
+            >
+                <ShareLinkContainer
+                    link={loc}
+                    onClose={() => {
+                        setSharePortalAnchor(null);
+                    }}
+                />
+            </ShareLinkPortalPopover>
             <UserProfileDialog
                 show={Boolean(userProfile)}
                 onClose={() => {
@@ -111,11 +117,11 @@ const HeaderContainer: React.FC<Props> = ({
                 <UserProfileContainer
                     profile={userProfile}
                     state={
-                        Boolean(contacts.find(c=>c.id===userProfile?.id)) ? 'removable' : 
-                        myProfileId !== userProfile?.id ? 'addable' : 'disabled'
+                        Boolean(contacts.find(c => c.id === userProfile?.id)) ? 'removable' :
+                            myProfileId !== userProfile?.id ? 'addable' : 'disabled'
                     }
-                    onAddToContact={()=>{
-                        userProfile && addContact(myProfileId, userProfile.id, ()=>{
+                    onAddToContact={() => {
+                        userProfile && addContact(myProfileId, userProfile.id, () => {
                             console.log('succeeded')
                         });
                     }}
