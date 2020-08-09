@@ -64,6 +64,7 @@ const UpdateProfilePage: React.FC<{
             <Presenter
                 title='EDIT PROFILE'
                 className={className}
+                id={profile?.id}
                 onChangeNickname={(e) => {
                     setNickname(e.target.value);
                 }}

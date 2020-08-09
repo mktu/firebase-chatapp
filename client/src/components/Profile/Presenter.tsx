@@ -29,6 +29,9 @@ const Paper = styled(PaperBase)`
     & > .content > .notification {
         margin-top : 1rem;
     }
+    & > .content > .text{
+        margin-bottom : ${({ theme }) => `${theme.spacing(1)}px`};
+    }
     & > .submit-actions{
         display : flex;
         justify-content : flex-end;
@@ -44,6 +47,7 @@ type Props = {
     avatar: React.ReactElement,
     onSubmit: () => void,
     title: string,
+    id?: string
     className?: string,
 }
 
@@ -55,6 +59,7 @@ const Presenter: React.FC<Props> = ({
     onChangeNickname,
     nickname,
     className,
+    id,
     title
 }) => {
     return (
@@ -65,9 +70,10 @@ const Presenter: React.FC<Props> = ({
                 </div>
                 <Divider />
                 {avatar}
-                <Divider/>
+                <Divider />
                 <div className='content'>
-                    <TextField onChange={onChangeNickname} value={nickname} required fullWidth label="Nick Name" />
+                    <TextField className='text' disabled value={id} fullWidth label="ID" />
+                    <TextField className='text' onChange={onChangeNickname} value={nickname} required fullWidth label="Nick Name" />
                     {notification}
                 </div>
                 <div className='submit-actions'>
