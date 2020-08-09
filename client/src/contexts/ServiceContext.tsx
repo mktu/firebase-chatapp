@@ -34,7 +34,8 @@ import {
     listenProfile,
     listenProfiles,
     listenContacts,
-    addContact
+    addContact,
+    blockContact
 } from '../services/profile';
 import {
     registMessagesListener,
@@ -83,6 +84,7 @@ export const defaultServices = {
     searchProfileById,
     uploadProfileImage,
     addContact,
+    blockContact,
     listenProfile,
     listenProfiles,
     listenContacts,
@@ -128,6 +130,7 @@ export const createMock = (func: (name: string) => (...args: any[]) => void) => 
         addProfile : func('addProfile'),
         deleteToken : func('deleteToken'),
         addContact : func('addContact'),
+        blockContact : func('blockContact'),
         listenProfile : ()=>{func('listenProfile')(); return ()=>{}},
         listenProfiles : ()=>{func('listenProfiles')(); return ()=>{}},
         listenContacts : ()=>{func('listenContacts')(); return ()=>{}},

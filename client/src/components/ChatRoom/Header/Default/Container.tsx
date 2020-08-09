@@ -1,9 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { Room, JoinRequest } from '../../../../../../types/room';
 import { Profile } from '../../../../../../types/profile';
-import { UsersContext, MyProfileContext } from '../../ChatroomContext';
+import { UsersContext } from '../../ChatroomContext';
 import { ServiceContext } from '../../../../contexts';
-import { ContactContext } from '../../../../contexts/ProfileContext';
 import SettingDialog from '../SettingDialog';
 import HeaderPresenter from './Presenter';
 import { ShareLinkContainer, ShareLinkPortalPopover } from '../ShareLinkPortal';
@@ -25,9 +24,7 @@ const HeaderContainer: React.FC<Props> = ({
     requests,
 }) => {
     const profiles = useContext(UsersContext);
-    const { id: myProfileId } = useContext(MyProfileContext);
-    const contacts = useContext(ContactContext);
-    const { modifyRoom, updateRequest, addContact } = useContext(ServiceContext);
+    const { modifyRoom, updateRequest } = useContext(ServiceContext);
     const [sharePortalAnchor, setSharePortalAnchor] = useState<HTMLButtonElement | null>(null);
     const [requestsPortalAnchor, setRequestsPortalAnchor] = useState<HTMLButtonElement | null>(null);
     const [showSetting, setShowSetting] = useState(false);
@@ -116,15 +113,6 @@ const HeaderContainer: React.FC<Props> = ({
             >
                 <UserProfileContainer
                     profile={userProfile}
-                    state={
-                        Boolean(contacts.find(c => c.id === userProfile?.id)) ? 'removable' :
-                            myProfileId !== userProfile?.id ? 'addable' : 'disabled'
-                    }
-                    onAddToContact={() => {
-                        userProfile && addContact(myProfileId, userProfile.id, () => {
-                            console.log('succeeded')
-                        });
-                    }}
                     onClose={() => {
                         setUserProfile(undefined);
                     }}

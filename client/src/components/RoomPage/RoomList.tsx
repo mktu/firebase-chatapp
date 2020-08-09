@@ -131,7 +131,7 @@ export default ({
                         }}>{`Contacts (${contacts.length})`}<StyledExpandIcon expand={showContacts.toString()} /></ButtonBase>
                     </ListSubTitle>
                     <List>
-                        {showContacts && contacts.map(renderContactListItem)}
+                        {showContacts && contacts.filter(c=>c.enable).map(renderContactListItem)}
                     </List>
                 </div>
             </div>

@@ -134,7 +134,39 @@ export const activateContact = https.onCall(async (data, context) => {
       })
     }
   }
-  batch.update(roomDoc, {users: room.contact})
+  batch.update(roomDoc, {users: room.contact, initContact : true})
+  await batch.commit();
+})
+
+export const blockContact = https.onCall(async (data, context) => {
+  const {
+    roomId,
+    callerProfileId,
+    blockProfileId
+  } = data as {
+    roomId: string,
+    callerProfileId: string,
+    blockProfileId: string
+  }
+
+  const roomDoc = firebaseAdmin.firestore().collection('rooms').doc(roomId);
+  const contactDoc = firebaseAdmin.firestore().collection('profiles').doc(callerProfileId).collection('contacts').doc(blockProfileId);
+
+  const room = (await roomDoc.get()).data() as Room;
+  if (!room.contact) {
+    throw new https.HttpsError(
+      'failed-precondition',
+      'The selected room isn not contact room',
+      `room id is ${roomId}.`
+    );
+  }
+  const batch = firebaseAdmin.firestore().batch();
+  batch.update(contactDoc, {
+    enable : false
+  })
+  batch.update(roomDoc, {
+    users : room.users.filter(pId=>pId!==callerProfileId)
+  })
   await batch.commit();
 })
 

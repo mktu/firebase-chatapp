@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
+import { MyProfileContext } from '../ChatroomContext';
+import { ContactContext } from '../../../contexts/ProfileContext';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
+import { ServiceContext } from '../../../contexts';
 import Button from '@material-ui/core/Button';
+import { Spin1s200pxIcon } from '../../Icons';
+
 import { Profile } from '../../../../../types/profile';
 
 const ContentWrapper = styled(DialogContent)`
@@ -21,10 +26,23 @@ const ContentWrapper = styled(DialogContent)`
 `;
 
 const Description = styled.div`
-    > .add-to-contact{
-        margin-top : ${({ theme }) => `${theme.spacing(1)}px`};
+    > .actions{
+        display : flex;
+        align-items : center;
+        > .button{
+            margin-top : ${({ theme }) => `${theme.spacing(1)}px`};
+        }
+        > .loading{
+            margin-left : ${({ theme }) => `${theme.spacing(1)}px`};
+        }
+        
+    }
+    > .error{
+        color:${({ theme }) => `${theme.palette.error.main}`};
+        padding : ${({ theme }) => `${theme.spacing(1)}px`};
     }
 `;
+
 
 const ProfileWrapper = styled.div`
     width : 150px;
@@ -41,20 +59,28 @@ const ProfileImage = styled.img`
 `;
 
 type Props = {
-    profile?: Profile
+    profile?: Profile,
     className?: string,
-    onAddToContact: () => void,
     onClose: () => void,
-    state: 'addable' | 'disabled' | 'removable'
 }
 
 function UserProfileContainer({
     profile,
     className,
-    onAddToContact,
     onClose,
-    state
 }: Props) {
+    const { id: myProfileId } = useContext(MyProfileContext);
+    const contacts = useContext(ContactContext);
+    const contact = contacts.find(c => c.id === profile?.id);
+    const { addContact, blockContact } = useContext(ServiceContext);
+    const state: 'addable' | 'disabled' | 'removable' | 'reactivatable' =
+        contact ?
+            contact.enable ?
+                'removable' : 'reactivatable' :
+            myProfileId !== profile?.id ? 'addable' : 'disabled';
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<Error>();
+
     return profile ? (
         <div className={className} >
             <ContentWrapper>
@@ -65,21 +91,60 @@ function UserProfileContainer({
                     <Description>
                         <Typography variant='h5'> {profile.nickname} </Typography>
                         <Typography variant='subtitle1'> ID : {profile.id} </Typography>
-                        {
-                            state === 'removable' ? (
-                                <Button className='add-to-contact' color='secondary' variant='outlined' onClick={onAddToContact}>
-                                    REMOVE FROM CONTACT
-                                </Button>
-                            ) : state === 'addable' ? (
-                                <Button className='add-to-contact' color='secondary' variant='contained' onClick={onAddToContact}>
-                                    ADD TO CONTACT
-                                </Button>
-                            ) : (
-                                <Button disabled className='add-to-contact' color='secondary' variant='contained' onClick={onAddToContact}>
-                                    ADD TO CONTACT
-                                </Button>
-                            )
-                        }
+                        <div className='actions'>
+                            <div className='button'>
+                                {
+                                    state === 'removable' ? (
+                                        <Button color='secondary' variant='outlined' onClick={() => {
+                                            contact?.roomId && blockContact(myProfileId, profile.id, contact.roomId, () => {
+                                                setLoading(false);
+                                                setError(undefined);
+                                            }, (e) => {
+                                                setError(e);
+                                                setLoading(false);
+                                            })
+                                            setLoading(true);
+                                        }}>
+                                            BLOCK CONTACT
+                                        </Button>
+                                    ) : state === 'addable' ? (
+                                        <Button color='secondary' variant='contained' onClick={() => {
+                                            addContact(myProfileId, profile.id, () => {
+                                                setLoading(false);
+                                                setError(undefined);
+                                            }, (e) => {
+                                                setError(e);
+                                                setLoading(false);
+                                            });
+                                            setLoading(true);
+                                        }}>
+                                            ADD TO CONTACT
+                                        </Button>
+                                    ) : state === 'reactivatable' ? (
+                                        <Button color='secondary' variant='outlined' onClick={() => {
+                                            
+                                        }}>
+                                            RELEASE BLOCK
+                                        </Button>
+                                    ) : (
+                                                    <Button disabled color='secondary' variant='contained' >
+                                                        ADD TO CONTACT
+                                                    </Button>
+                                                )
+                                }
+                            </div>
+                            {loading && (
+                                <div className='loading'>
+                                    <Spin1s200pxIcon width='50' />
+                                </div>
+                            )}
+
+                        </div>
+                        {error && (
+                            <div className='error'>
+                                {error.message}
+                            </div>
+                        )}
 
                     </Description>
                 </div>

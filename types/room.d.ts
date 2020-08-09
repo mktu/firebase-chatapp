@@ -5,7 +5,8 @@ export type Room = {
     ownerId : string,
     users : string[],
     disabled?:boolean,
-    contact?:string[]
+    contact?:string[],
+    initContact?:boolean,
     id : string
 };
 

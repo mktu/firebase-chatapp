@@ -6,6 +6,7 @@ import { consoleError, ErrorHandler } from '../utils';
 
 const db = firebase.firestore();
 const storageRef = firebase.storage().ref();
+const ff = firebase.functions();
 
 export function addProfile(
     nickname: string,
@@ -191,6 +192,21 @@ export function addContact(
             enable : true
         }, { merge: true })
         .then(onSucceeded)
+        .catch(onFailed);
+}
+
+export function blockContact(
+    callerProfileId: string,
+    blockProfileId: string,
+    roomId:string,
+    onSucceeded?: () => void,
+    onFailed?: ErrorHandler
+){
+    const createFn = ff.httpsCallable('blockContact');
+    createFn({ callerProfileId, blockProfileId, roomId })
+        .then(function() {
+            onSucceeded && onSucceeded();
+        })
         .catch(onFailed);
 }
 

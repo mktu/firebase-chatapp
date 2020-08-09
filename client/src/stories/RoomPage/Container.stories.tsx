@@ -23,7 +23,7 @@ const Container: React.FC<{ requestId?: string }> = ({ requestId }) => {
         uid: 'u2',
         imageUrl: 'https://via.placeholder.com/200',
         nickname: 'tetsuo',
-        state: true
+        enable: true
     })
 
     return (

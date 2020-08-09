@@ -9,7 +9,7 @@ export type Profile = {
 
 export type Contact = {
     id: string,
-    state : boolean,
+    enable : boolean,
     roomId ?: string
 };
 

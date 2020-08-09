@@ -22,8 +22,8 @@ const Container = ({
 }: Props) => {
     const { dropZoneInputProps, dropZoneProps, fileUrls, clearFiles, files } = useDropMultiFileState();
     const profiles  = useContext(UsersContext);
-    const {id : roomId, contact, users }  = useContext(ChatroomContext);
-    const initMessage = contact ? contact.length !==users.length : false;
+    const {id : roomId, contact, initContact }  = useContext(ChatroomContext);
+    const shouldInitContact = contact ? !Boolean(initContact) : false;
     const {id : senderId, nickname : senderName}  = useContext(MyProfileContext);
     const { createMessage } = useContext(ServiceContext)
     const {
@@ -55,11 +55,11 @@ const Container = ({
                 senderName,
                 message:inputMessage,
                 mentions,
-                initMessage
+                initContact: shouldInitContact
             });
             clearInput();
         }
-    }, [inputMessage, senderId, senderName, roomId, clearInput, createMessage, mentions, initMessage])
+    }, [inputMessage, senderId, senderName, roomId, clearInput, createMessage, mentions, shouldInitContact])
 
     const onKeyPress = useCallback((key: KeyEvent) => {
         if (key === 'CtrlEnter') {
@@ -121,7 +121,7 @@ const Container = ({
                             message,
                             mentions,
                             images,
-                            initMessage
+                            initContact: shouldInitContact
                         });
                         clearInput();
                         clearFiles();

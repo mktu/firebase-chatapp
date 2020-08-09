@@ -200,7 +200,7 @@ export function createMessage(
         images,
         onSucceeded,
         onFailed = consoleError,
-        initMessage = false
+        initContact = false
     }:
         {
             roomId: string,
@@ -211,7 +211,7 @@ export function createMessage(
             images?: MessageImage[],
             onSucceeded?: Notifier,
             onFailed?: ErrorHandler,
-            initMessage?: boolean
+            initContact?: boolean
         }
 ) {
     db.collection('rooms')
@@ -227,7 +227,7 @@ export function createMessage(
             date: Date.now()
         })
         .then(() => {
-            if (initMessage) {
+            if (initContact) {
                 const createFn = ff.httpsCallable('activateContact');
                 createFn({ roomId })
                     .then(function () {

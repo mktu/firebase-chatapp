@@ -41,10 +41,6 @@ const HeaderContainer: React.FC<Props> = ({
             >
                 <UserProfileContainer
                     profile={userProfile}
-                    state={'removable'}
-                    onAddToContact={()=>{
-                        
-                    }}
                     onClose={() => {
                         setUserProfile(undefined);
                     }}
