@@ -16,6 +16,7 @@ export type Props = {
     handleLoadRoom: (roomId: string) => void,
     handleLoadContactRoom: (roomId: string) => void,
     handleRequest: (roomId: string) => void,
+    handleRemovedContact: (roomId: string)=>void
 };
 
 const Container: React.FC<Props> = ({
@@ -24,7 +25,8 @@ const Container: React.FC<Props> = ({
     renderChatRoom,
     requestRoom,
     handleLoadContactRoom,
-    handleRequest
+    handleRequest,
+    handleRemovedContact
 }) => {
     const [showNewRoom, setShowNewRoom] = useState<boolean>(false);
     const [newRoomName, setNewRoomName] = useState<string>('');
@@ -41,8 +43,10 @@ const Container: React.FC<Props> = ({
         
         if (!hasRoom && currentRoomId && profileId) {
             getRoom(currentRoomId, (room) => {
-                console.log(room)
-                if (!room.users.includes(profileId)) {
+                if(room.contact && !room.users.includes(profileId)){
+                    handleRemovedContact(currentRoomId);
+                }
+                else if (!room.users.includes(profileId)) {
                     handleRequest(currentRoomId);
                 }
             }, (error) => {
@@ -50,7 +54,7 @@ const Container: React.FC<Props> = ({
                 setError(`Room not found`);
             })
         }
-    }, [currentRoomId, getRoom, rooms, profileId, handleRequest])
+    }, [currentRoomId, getRoom, rooms, profileId, handleRequest,handleRemovedContact])
 
     useEffect(() => {
         let unsubscribe: ReturnType<typeof registRoomsListener> = () => { };

@@ -210,6 +210,21 @@ export function blockContact(
         .catch(onFailed);
 }
 
+export function unblockContact(
+    callerProfileId: string,
+    blockProfileId: string,
+    roomId:string,
+    onSucceeded?: () => void,
+    onFailed?: ErrorHandler
+){
+    const createFn = ff.httpsCallable('unblockContact');
+    createFn({ callerProfileId, blockProfileId, roomId })
+        .then(function() {
+            onSucceeded && onSucceeded();
+        })
+        .catch(onFailed);
+}
+
 export function listenContacts(
     profileId: string,
     onAdded:ContactsTransfer,

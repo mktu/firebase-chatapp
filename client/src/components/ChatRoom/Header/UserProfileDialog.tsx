@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import { MyProfileContext } from '../ChatroomContext';
@@ -72,7 +72,7 @@ function UserProfileContainer({
     const { id: myProfileId } = useContext(MyProfileContext);
     const contacts = useContext(ContactContext);
     const contact = contacts.find(c => c.id === profile?.id);
-    const { addContact, blockContact } = useContext(ServiceContext);
+    const { addContact, blockContact, unblockContact } = useContext(ServiceContext);
     const state: 'addable' | 'disabled' | 'removable' | 'reactivatable' =
         contact ?
             contact.enable ?
@@ -80,6 +80,14 @@ function UserProfileContainer({
             myProfileId !== profile?.id ? 'addable' : 'disabled';
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Error>();
+    const unmountRef = useRef<{unmounted:boolean}>({unmounted:false});
+    
+    useEffect(()=>{
+        unmountRef.current = {unmounted : false};
+        return ()=>{
+            unmountRef.current = {unmounted : true};
+        }
+    },[unmountRef])
 
     return profile ? (
         <div className={className} >
@@ -97,6 +105,7 @@ function UserProfileContainer({
                                     state === 'removable' ? (
                                         <Button color='secondary' variant='outlined' onClick={() => {
                                             contact?.roomId && blockContact(myProfileId, profile.id, contact.roomId, () => {
+                                                if(unmountRef.current.unmounted) return;
                                                 setLoading(false);
                                                 setError(undefined);
                                             }, (e) => {
@@ -122,9 +131,16 @@ function UserProfileContainer({
                                         </Button>
                                     ) : state === 'reactivatable' ? (
                                         <Button color='secondary' variant='outlined' onClick={() => {
-                                            
+                                            contact?.roomId && unblockContact(myProfileId, profile.id, contact.roomId, () => {
+                                                setLoading(false);
+                                                setError(undefined);
+                                            }, (e) => {
+                                                setError(e);
+                                                setLoading(false);
+                                            })
+                                            setLoading(true);
                                         }}>
-                                            RELEASE BLOCK
+                                            UNBLOCK
                                         </Button>
                                     ) : (
                                                     <Button disabled color='secondary' variant='contained' >

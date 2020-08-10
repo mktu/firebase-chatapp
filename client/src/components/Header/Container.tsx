@@ -34,7 +34,7 @@ const Container: React.FC<{}> = () => {
             <SearchBox className='search-box' handleSubmit={handleSubmit} />
         }
         user={
-            <User onClick={jumpToProfile} imageUrl={profile?.imageUrl} nickName={profile ? profile.nickname : ''}>
+            <User onClick={jumpToProfile} imageUrl={profile?.imageUrl} >
                 {profile ? profile.nickname[0] : ''}
             </User>
         }

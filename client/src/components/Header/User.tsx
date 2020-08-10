@@ -18,17 +18,15 @@ const User: React.FC<{
     children: React.ReactElement | string,
     className?: string,
     imageUrl?: string,
-    nickName: string,
-    onClick:()=>void
+    onClick: () => void
 }> = ({
     children,
     className,
     imageUrl,
-    nickName,
     onClick
 }) => (
             <Wrapper className={className}>
-                <ButtonBase onClick={onClick}>
+                <ButtonBase disableRipple onClick={onClick}>
                     {imageUrl ? (
                         <CustomAvatar alt='User avatar' src={imageUrl} />
                     ) : (
@@ -36,7 +34,6 @@ const User: React.FC<{
                                 {children}
                             </CustomAvatar>
                         )}
-                        {nickName}
                 </ButtonBase>
             </Wrapper >);
 

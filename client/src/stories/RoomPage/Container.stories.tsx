@@ -88,6 +88,7 @@ const Container: React.FC<{ requestId?: string }> = ({ requestId }) => {
                             handleLoadRoom={action('handleLoadRoom')}
                             handleLoadContactRoom={action('handleLoadContactRoom')}
                             handleRequest={action('handleRequest')}
+                            handleRemovedContact={action('handleRemovedContact')}
                             requestRoom={requestId ? (
                                 <RequestRoom roomId={requestId} fallback={
                                     () => (

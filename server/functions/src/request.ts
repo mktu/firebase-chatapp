@@ -170,6 +170,38 @@ export const blockContact = https.onCall(async (data, context) => {
   await batch.commit();
 })
 
+export const unblockContact = https.onCall(async (data, context) => {
+  const {
+    roomId,
+    callerProfileId,
+    blockProfileId
+  } = data as {
+    roomId: string,
+    callerProfileId: string,
+    blockProfileId: string
+  }
+
+  const roomDoc = firebaseAdmin.firestore().collection('rooms').doc(roomId);
+  const contactDoc = firebaseAdmin.firestore().collection('profiles').doc(callerProfileId).collection('contacts').doc(blockProfileId);
+
+  const room = (await roomDoc.get()).data() as Room;
+  if (!room.contact) {
+    throw new https.HttpsError(
+      'failed-precondition',
+      'The selected room isn not contact room',
+      `room id is ${roomId}.`
+    );
+  }
+  const batch = firebaseAdmin.firestore().batch();
+  batch.update(contactDoc, {
+    enable : true
+  })
+  batch.update(roomDoc, {
+    users : [...room.users,callerProfileId]
+  })
+  await batch.commit();
+})
+
 /* const upgradeFirestore = https.onRequest(async (req, res) => {
     await modifyMessage(req,res);
 });
