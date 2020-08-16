@@ -21,13 +21,21 @@ const Wrapper = styled.div`
         background-color : ${({ customtheme }: WrapperProps) => `${customtheme.primary.main}`};
         color : ${({ customtheme }: WrapperProps) => `${customtheme.primary.text}`};
     }
+
+    & > .sidebar{
+        width : 75px;
+        box-sizing: border-box;
+        height : 100%;
+        background-color : ${({ customtheme }: WrapperProps) => `${customtheme.primary.dark}`};
+        color : ${({ customtheme }: WrapperProps) => `${customtheme.primary.text}`};
+    }
 `;
 
 const Chatroom = styled.div`
     box-sizing: border-box;
     padding : 5px;
     height : ${({ open }: { open: boolean }) => open ? `100%` : `0`};
-    width : ${({ open }: { open: boolean }) => open ? `75%` : `0`};
+    width : ${({ open }: { open: boolean }) => open ? `70%` : `0`};
     ${({ open,roomPage }: { open: boolean, roomPage : boolean }) => open && roomPage && `
         transition: all 0.3s ease-out;
     `};
@@ -42,6 +50,7 @@ const Chatroom = styled.div`
 
 type Props = {
     roomList: React.ReactElement,
+    sidebar: React.ReactElement,
     chatrooms: React.ReactElement,
     request?: React.ReactElement,
     loading: boolean,
@@ -51,6 +60,7 @@ type Props = {
 
 const Presenter: React.FC<Props> = ({
     roomList,
+    sidebar,
     chatrooms,
     loading,
     showRoom,
@@ -60,6 +70,9 @@ const Presenter: React.FC<Props> = ({
     const customtheme = useContext(CustomTheme);
     return (
         <Wrapper customtheme={customtheme}>
+            <div className='sidebar'>
+                {sidebar}
+            </div>
             <div className='room-list'>
                 {roomList}
             </div>

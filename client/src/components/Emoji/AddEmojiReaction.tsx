@@ -6,6 +6,7 @@ import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import Popover, { PopoverOrigin } from '@material-ui/core/Popover';
 import IconButton from '@material-ui/core/IconButton';
 import EmojiIconButton from './EmojiIconButton';
+import Fade from '@material-ui/core/Fade';
 
 const emojiActionIds = [
     'grinning', 'thumbsup', 'cry', 'sweat', 'rage'
@@ -55,6 +56,7 @@ const AddEmojiReaction = ({
                 onClose={handleCloseEmoPicker}
                 anchorOrigin={anchorOrigin}
                 transformOrigin={transformOrigin}
+                TransitionComponent={Fade}
             >
                 <div>
                     {emojiActionIds.map(id => (

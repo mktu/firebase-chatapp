@@ -102,6 +102,7 @@ const Container: React.FC<{ requestId?: string }> = ({ requestId }) => {
                                     </div>
                                 } />
                             ) : undefined}
+                            isContact={false}
                         />
                     </Wrapper>
                 </ServiceContext.Provider>

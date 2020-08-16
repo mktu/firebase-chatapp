@@ -3,6 +3,7 @@ import React from 'react';
 
 export const initialTheme = {
     primary : {
+        dark : '#0A1723',
         main : '#12293E',
         hover : '#16324b',
         text : '#D5D5D5',

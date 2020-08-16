@@ -16,6 +16,8 @@ const Target: React.FC = () => {
     const urlParams = new URLSearchParams(location.search);
     const messageId = urlParams.get('message') || undefined;
     const currentRoomId = contactRoomId || roomId;
+    const isContact = (roomMatch && roomMatch.url.includes('/rooms/contacts')) || false;
+
     // contact or room
     // add Room page's props to room/contact section
     // currentRoomId = roomId/contactId
@@ -41,10 +43,21 @@ const Target: React.FC = () => {
                 } />
             ): undefined}
             handleLoadRoom={(roomId) => {
-                history.replace(`/rooms/${roomId}`);
+                if(roomId){
+                    history.replace(`/rooms/${roomId}`);
+                }
+                else{
+                    history.replace(`/rooms`);
+                }
+                
             }}
             handleLoadContactRoom={(roomId) => {
-                history.replace(`/rooms/contacts/${roomId}`);
+                if(roomId){
+                    history.replace(`/rooms/contacts/${roomId}`);
+                }
+                else {
+                    history.replace(`/rooms/contacts`);
+                }
             }}
             handleRequest={(roomId)=>{
                 history.replace(`/rooms/requests/${roomId}`);
@@ -57,7 +70,7 @@ const Target: React.FC = () => {
                     history.replace(`/rooms`);
                 }} />
             )}
-            
+            isContact={isContact}
         />);
 }
 

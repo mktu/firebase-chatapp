@@ -45,6 +45,12 @@ const EmphasisText = styled.span`
     font-weight : ${({ theme }) => `${theme.typography.fontWeightMedium}`};
 `;
 
+const RoomText = styled.span`
+    ${({deactive}:{deactive:boolean})=>deactive && `
+            color : rgba(255,255,255,0.52);
+        `}
+`;
+
 export default ({
     className,
     selected,
@@ -64,7 +70,7 @@ export default ({
                 </UserAvatar>
             </ListItemAvatar>
             <ListItemText >
-                {selected ? (<EmphasisText>{room.roomName}</EmphasisText>) : room.roomName}
+    {selected ? (<EmphasisText>{room.roomName}</EmphasisText>) : <RoomText deactive={Boolean(room.disabled)}>{room.roomName}</RoomText>}
             </ListItemText>
             {unreads > 0 && (
                 <ListItemSecondaryAction >

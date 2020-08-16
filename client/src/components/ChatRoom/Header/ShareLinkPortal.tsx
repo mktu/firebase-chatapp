@@ -108,6 +108,9 @@ export function ShareLinkContainer({
                         setProfileId(e.target.value);
                     }} />
                     <SearchIconButton onClick={() => {
+                        if(!profileId){
+                            return;
+                        }
                         searchProfileById(profileId, (p) => {
                             setSearchUser(p);
                             setSearchingUser(false);
