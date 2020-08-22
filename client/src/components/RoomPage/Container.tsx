@@ -10,7 +10,9 @@ import Presenter from './Presenter';
 import { Room } from '../../../../types/room';
 import ServiceContext from '../../contexts/ServiceContext';
 import ContactList from './ContactList';
+import { ContactContext } from '../../contexts/ProfileContext';
 import { AddContactContainer, AddContactDialog } from './AddContact';
+import RoomHome from './RoomHome';
 
 export type Props = {
     renderChatRoom: (room: Room) => React.ReactElement,
@@ -20,7 +22,8 @@ export type Props = {
     handleLoadContactRoom: (roomId?: string) => void,
     handleRequest: (roomId: string) => void,
     handleRemovedContact: (roomId: string) => void,
-    isContact: boolean
+    isContact: boolean,
+    isRoomHome: boolean
 };
 
 const Container: React.FC<Props> = ({
@@ -31,7 +34,8 @@ const Container: React.FC<Props> = ({
     handleLoadContactRoom,
     handleRequest,
     handleRemovedContact,
-    isContact
+    isContact,
+    isRoomHome
 }) => {
     const [showNewRoom, setShowNewRoom] = useState(false);
     const [showAddCOntact, setShowAddContact] = useState(false);
@@ -40,11 +44,21 @@ const Container: React.FC<Props> = ({
     const [status, setStatus] = useState<LoadingStatusType>('loading');
     const [error, setError] = useState<string>();
     const { roomState, actions } = useContext(RoomContext);
-    const { createRoom, registRoomsListener, createContact, getRoom } = useContext(ServiceContext);
+    const contacts = useContext(ContactContext);
+    const { createRoom, registRoomsListener, getRoom } = useContext(ServiceContext);
     const { rooms } = roomState;
     const { profileState } = useContext(ProfileContext);
     const { profile } = profileState;
     const { id: profileId } = profile || {};
+    const defaultContact = contacts.find(c=>c.id===profileId);
+    const matchContact = Boolean(contacts.find(c=>c.roomId===currentRoomId))
+    useEffect(()=>{
+        if(isContact && defaultContact){
+            if(!matchContact){
+                handleLoadContactRoom(defaultContact.roomId)
+            }
+        }
+    },[isContact,matchContact,defaultContact,handleLoadContactRoom])
     useEffect(() => {
         const hasRoom = Boolean(currentRoomId) && Boolean(rooms.find(r => r.id === currentRoomId));
 
@@ -118,6 +132,7 @@ const Container: React.FC<Props> = ({
                         }
                     }} />
                 }
+                roomHome={isRoomHome ? <RoomHome /> : <div/>}
                 roomList={
                     isContact ?
                         <ContactList
@@ -130,18 +145,6 @@ const Container: React.FC<Props> = ({
                                     contact={contact}
                                     selected={contact.roomId === currentRoomId}
                                     handleSelectContact={({ roomId }) => {
-                                        if (!roomId) {
-                                            setStatus('loading')
-                                            if (!profileId) {
-                                                console.error('my profileId is undefined')
-                                                return;
-                                            }
-                                            createContact(profileId, contact.id, (roomId) => {
-                                                setStatus('succeeded');
-                                                handleLoadContactRoom(roomId);
-                                            })
-                                            return;
-                                        }
                                         handleLoadContactRoom(roomId);
                                     }}
                                 />

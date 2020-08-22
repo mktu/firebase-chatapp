@@ -52,6 +52,7 @@ type Props = {
     roomList: React.ReactElement,
     sidebar: React.ReactElement,
     chatrooms: React.ReactElement,
+    roomHome?: React.ReactElement,
     request?: React.ReactElement,
     loading: boolean,
     showRoom: boolean,
@@ -64,6 +65,7 @@ const Presenter: React.FC<Props> = ({
     chatrooms,
     loading,
     showRoom,
+    roomHome,
     error,
     request
 }) => {
@@ -90,6 +92,9 @@ const Presenter: React.FC<Props> = ({
                 )}
                 {request && (
                     <div className='non-room'>{request}</div>
+                )}
+                {roomHome && (
+                    <div className='non-room'>{roomHome}</div>
                 )}
             </Chatroom>
         </Wrapper>

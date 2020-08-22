@@ -103,6 +103,7 @@ const Container: React.FC<{ requestId?: string }> = ({ requestId }) => {
                                 } />
                             ) : undefined}
                             isContact={false}
+                            isRoomHome={false}
                         />
                     </Wrapper>
                 </ServiceContext.Provider>

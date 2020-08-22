@@ -6,6 +6,7 @@ import ChatRoom from '../ChatRoom';
 
 const Target: React.FC = () => {
     const history = useHistory();
+    const roomHomeMatch = useRouteMatch<{ roomId: string }>('/rooms');
     const roomMatch = useRouteMatch<{ roomId: string }>('/rooms/:roomId');
     const contactRoomMatch = useRouteMatch<{ roomId: string }>('/rooms/contacts/:roomId');
     const requestMatch = useRouteMatch<{ roomId: string }>('/rooms/requests/:roomId');
@@ -17,7 +18,7 @@ const Target: React.FC = () => {
     const messageId = urlParams.get('message') || undefined;
     const currentRoomId = contactRoomId || roomId;
     const isContact = (roomMatch && roomMatch.url.includes('/rooms/contacts')) || false;
-
+    const isRoomHome = roomHomeMatch?.isExact || false;
     // contact or room
     // add Room page's props to room/contact section
     // currentRoomId = roomId/contactId
@@ -71,6 +72,7 @@ const Target: React.FC = () => {
                 }} />
             )}
             isContact={isContact}
+            isRoomHome={isRoomHome}
         />);
 }
 

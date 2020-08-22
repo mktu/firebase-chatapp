@@ -3,6 +3,7 @@ const firebase_tools = require('firebase-tools');
 import { restoreFirestoreToAlgolia } from './algolia';
 import { Room } from '../../../types/room';
 import firebaseAdmin from './admin';
+import { checkContactMatch } from './utils';
 
 
 export const restoreMessagesToAlgolia = https.onRequest(async (req, res) => {
@@ -60,6 +61,7 @@ export const recursiveDelete = runWith({
     });
 });
 
+
 export const createContact = https.onCall(async (data, context) => {
   const { senderProfileId, receiverProfileId } = data as { senderProfileId: string, receiverProfileId: string };
   const contacts = await firebaseAdmin.firestore()
@@ -72,13 +74,7 @@ export const createContact = https.onCall(async (data, context) => {
       return false;
     }
     const val = doc.data() as Room;
-
-    if (!val.contact) {
-      return false;
-    }
-    return val.contact.every(c => {
-      return [senderProfileId, receiverProfileId].includes(c);
-    })
+    return checkContactMatch(val,[senderProfileId, receiverProfileId]);
   })
   if (found) {
     throw new https.HttpsError(

@@ -1,13 +1,14 @@
-import React, {useContext} from 'react';
+import React, {useContext,useEffect} from 'react';
 import styled from 'styled-components';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import { MessagesContext } from '../../contexts';
+import { MessagesContext,ProfileContext } from '../../contexts';
 import CustomTheme, {ThemeType} from './ThemeContext';
 import Avatar from '@material-ui/core/Avatar';
 import { ContactProfile } from '../../../../types/profile';
+import ServiceContext from '../../contexts/ServiceContext';
 
 
 type Props = {
@@ -60,20 +61,34 @@ export default ({
 }: Props) => {
     const customTheme = useContext(CustomTheme);
     const { messageState } = useContext(MessagesContext);
+    const { createContact } = useContext(ServiceContext);
+    const { profileState } = useContext(ProfileContext);
+    const { profile } = profileState;
+    const { id: profileId } = profile || {};
+    const hasRoom = Boolean(contact.roomId);
+    useEffect(()=>{
+        if(!hasRoom && profileId){
+            createContact(profileId, contact.id,()=>{
+                console.log('created contact room')
+            },(e)=>{
+                console.error(e)
+            })
+        }
+    },[hasRoom,profileId,contact.id,createContact])
     let unreads = 0;
     if(contact.roomId && messageState[contact.roomId]){
         unreads = messageState[contact.roomId];
     }
     return (
-        <StyledListItem customtheme={customTheme} className={className} button onClick={() => {
-            handleSelectContact(contact);
+        <StyledListItem customtheme={customTheme} className={className} button disabled={!hasRoom} onClick={() => {
+            hasRoom && handleSelectContact(contact);
         }}>
             <StyledListItemAvatar>
                 <UserAvatar src={contact.imageUrl}>
                     {contact.nickname[0]}
                 </UserAvatar>
             </StyledListItemAvatar>
-            <ListItemText >
+            <ListItemText secondary={hasRoom ? '' : 'Now initializing...'} secondaryTypographyProps={{color:'inherit'}}>
                 {selected ? (<EmphasisText>{contact.nickname}</EmphasisText>) : contact.nickname}
             </ListItemText>
             {unreads > 0 && (

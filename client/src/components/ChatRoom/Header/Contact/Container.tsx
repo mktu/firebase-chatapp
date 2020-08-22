@@ -17,9 +17,11 @@ const HeaderContainer: React.FC<Props> = ({
     room,
 }) => {
     const contacts = useContext(ContactContext)
-    const {id : myProfileId} = useContext(MyProfileContext);
+    const myProfile = useContext(MyProfileContext);
+    const {id : myProfileId} = myProfile;
     const contactId = room.contact?.find(c=>c!==myProfileId);
-    const contactProfile = contacts.find(c=>c.id===contactId);
+    const selfContact = room.contact?.every(c=>c===myProfileId) || false;
+    const contactProfile = selfContact ? myProfile : contacts.find(c=>c.id===contactId);
     const [userProfile, setUserProfile] = useState<Profile>();
     return (
         <React.Fragment>

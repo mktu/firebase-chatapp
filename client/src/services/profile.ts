@@ -27,6 +27,7 @@ export function addProfile(
                             ...doc.data() as Profile,
                             id: doc.id
                         })
+                        addContact(doc.id,doc.id)
                     }
                 }).catch(onFailed)
             }

@@ -73,11 +73,18 @@ function UserProfileContainer({
     const contacts = useContext(ContactContext);
     const contact = contacts.find(c => c.id === profile?.id);
     const { addContact, blockContact, unblockContact } = useContext(ServiceContext);
-    const state: 'addable' | 'disabled' | 'removable' | 'reactivatable' =
-        contact ?
-            contact.enable ?
-                'removable' : 'reactivatable' :
-            myProfileId !== profile?.id ? 'addable' : 'disabled';
+    let state : 'addable' | 'disabled' | 'removable' | 'reactivatable' = 'disabled';
+    if(contact){
+        if(contact.enable){
+            if(contact.id !== myProfileId){
+                state = 'removable';
+            }
+        } else{
+            state = 'reactivatable';
+        }
+    } else{
+        state = 'addable';
+    }
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Error>();
     const unmountRef = useRef<{unmounted:boolean}>({unmounted:false});
