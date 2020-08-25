@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import algoliasearch from 'algoliasearch';
 import { connectInfiniteHits, connectSearchBox, connectHighlight, connectMenu } from 'react-instantsearch-dom';
-import { InstantSearch } from 'react-instantsearch-dom';
-import { useHistory } from "react-router-dom";
+import { InstantSearch, Configure } from 'react-instantsearch-dom';
 import ProfileContext from '../../contexts/ProfileContext';
 import SearchBoxComponent from './SearchBox';
 import HitsComponent from './Hits';
@@ -26,13 +25,14 @@ const Menu = connectMenu(MenuComponent);
 type Item = { count: number; isRefined: boolean; label: string; value: string };
 
 const Container: React.FC<{
+    onSelecRoom : (roomId:string, messageId:string, isContact: boolean)=>void
     keyword?: string,
     className?: string
 }> = ({
     keyword,
-    className
+    className,
+    onSelecRoom
 }) => {
-        const history = useHistory();
         const { profileState } = useContext(ProfileContext);
         const { profile } = profileState;
         const [rooms, setRooms] = useState<Room[]>([]);
@@ -59,7 +59,7 @@ const Container: React.FC<{
             }
         }, [rooms])
 
-        const renderRoomMenu = useCallback((style?:string) => rooms.length > 0 ? (
+        const renderRoomMenu = useCallback((style?: string) => rooms.length > 0 ? (
             <Menu
                 className={style}
                 attribute='roomId'
@@ -78,9 +78,9 @@ const Container: React.FC<{
                     })
                 }}
             />
-        ) : (<div>...</div>),[rooms]);
+        ) : (<div>...</div>), [rooms]);
 
-        const renderSenderMenu = useCallback((style?:string) => (
+        const renderSenderMenu = useCallback((style?: string) => (
             <Menu
                 className={style}
                 attribute='senderId'
@@ -99,9 +99,16 @@ const Container: React.FC<{
                     }).filter(Boolean)
                 }}
             />
-        ),[profiles]);
-
+        ), [profiles]);
+        if(rooms.length === 0){
+            return <div/>
+        }
         return (<InstantSearch searchClient={searchClient} indexName='messages'>
+            <Configure
+                filters={rooms.map(r => {
+                    return `roomId:${r.id}`;
+                }).join(' OR ')}
+            />
             <Presenter
                 className={className}
                 renderRefinements={(style) => (
@@ -124,7 +131,8 @@ const Container: React.FC<{
                             />
                         )}
                         onSelect={(roomId, messageId) => {
-                            history.push(`/rooms/${roomId}?message=${messageId}`);
+                            const isContact = Boolean(rooms.find(r=>r.id===roomId && Boolean(r.contact)))
+                            onSelecRoom(roomId, messageId,isContact)
                         }}
                     />
                 )}

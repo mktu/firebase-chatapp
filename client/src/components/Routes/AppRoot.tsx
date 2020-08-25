@@ -4,7 +4,6 @@ import { useLocation, Redirect, Switch, Route } from "react-router-dom";
 import SignInPage from '../SignInPage';
 import { RegisterProfile, UpdateProfile } from '../Profile';
 import RoomRoot from './RoomRoot';
-import SearchRoot from './SearchRoot';
 import { UserLoader, ProfileLoader } from '../Loaders';
 import Header from '../Header';
 import { RedirectBack } from './common';
@@ -18,7 +17,6 @@ const RequiresProfileRoot: React.FC<{}> = () => {
         }} />;
     }}>
         <Switch>
-            <SearchRoot path='/search' />
             <RoomRoot path='/rooms' />
             <Route path='/profile/update' component={UpdateProfile} />
         </Switch>

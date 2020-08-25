@@ -132,7 +132,7 @@ const Container: React.FC<Props> = ({
                         }
                     }} />
                 }
-                roomHome={isRoomHome ? <RoomHome /> : <div/>}
+                roomHome={isRoomHome ? <RoomHome /> : undefined}
                 roomList={
                     isContact ?
                         <ContactList

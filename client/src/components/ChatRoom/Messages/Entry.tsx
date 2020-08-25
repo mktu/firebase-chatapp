@@ -19,7 +19,7 @@ const Entry: React.FC<Props> = ({
     const component = useMemo(() => (
         <MessageLoader
             roomId={id}
-            messageId={focusMessageId}
+            messageId={show ? focusMessageId : undefined}
         >
             {(args) => (
                 <Container

@@ -25,6 +25,7 @@ const MessageLoader: React.FC<{
         const [forwardSentinel, setForwardSentinel] = useState<Message>();
         const [start, setStart] = useState<Message>();
         const { getLatestMessage, getOldestMessage, getMessage, registMessagesListener } = useContext(ServiceContext);
+
         useEffect(() => {
             let unmounted = false;
             if (messageId) {
@@ -37,6 +38,15 @@ const MessageLoader: React.FC<{
                     }
                 })
             }
+            return () => {
+                unmounted = true;
+                setStart(undefined);
+            }
+        },[messageId,roomId,getMessage]);
+
+        useEffect(() => {
+            let unmounted = false;
+            
             getOldestMessage({
                 roomId,
                 onAdded: (item) => {
@@ -63,11 +73,10 @@ const MessageLoader: React.FC<{
             return () => {
                 unmounted = true;
                 setStatus(LoadingStatus.Loading);
-                setStart(undefined);
                 setBackwardSentinel(undefined);
                 setForwardSentinel(undefined);
             }
-        }, [roomId, messageId, getMessage, getLatestMessage, getOldestMessage]);
+        }, [roomId, getLatestMessage, getOldestMessage]);
 
         // loading timeout
         useEffect(() => {

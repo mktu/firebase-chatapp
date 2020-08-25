@@ -12,7 +12,7 @@ const Wrapper = styled.div`
         border-bottom :  ${({ theme }) => `1px solid ${theme.palette.divider}`};
     }
     & > .hits{
-        max-height :80vh;
+        max-height :100%;
     }
 `
 function Presenter({
