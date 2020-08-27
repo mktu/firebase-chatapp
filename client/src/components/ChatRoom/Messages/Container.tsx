@@ -38,7 +38,6 @@ const Container: React.FC<Props> = ({
         if (!m.readers) return true;
         return !m.readers.includes(profileId);
     }).length;
-
     useEffect(() => {
         messageActions.update(roomId, unreads);
     }, [unreads, messageActions, roomId,])
@@ -49,7 +48,7 @@ const Container: React.FC<Props> = ({
         }
     }, [show, messages, addReadFlags, profileId, roomId])
 
-    return <Presenter className={className}>
+    return <Presenter className={className} loading={messages.length === 0 && (forwardListenable || backwardListenable)}>
         {
             ({ classes }) => (
                 <InfiniteScrollable

@@ -46,15 +46,14 @@ function makeScrollableListWithRef<T>(){
             const itemsEndRef = useRef<HTMLDivElement | null>(null);
             const focusItemRef = useRef<HTMLElement | null>(null);
             const [trackingId, setTrackingId] = useState<T[keyof T]>();
-            
             const hasItem = items.length > 0;
             const List = listComponent;
             const ListItemComponent = listItemComponent;
             const NotificationComponent = notificationComponent;
             const [automaticallyScrollDown, setAutomaticallyScrollDown] = useState<ScrollDownType>('disable');
             const newItemNavigatable = items.length > 0 && trackingId !== items[0][uniqueKey] && automaticallyScrollDown === 'jumpable-to-bottom';
-            
             useEffect(() => {
+                if(!hasItem) return;
                 let enableAutomaticallyScrollDown = false;
                 let unmounted = false;
                 const parentNode = itemsEndRef.current && domutil.getScrollableParent(itemsEndRef.current);
@@ -67,7 +66,7 @@ function makeScrollableListWithRef<T>(){
                         if (!enableAutomaticallyScrollDown) {
                             setAutomaticallyScrollDown('automatically-scroll-down');
                         }
-                        enableAutomaticallyScrollDown = true;
+                        enableAutomaticallyScrollDown = true; //reach to the bottom
                     } else {
                         if (enableAutomaticallyScrollDown) { // once reach to the bottom, the scroll position can return to the bottom again
                             setAutomaticallyScrollDown('jumpable-to-bottom');
@@ -80,8 +79,8 @@ function makeScrollableListWithRef<T>(){
                     unmounted = true;
                     parentNode && parentNode.removeEventListener('scroll', onScroll);
                 }
-            }, [autoScrollThreshold, hasNewerItems]);
-        
+            }, [autoScrollThreshold, hasNewerItems, hasItem]);
+
             useEffect(() => {
                 if (items.length === 0) return;
                 if (!trackingId) {
@@ -103,9 +102,13 @@ function makeScrollableListWithRef<T>(){
                 }
             }, [items, automaticallyScrollDown, trackingId, uniqueKey]);
         
+            
             useEffect(() => {
-                hasItem && focusItemRef.current && focusItemRef.current.focus();
-            }, [hasItem]);
+                if(hasItem && focusItemRef.current && focusItemId){
+                    focusItemRef.current.scrollIntoView();
+                    focusItemRef.current.focus();
+                }
+            }, [hasItem, focusItemId]);
         
             const rootClass = className || classes['root'];
             const listItemClass = classes['list-item'];

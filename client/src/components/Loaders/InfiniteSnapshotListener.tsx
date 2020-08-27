@@ -63,7 +63,7 @@ const convertToFirestoreOrder = (direction: LoadDirection, loadTarget: LoadTarge
 function hasMore<T>(sentinel: T, loaded: T[], uniqueKey: keyof T) {
     if (sentinel) {
         if (loaded.length === 0) { // has not read yet.
-            return false;
+            return true;
         }
         return !Boolean(loaded.find(m => m[uniqueKey] === sentinel[uniqueKey]))
     }

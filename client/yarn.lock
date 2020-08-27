@@ -11612,10 +11612,10 @@ react-scripts@3.4.0:
   optionalDependencies:
     fsevents "2.1.2"
 
-react-simple-infinite-scroller@^0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/react-simple-infinite-scroller/-/react-simple-infinite-scroller-0.0.4.tgz#d8c65bf92cf1bad8a1eadd0d1e418a92d74d85a0"
-  integrity sha512-1MIOlhcFal0o2LslQd/zO4yUTc9+na2Xc4x8Vloas0yiH8DAtlgk9R3LwjT2UUrAA85kDnfrMFMyggy6EZ6sQg==
+react-simple-infinite-scroller@^0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/react-simple-infinite-scroller/-/react-simple-infinite-scroller-0.0.5.tgz#98c6dbf420e61b3b4cf9ee611fecb8d814f10c29"
+  integrity sha512-BFwZmq/prW/c7cJAYsnfRb3oabPHVB8T5hbuLl/v4CuDyEOjvut6mhw2sPuAB7nN6upS9cJLQy1Wp9XlkxSjWA==
 
 react-sizeme@^2.6.7:
   version "2.6.12"
