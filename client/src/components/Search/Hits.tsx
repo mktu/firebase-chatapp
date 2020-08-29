@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { InfiniteHitsProvided,Hit } from 'react-instantsearch-core';
+import { InfiniteHitsProvided, Hit } from 'react-instantsearch-core';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -16,9 +16,20 @@ const Wrapper = styled.div`
 
 type PropsType = {
     className?: string
-    highlight: (hit: Hit<Message>, attribute : keyof Message) => React.ReactElement,
-    onSelect : (roomId : string, messageId : string) => void
+    highlight: (hit: Hit<Message>, attribute: keyof Message) => React.ReactElement,
+    onSelect: (roomId: string, messageId: string) => void
 } & InfiniteHitsProvided<Hit<Message>>;
+
+const PrimaryText = styled.span`
+    display : flex;
+    align-items : center;
+    > span {
+        display : block;
+    }
+    > :last-child{
+        margin-left : auto;
+    }
+`;
 
 function Hits({
     hasMore,
@@ -41,14 +52,17 @@ function Hits({
                 listComponent={List}
             >
                 {hit => (
-                    <ListItem button key={hit.id} onClick={()=>{
-                        onSelect(hit.roomId,hit.id);
+                    <ListItem button key={hit.id} onClick={() => {
+                        onSelect(hit.roomId, hit.id);
                     }}>
                         <ListItemAvatar>
                             <Avatar>{hit.senderName[0]}</Avatar>
                         </ListItemAvatar>
-                        <ListItemText secondary={highlight(hit,'roomName')}>
-                            {highlight(hit,'message')}
+                        <ListItemText secondary={<PrimaryText>
+                            <span>{hit.senderName}</span>
+                            <span>{hit.roomName}</span>
+                        </PrimaryText>}>
+                            {highlight(hit, 'message')}
                         </ListItemText>
                     </ListItem>
                 )}

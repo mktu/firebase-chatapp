@@ -4,7 +4,7 @@ import { MenuProvided } from 'react-instantsearch-core';
 
 const Wrapper = styled.div`
     overflow: hidden;
-    width: 30%;
+    width: 50%;
     margin : ${({ theme }) => `${theme.spacing(1)}`};
     text-align: center;
     position: relative;

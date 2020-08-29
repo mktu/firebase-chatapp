@@ -9,10 +9,15 @@ const Wrapper = styled.div`
     border : ${({ theme }) => `1px solid ${theme.palette.divider}`};
     border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
     padding : ${({ theme }) => `${theme.spacing(0.5)}px ${theme.spacing(1)}px`};
-    background-color : white;
+    background-color : #272C34;
+    color : white;
     & > .search-icon-button{
         padding : ${({ theme }) => `${theme.spacing(0.1)}px`};
     }
+`;
+
+const Input = styled(InputBase)`
+    color : white;
 `;
 
 type PropsType = {
@@ -31,10 +36,10 @@ const SearchBox: React.FC<PropsType> = ({
     },[keyword,refine])
     return (
         <Wrapper className={className}>
-            <InputBase placeholder='Search messages' fullWidth value={currentRefinement} onChange={(e)=>{
+            <Input fullWidth value={currentRefinement} onChange={(e)=>{
                 refine(e.target.value);
             }}/>
-            <IconButton className='search-icon-button' onClick={()=>{
+            <IconButton className='search-icon-button' color='inherit' onClick={()=>{
                 refine('');
             }}>
                 <ClearIcon />

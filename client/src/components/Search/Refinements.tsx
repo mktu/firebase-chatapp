@@ -8,7 +8,6 @@ import Collapse from '@material-ui/core/Collapse';
 const Wrapper = styled.div`
     width : 100%;
     box-sizing: border-box;
-    padding : ${({ theme }) => `${theme.spacing(0.5)}px ${theme.spacing(1)}px`};
     & >.search-header{
         display : flex;
         align-items : center;
@@ -19,18 +18,32 @@ const Wrapper = styled.div`
         & > .refinements-searchbox{
             display : flex;
             align-items: center;
-            width : 300px;
-            margin-right : ${({ theme }) => `${theme.spacing(1)}px`};
+            width : 100%;
         }
+    }
+    & >.search-option{
+        width : 100%;
+        padding : 0.5rem 0 ;
     }
     & > .refinements-detail{
         margin-top : ${({ theme }) => `${theme.spacing(1)}px`};
-       > .refinements-menu {
-            display : flex;
-            align-items : center;
-       }
     }
-`
+`;
+
+const RefinementMenu = styled.div`
+    padding-top : ${({ theme }) => `${theme.spacing(0.5)}px`};
+    display : flex;
+    align-items : center;
+`;
+
+const SearchOptionButton = styled(Button)`
+    width : 100%;
+    background-color : rgba(17,41,62,0.08);
+    color : rgba(0,0,0,0.52);
+    display : flex;
+    align-items : center;
+    justify-content : flex-start;
+`;
 
 function Refinements({
     className,
@@ -53,24 +66,23 @@ function Refinements({
             </div>
             <div className='refinements-main'>
                 {renderSearchBox('refinements-searchbox')}
-                <Button color='secondary' onClick={() => {
+            </div>
+            <div className='search-option'>
+                <SearchOptionButton onClick={() => {
                     setShowDetail(prev => !prev);
                 }}>
                     <ExpandMoreIcon />
                     Search option
-                </Button>
+                </SearchOptionButton>
             </div>
             <Collapse in={showDetail}>
                 <div className='refinements-detail'>
-                    <div>
-                        <Typography variant='caption'>FILTER</Typography>
-                    </div>
-                    <div className='refinements-menu'>
+                    <RefinementMenu >
                         {filterRoom}
-                    </div>
-                    <div className='refinements-menu'>
+                    </RefinementMenu>
+                    <RefinementMenu >
                         {filterSender}
-                    </div>
+                    </RefinementMenu>
                 </div>
             </Collapse>
         </Wrapper>
