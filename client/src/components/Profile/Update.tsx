@@ -36,11 +36,17 @@ const UpdateProfilePage: React.FC<{
         }, [profile, setNickname]);
 
         const updateProfile = (imageUrl?: string) => {
-            profile && modifyProfile({
+            if(!profile) return;
+
+            const data = imageUrl ? {
                 ...profile,
                 nickname,
                 imageUrl
-            }, () => {
+            } : {
+                ...profile,
+                nickname,
+            };
+            profile && modifyProfile(data, () => {
                 updateToken(profile.id);
                 enqueueSnackbar(`Succeeded update profile`, { variant: 'success' });
             });

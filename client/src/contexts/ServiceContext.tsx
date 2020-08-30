@@ -23,7 +23,11 @@ import {
     createRequest,
     deleteRequest
  } from '../services/request';
-import { logout } from '../services/auth';
+import { 
+    logout, 
+    loginByGoogle,
+    loginWithAnonymous
+} from '../services/auth';
 import { 
     modifyProfile, 
     getProfile, 
@@ -99,6 +103,8 @@ export const defaultServices = {
     getPermission,
     // auth
     logout,
+    loginByGoogle,
+    loginWithAnonymous
 };
 
 export const createMock = (func: (name: string) => (...args: any[]) => void) => {
@@ -143,7 +149,9 @@ export const createMock = (func: (name: string) => (...args: any[]) => void) => 
         getSavedToken : func('getSavedToken'),
         getPermission : ()=>{func('getPermission')(); return 'default'},
         uploadProfileImage : func('uploadProfileImage'),
-        logout : func('logout')
+        logout : func('logout'),
+        loginByGoogle : func('loginByGoogle'),
+        loginWithAnonymous : func('loginWithAnonymous')
     }
     return mock;
 }

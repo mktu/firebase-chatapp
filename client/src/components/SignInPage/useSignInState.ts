@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { loginByGoogle, loginWithAnonymous } from '../../services/auth';
+import { useState, useContext } from 'react';
 import useErrorState from '../../hooks/useErrorState';
+import { ServiceContext } from '../../contexts';
 
 
 export default function () {
     const [succeeded, setSucceeded] = useState<boolean>(false);
     const { hasError, error, setError } = useErrorState();
+    const { loginByGoogle, loginWithAnonymous } = useContext(ServiceContext);
     
     const onSucceeded = ()=>{
         console.log('Login succeeded');

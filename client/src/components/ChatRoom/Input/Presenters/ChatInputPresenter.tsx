@@ -61,10 +61,17 @@ const InputContent = styled.div`
 
 const Wrapper = styled.div`
     display : grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: 1fr auto auto;
     align-items : center;
     & > .input-options {
         display : flex;
+    }
+`;
+
+const SubmitButton = styled(IconButton)`
+    background-color : rgba(17,41,62,0.10);
+    :hover{
+        background-color : rgba(17,41,62,0.15);
     }
 `;
 
@@ -89,9 +96,6 @@ function Presenter({
 }: Props) {
     return (
         <Wrapper className={className} >
-            <div className='input-options' >
-                <EmojiPicker onSelectEmoji={onSelectEmoji} />
-            </div>
             <InputContent {...dropZoneRootProps}>
                 <div className='input-editor' >
                     <input {...dropZoneInputProps}/>
@@ -99,8 +103,11 @@ function Presenter({
                 </div>
                 {suggestion}
             </InputContent>
+            <div className='input-options' >
+                <EmojiPicker onSelectEmoji={onSelectEmoji} />
+            </div>
             <div>
-                <IconButton onClick={handleSubmitMessage} ><Send /></IconButton>
+                <SubmitButton onClick={handleSubmitMessage} ><Send /></SubmitButton>
             </div>
         </Wrapper>
     )
