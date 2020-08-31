@@ -1,48 +1,76 @@
 import React from 'react';
 import styled from 'styled-components';
-import PaperBase from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import useSignInState from './useSignInState';
+import { ChatApp } from '../Gif';
 
 type Props = {
-    onSucceeded : ()=>JSX.Element
+    onSucceeded: () => JSX.Element
 };
 
 const Wrapper = styled.div`
     display : flex;
     align-items : center;
     justify-content : center;
-    padding : 2rem;
+    padding : ${({ theme }) => `${theme.spacing(1)}px`};
+    
+    >div{
+        display : flex;
+        flex-direction : column;
+        justify-content : center;
+    }
 `;
 
-const Paper = styled(PaperBase)`
-    width : 60%;
-    padding : 1rem;
-`
+const TitleWrapper = styled.div`
+    padding : ${({ theme }) => `${theme.spacing(1)}px`};
+`;
 
 const ButtonWrapper = styled.div`
     margin-top : 1rem;
     display : flex;
-    justify-content : space-around;
+    justify-content : center;
 `;
 
-const SignInPage : React.FC<Props> = ({
+const List = styled.ul`
+    list-style: none;
+    padding : 0;
+    margin-bottom : ${({ theme }) => `${theme.spacing(3)}px`};
+    > li {
+        padding-left: 1em;
+        text-indent: -1em;
+        :before{
+            padding-right: 5px;
+        }
+    }
+
+`
+
+const SignInPage: React.FC<Props> = ({
     onSucceeded
 }) => {
-    const {handleAnonymousLogin, handleGoogoleLogin,succeeded} = useSignInState();
-    if(succeeded){
+    const { handleGoogoleLogin, succeeded } = useSignInState();
+    if (succeeded) {
         return onSucceeded();
     }
     return (
         <Wrapper>
-            <Paper>
-                <Typography>Select login type</Typography>
+            <div>
+                <TitleWrapper>
+                    <Typography variant='h6'>A simple chat app</Typography>
+                </TitleWrapper>
+                <List>
+                    <li>You can chat directly with your friends.</li>
+                    <li>If you create a <b>Chat Room</b>, you can discuss with members in the room.</li>
+                </List>
+                <ChatApp width='500' />
                 <ButtonWrapper>
-                    <Button onClick={handleAnonymousLogin} variant='contained' color='secondary'>START WITH ANONYMOUS</Button>
-                    <Button onClick={handleGoogoleLogin} variant='contained' color='secondary'>START WITH SIGNUP</Button>
+                    {
+                        // <Button onClick={handleAnonymousLogin} variant='contained' color='secondary'>SIGNUP WITH ANONYMOUS</Button>
+                    }
+                    <Button onClick={handleGoogoleLogin} variant='contained' color='secondary'>SIGNUP WITH GOOGLE</Button>
                 </ButtonWrapper>
-            </Paper>
+            </div>
         </Wrapper>
     )
 };

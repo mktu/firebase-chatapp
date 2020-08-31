@@ -75,6 +75,11 @@ export default ({
             })
         }
     },[hasRoom,profileId,contact.id,createContact])
+    useEffect(()=>{
+        if(selected && contact.roomId){
+            localStorage.setItem('lastContact', contact.roomId);
+        }
+    },[selected,contact])
     let unreads = 0;
     if(contact.roomId && messageState[contact.roomId]){
         unreads = messageState[contact.roomId];

@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import styled from 'styled-components';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -60,6 +60,11 @@ export default ({
     const customTheme = useContext(CustomTheme);
     const { messageState } = useContext(MessagesContext);
     const unreads = messageState[room.id] ?  messageState[room.id] : 0;
+    useEffect(()=>{
+        if(selected){
+            localStorage.setItem('lastRoom', room.id);
+        }
+    },[selected,room])
     return (
         <StyledListItem customtheme={customTheme} className={className} button onClick={() => {
             handleSelectRoom(room);

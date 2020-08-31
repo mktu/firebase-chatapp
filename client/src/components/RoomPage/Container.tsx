@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { RoomContext, ProfileContext } from '../../contexts';
 import { LoadingStatusType } from '../../constants';
-import RoomDialog from './RoomDialog';
+import { AddRoomContainer, AddRoomDialog } from './AddRoomDialog';
 import RoomList from './RoomList';
 import RoomListItem from './RoomListItem';
 import ContactItem from './ContactItem';
@@ -11,7 +11,7 @@ import { Room } from '../../../../types/room';
 import ServiceContext from '../../contexts/ServiceContext';
 import ContactList from './ContactList';
 import { ContactContext } from '../../contexts/ProfileContext';
-import { AddContactContainer, AddContactDialog } from './AddContact';
+import { AddContactContainer, AddContactDialog } from './AddContactDialog';
 import RoomHome from './RoomHome';
 
 export type Props = {
@@ -38,27 +38,37 @@ const Container: React.FC<Props> = ({
     isRoomHome
 }) => {
     const [showNewRoom, setShowNewRoom] = useState(false);
-    const [showAddCOntact, setShowAddContact] = useState(false);
-    const [newRoomName, setNewRoomName] = useState<string>('');
+    const [showAddContact, setShowAddContact] = useState(false);
 
     const [status, setStatus] = useState<LoadingStatusType>('loading');
     const [error, setError] = useState<string>();
     const { roomState, actions } = useContext(RoomContext);
     const contacts = useContext(ContactContext);
-    const { createRoom, registRoomsListener, getRoom } = useContext(ServiceContext);
+    const { registRoomsListener, getRoom } = useContext(ServiceContext);
     const { rooms } = roomState;
     const { profileState } = useContext(ProfileContext);
     const { profile } = profileState;
     const { id: profileId } = profile || {};
-    const defaultContact = contacts.find(c=>c.id===profileId);
-    const matchContact = Boolean(contacts.find(c=>c.roomId===currentRoomId))
-    useEffect(()=>{
-        if(isContact && defaultContact){
-            if(!matchContact){
-                handleLoadContactRoom(defaultContact.roomId)
+    const defaultContact = contacts.find(c => c.id === profileId);
+    const matchContact = Boolean(contacts.find(c => c.roomId === currentRoomId))
+    useEffect(() => {
+        if (isRoomHome) {
+            const lastRoomId = localStorage.getItem("lastRoom");
+            lastRoomId && handleLoadRoom(lastRoomId)
+        }
+    }, [isRoomHome, handleLoadRoom])
+    useEffect(() => {
+        if (isContact) {
+            if (!matchContact) {
+                const lastContactId = localStorage.getItem("lastContact");
+                if (lastContactId) {
+                    handleLoadContactRoom(lastContactId)
+                } else if (defaultContact) {
+                    handleLoadContactRoom(defaultContact.roomId)
+                }
             }
         }
-    },[isContact,matchContact,defaultContact,handleLoadContactRoom])
+    }, [isContact, matchContact, defaultContact, handleLoadContactRoom])
     useEffect(() => {
         const hasRoom = Boolean(currentRoomId) && Boolean(rooms.find(r => r.id === currentRoomId));
 
@@ -101,21 +111,7 @@ const Container: React.FC<Props> = ({
     const showDialog = () => {
         setShowNewRoom(true);
     }
-    const handleEditNewRoomName = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNewRoomName(e.target.value);
-    }
-    const handleCreateNewRoom = () => {
-        if (profileId) {
-            createRoom(
-                newRoomName,
-                profileId,
-                () => {
-                    console.log(`Created ${newRoomName} room.`);
-                }
-            );
-            hideDialog();
-        }
-    }
+
     return (
         <React.Fragment>
             <Presenter
@@ -132,7 +128,7 @@ const Container: React.FC<Props> = ({
                         }
                     }} />
                 }
-                roomHome={isRoomHome ? <RoomHome /> : undefined}
+                roomHome={isRoomHome ? <RoomHome handleLoadContact={handleLoadContactRoom} handleLoadRoom={handleLoadRoom} /> : undefined}
                 roomList={
                     isContact ?
                         <ContactList
@@ -171,13 +167,15 @@ const Container: React.FC<Props> = ({
                 </React.Fragment>}
             >
             </Presenter>
-            <RoomDialog
+            <AddRoomDialog
                 show={showNewRoom}
                 onClose={hideDialog}
-                handleChangeRoomName={handleEditNewRoomName}
-                roomName={newRoomName}
-                onSave={handleCreateNewRoom} />
-            <AddContactDialog show={showAddCOntact} onClose={() => {
+            >
+                <AddRoomContainer
+                    onClose={hideDialog}
+                />
+            </AddRoomDialog>
+            <AddContactDialog show={showAddContact} onClose={() => {
                 setShowAddContact(false);
             }}>
                 <AddContactContainer

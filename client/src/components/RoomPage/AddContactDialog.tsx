@@ -10,9 +10,11 @@ import { Spin1s200pxIcon } from '../Icons';
 import ProfileContext, { ContactContext } from '../../contexts/ProfileContext';
 import { Profile } from '../../../../types/profile';
 import SearchBox from './SearchBox';
+import { useSnackbar } from 'notistack';
 
 type ContainerProps = {
     onClose: () => void,
+    onSucceed?: (id:string)=>void
 }
 
 const SearchError = styled.div`
@@ -53,7 +55,8 @@ const ContentWrapper = styled(DialogContent)`
 `;
 
 const AddContactContainer: React.FC<ContainerProps> = ({
-    onClose
+    onClose,
+    onSucceed
 }) => {
     const [id, setId] = useState('');
     const [user, setUser] = useState<Profile>();
@@ -63,6 +66,7 @@ const AddContactContainer: React.FC<ContainerProps> = ({
     const { searchProfileById, addContact } = useContext(ServiceContext);
     const { profileState } = useContext(ProfileContext);
     const { profile } = profileState;
+    const { enqueueSnackbar } = useSnackbar();
     return (
         <ContentWrapper>
             <Typography variant='subtitle1'>Search Contact by ID</Typography>
@@ -96,6 +100,8 @@ const AddContactContainer: React.FC<ContainerProps> = ({
                             <Button color='secondary' variant='outlined'
                                 onClick={() => {
                                     profile &&  addContact(profile.id, user.id, ()=>{
+                                        onSucceed && onSucceed(user.id)
+                                        enqueueSnackbar(`Successfully added ${user.nickname} to contacts`, { variant: 'success' })
                                         onClose();
                                     }, setError)
                                 }}

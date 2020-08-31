@@ -37,7 +37,7 @@ export function registRoomListener(
 export function createRoom(
     roomName: string,
     profileId: string,
-    onSucceeded: Notifier,
+    onSucceeded: RoomTransfer,
     onFailed: ErrorHandler = consoleError
 ) {
     db.collection('rooms').add({
@@ -46,7 +46,18 @@ export function createRoom(
         users: [profileId],
         lastUpdate: Date.now()
     })
-        .then(onSucceeded)
+        .then((docRef) => {
+            if (onSucceeded) {
+                docRef.get().then(doc => {
+                    if (doc.exists) {
+                        onSucceeded({
+                            ...doc.data() as Room,
+                            id: doc.id
+                        })
+                    }
+                }).catch(onFailed)
+            }
+        })
         .catch(onFailed);
 }
 
