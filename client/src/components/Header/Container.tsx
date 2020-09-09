@@ -1,7 +1,7 @@
 import React from 'react';
 import { useContext, useState } from 'react';
 import { useHistory } from "react-router-dom";
-import { ProfileContext, ServiceContext } from '../../contexts';
+import { ProfileContext, ServiceContext, SidebarContext } from '../../contexts';
 import SearchBox from './SearchBox';
 import {SearchDialog, SearchContainer} from './SearchDialog';
 import Presenter from './Presenter';
@@ -14,6 +14,7 @@ const Container: React.FC<{}> = () => {
         show: false,
         keyword: ''
     });
+    const { sidebarState, actions : sidebarActions } = useContext(SidebarContext);
     const { profile } = profileState;
     const history = useHistory();
     const handleLogout = () => {
@@ -37,8 +38,19 @@ const Container: React.FC<{}> = () => {
     return (
         <React.Fragment>
             <Presenter
-                profile={profile}
+                profileLoaded={Boolean(profile)}
                 onClickApp={handleJumpToRoot}
+                onClickMenu={()=>{
+                    const loc = window.location.href;
+                    if(loc.includes('rooms')){
+                        sidebarActions.show(!sidebarState.open)
+                    }else{
+                        // jump to room root and select room
+                        sidebarActions.show(true)
+                        handleJumpToRoot()
+                    }
+                    
+                }}
                 handleLogout={handleLogout}
                 searchBox={
                     <SearchBox className='search-box' handleSubmit={handleSubmit} />

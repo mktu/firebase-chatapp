@@ -1,7 +1,7 @@
 import React, {useContext} from 'react';
 import styled from 'styled-components';
-import CustomTheme, { ThemeType } from './ThemeContext';
-import { Spin1s200pxIcon } from '../Icons';
+import CustomTheme, { ThemeType } from '../ThemeContext';
+import { Spin1s200pxIcon } from '../../Icons';
 
 type WrapperProps = {
     customtheme: ThemeType,
@@ -48,7 +48,7 @@ const Chatroom = styled.div`
     }
 `;
 
-type Props = {
+export type Props = {
     roomList: React.ReactElement,
     sidebar: React.ReactElement,
     chatrooms: React.ReactElement,

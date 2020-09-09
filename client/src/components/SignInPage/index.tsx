@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import useSignInState from './useSignInState';
+import { DefaultSize, MobileSize } from '../../utils/responsive';
 import { ChatApp } from '../Gif';
 
 type Props = {
@@ -14,7 +15,7 @@ const Wrapper = styled.div`
     align-items : center;
     justify-content : center;
     padding : ${({ theme }) => `${theme.spacing(1)}px`};
-    
+    max-width : 100%;
     >div{
         display : flex;
         flex-direction : column;
@@ -36,13 +37,9 @@ const List = styled.ul`
     list-style: none;
     padding : 0;
     margin-bottom : ${({ theme }) => `${theme.spacing(3)}px`};
-    > li {
-        padding-left: 1em;
-        text-indent: -1em;
-        :before{
-            padding-right: 5px;
-        }
-    }
+    padding : ${({ theme }) => `${theme.spacing(1)}px`};
+    max-width : 100%;
+   
 
 `
 
@@ -63,7 +60,12 @@ const SignInPage: React.FC<Props> = ({
                     <li>You can chat directly with your friends.</li>
                     <li>If you create a <b>Chat Room</b>, you can discuss with members in the room.</li>
                 </List>
-                <ChatApp width='500' />
+                <DefaultSize>
+                    <ChatApp width='500' />
+                </DefaultSize>
+                <MobileSize>
+                    <ChatApp width='400' />
+                </MobileSize>
                 <ButtonWrapper>
                     {
                         // <Button onClick={handleAnonymousLogin} variant='contained' color='secondary'>SIGNUP WITH ANONYMOUS</Button>

@@ -18,7 +18,7 @@ const focusAnimation = keyframes`
 const Wrapper = styled.div`
     position : relative;
     & > .messages-scrollable{
-        overflow : auto;
+        overflow-y : auto;
         height : 100%;
         > .messages-items{
             > .focus-message{

@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { Picker, BaseEmoji } from 'emoji-mart'
+import { NimblePicker, BaseEmoji } from 'emoji-mart'
 import Popover, { PopoverOrigin } from '@material-ui/core/Popover';
 import IconButton from '@material-ui/core/IconButton';
+import data from 'emoji-mart/data/apple.json'
 import { InsertEmoticon } from '@material-ui/icons';
 
 const EmojiPicker = ({
@@ -50,7 +51,7 @@ const EmojiPicker = ({
                 onClose={handleClose}
                 anchorOrigin={anchorOrigin}
                 transformOrigin={transformOrigin} >
-                <Picker onSelect={onSelect} />
+                <NimblePicker onSelect={onSelect}  data={data} sheetSize={32}/>
             </Popover>
         </div>)
 }

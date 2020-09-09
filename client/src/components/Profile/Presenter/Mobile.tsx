@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import PaperBase from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
@@ -12,12 +11,13 @@ const Wrapper = styled.div`
     padding : 2rem;
 `;
 
-const Divider = styled.div`
-    border-bottom : ${({ theme }) => `1px solid ${theme.palette.divider}`};
+const AvatarWrapper = styled.div`
+    border : ${({ theme }) => `1px solid ${theme.palette.divider}`};
+    border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
 `;
 
-const Paper = styled(PaperBase)`
-    width : 60%;
+const Paper = styled.div`
+    width : 100%;
     & > .title{
         padding : ${({ theme }) => `${theme.spacing(0.5)}px ${theme.spacing(1)}px`};
     }
@@ -39,7 +39,7 @@ const Paper = styled(PaperBase)`
     }
 `
 
-type Props = {
+export type Props = {
     onChangeNickname: (e: React.ChangeEvent<HTMLInputElement>) => void,
     nickname: string,
     registrable: boolean,
@@ -68,9 +68,9 @@ const Presenter: React.FC<Props> = ({
                 <div className='title'>
                     <Typography variant='subtitle1'>{title}</Typography>
                 </div>
-                <Divider />
-                {avatar}
-                <Divider />
+                <AvatarWrapper>
+                    {avatar}
+                </AvatarWrapper>
                 <div className='content'>
                     <TextField className='text' disabled value={id} fullWidth label="ID" />
                     <TextField className='text' onChange={onChangeNickname} value={nickname} required fullWidth label="Nick Name" />

@@ -8,7 +8,8 @@ import {
   AuthContext,
   ProfileContext,
   NotificationContext,
-  ServiceContext
+  ServiceContext,
+  SidebarContext
 } from './contexts';
 import { defaultServices } from './contexts/ServiceContext';
 import useAppState from './hooks/useAppState';
@@ -21,7 +22,7 @@ const theme = createMuiTheme({
 console.log(theme);
 
 type Props = {
-    children : React.ReactElement
+  children: React.ReactElement
 }
 
 const Provider: React.FC<Props> = (props) => {
@@ -33,6 +34,8 @@ const Provider: React.FC<Props> = (props) => {
     profileActions,
     notificationState,
     notificationActions,
+    sidebarActions,
+    sidebarState
   } = useAppState();
 
   return (
@@ -42,13 +45,15 @@ const Provider: React.FC<Props> = (props) => {
           <StyledThemeProvider theme={theme}>
             <SnackbarProvider maxSnack={3}>
               <ServiceContext.Provider value={defaultServices}>
-                <AuthContext.Provider value={{ userState, actions: userActions }}>
-                  <ProfileContext.Provider value={{ profileState, actions: profileActions }}>
-                    <NotificationContext.Provider value={{ notificationState, actions: notificationActions }}>
-                      {props.children}
-                    </NotificationContext.Provider>
-                  </ProfileContext.Provider>
-                </AuthContext.Provider>
+                <SidebarContext.Provider value={{ sidebarState, actions: sidebarActions }}>
+                  <AuthContext.Provider value={{ userState, actions: userActions }}>
+                    <ProfileContext.Provider value={{ profileState, actions: profileActions }}>
+                      <NotificationContext.Provider value={{ notificationState, actions: notificationActions }}>
+                        {props.children}
+                      </NotificationContext.Provider>
+                    </ProfileContext.Provider>
+                  </AuthContext.Provider>
+                </SidebarContext.Provider>
               </ServiceContext.Provider>
             </SnackbarProvider>
           </StyledThemeProvider>

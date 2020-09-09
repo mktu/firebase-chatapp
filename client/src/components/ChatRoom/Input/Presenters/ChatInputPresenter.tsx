@@ -1,10 +1,11 @@
 import React from 'react';
-import styled, {css} from 'styled-components';
+import styled, { css } from 'styled-components';
 import { DropzoneRootProps, DropzoneInputProps } from 'react-dropzone';
 import 'emoji-mart/css/emoji-mart.css';
 import IconButton from '@material-ui/core/IconButton';
 import { Send } from '@material-ui/icons';
 import { EmojiPicker } from '../../../Emoji';
+import { DefaultSize } from '../../../../utils/responsive';
 
 type DropProps = { [key: string]: any };
 
@@ -50,8 +51,9 @@ const InputContent = styled.div`
     overflow: hidden;
     ${(props: DropProps) => getBorderStyle(props)};
     border-radius : ${({ theme }) => `${theme.shape.borderRadius}px`};
+    margin-right : ${({ theme }) => `${theme.spacing(1)}px`};
     > .input-editor {
-        font-size : 14px;
+        font-size : 16px;
         max-height: 20vh;
         overflow: scroll;
         padding : ${({ theme }) => `${theme.spacing(1)}px`};
@@ -78,10 +80,10 @@ const SubmitButton = styled(IconButton)`
 export type Props = {
     className?: string,
     onSelectEmoji: (emoji: string) => void,
-    suggestion : React.ReactElement,
-    richEditor : React.ReactElement,
-    dropZoneRootProps : DropzoneRootProps,
-    dropZoneInputProps : DropzoneInputProps,
+    suggestion: React.ReactElement,
+    richEditor: React.ReactElement,
+    dropZoneRootProps: DropzoneRootProps,
+    dropZoneInputProps: DropzoneInputProps,
     handleSubmitMessage: () => void,
 }
 
@@ -98,14 +100,16 @@ function Presenter({
         <Wrapper className={className} >
             <InputContent {...dropZoneRootProps}>
                 <div className='input-editor' >
-                    <input {...dropZoneInputProps}/>
+                    <input {...dropZoneInputProps} />
                     {richEditor}
                 </div>
                 {suggestion}
             </InputContent>
-            <div className='input-options' >
-                <EmojiPicker onSelectEmoji={onSelectEmoji} />
-            </div>
+            <DefaultSize>
+                <div className='input-options' >
+                    <EmojiPicker onSelectEmoji={onSelectEmoji} />
+                </div>
+            </DefaultSize>
             <div>
                 <SubmitButton onClick={handleSubmitMessage} ><Send /></SubmitButton>
             </div>

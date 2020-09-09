@@ -4,6 +4,7 @@ import Typography from '@material-ui/core/Typography';
 
 const Wrapper = styled.div`
     width : 100%;
+    box-sizing : border-box;
     &>.message{
         display : flex;
         justify-content : flex-end;

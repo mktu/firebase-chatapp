@@ -4,6 +4,7 @@ import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
 import InputBase from '@material-ui/core/InputBase';
 import { Search } from '@material-ui/icons';
+import { DefaultSize, MobileSize } from '../../utils/responsive';
 
 
 const Wrapper = styled(Paper)`
@@ -30,20 +31,30 @@ function SearchBox({
     handleSubmit: (text: string) => void
 }) {
     const [text, setText] = useState('');
+    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setText(e.target.value);
+    }
+    const onKeyPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (e.key === 'Enter') { // enter
+            text !== '' && handleSubmit(text);
+        }
+    }
     return (
         <Wrapper className={className}>
-            <InputBase className='searchbox-input' placeholder='Search messages' value={text}
-                onChange={(e) => {
-                    setText(e.target.value);
-                }}
-                onKeyPress={(e) => {
-                    if (e.key === 'Enter') { // enter
-                        text!=='' && handleSubmit(text);
-                    }
-                }}
-            />
+            <DefaultSize>
+                <InputBase className='searchbox-input' placeholder='Search messages' value={text}
+                    onChange={onChange}
+                    onKeyPress={onKeyPress}
+                />
+            </DefaultSize>
+            <MobileSize>
+                <InputBase className='searchbox-input' value={text}
+                    onChange={onChange}
+                    onKeyPress={onKeyPress}
+                />
+            </MobileSize>
             <IconButton className='search-button' onClick={() => {
-                text!=='' && handleSubmit(text);
+                text !== '' && handleSubmit(text);
             }}>
                 <Search />
             </IconButton>

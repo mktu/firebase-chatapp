@@ -11,6 +11,7 @@ import { Room } from '../../../../types/room';
 import ServiceContext from '../../contexts/ServiceContext';
 import ContactList from './ContactList';
 import { ContactContext } from '../../contexts/ProfileContext';
+import SidebarContext from '../../contexts/SidebarContext';
 import { AddContactContainer, AddContactDialog } from './AddContactDialog';
 import RoomHome from './RoomHome';
 
@@ -43,6 +44,7 @@ const Container: React.FC<Props> = ({
     const [status, setStatus] = useState<LoadingStatusType>('loading');
     const [error, setError] = useState<string>();
     const { roomState, actions } = useContext(RoomContext);
+    const { sidebarState, actions : sidebarActions } = useContext(SidebarContext);
     const contacts = useContext(ContactContext);
     const { registRoomsListener, getRoom } = useContext(ServiceContext);
     const { rooms } = roomState;
@@ -116,6 +118,7 @@ const Container: React.FC<Props> = ({
         <React.Fragment>
             <Presenter
                 loading={status === 'loading'}
+                showSidebar={sidebarState.open}
                 showRoom={Boolean(currentRoomId) && status === 'succeeded'}
                 error={error}
                 request={requestRoom}
@@ -142,6 +145,7 @@ const Container: React.FC<Props> = ({
                                     selected={contact.roomId === currentRoomId}
                                     handleSelectContact={({ roomId }) => {
                                         handleLoadContactRoom(roomId);
+                                        sidebarActions.show(false);
                                     }}
                                 />
                             )}
@@ -156,6 +160,7 @@ const Container: React.FC<Props> = ({
                                     room={room}
                                     handleSelectRoom={({ id }) => {
                                         handleLoadRoom(id);
+                                        sidebarActions.show(false);
                                     }}
                                 />
                             )}
@@ -165,8 +170,7 @@ const Container: React.FC<Props> = ({
                 chatrooms={<React.Fragment>
                     {rooms.map(r => renderChatRoom(r))}
                 </React.Fragment>}
-            >
-            </Presenter>
+            />
             <AddRoomDialog
                 show={showNewRoom}
                 onClose={hideDialog}
