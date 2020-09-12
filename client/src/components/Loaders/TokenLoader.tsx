@@ -44,14 +44,16 @@ const TokenLoader: React.FC<{
 const PermissionLoader: React.FC<{
     renderDefault : ( onPermissionRequest : ()=>void )=>React.ReactElement,
     fallback : React.ReactElement,
+    notSupported : React.ReactElement,
     children : React.ReactElement
 }> = ({
     renderDefault,
     fallback,
+    notSupported,
     children
 }) =>{
     const [permission, setPermission] = useState<NotificationPermission>('default');
-    const { getPermission, requestPermission } = useContext(ServiceContext);
+    const { getPermission, requestPermission, isMessagingSupported } = useContext(ServiceContext);
     useEffect(()=>{
         setPermission(getPermission());
     },[getPermission]);
@@ -62,6 +64,10 @@ const PermissionLoader: React.FC<{
             setPermission('denied');
         })
     },[requestPermission])
+
+    if(!isMessagingSupported()){
+        return notSupported
+    }
 
     if(permission==='default'){
         return renderDefault(onPermissionRequest);

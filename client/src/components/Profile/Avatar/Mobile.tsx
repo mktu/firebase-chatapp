@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import Typography from '@material-ui/core/Typography';
 import { DropzoneRootProps, DropzoneInputProps } from 'react-dropzone';
 import PhotoCameraIcon from '@material-ui/icons/PhotoCamera';
-import GetAppIcon from '@material-ui/icons/GetApp';
 import Portal from '@material-ui/core/Portal';
-import { calcRelativePosition } from '../../utils/dom';
+import { calcRelativePosition } from '../../../utils/dom';
 
 type ColorProps = { [key: string]: any };
 
@@ -40,13 +38,7 @@ const Wrapper = styled.div`
         padding : ${({ theme }) => `${theme.spacing(1)}px`};
         display : flex;
         align-items : center;
-
-        > .support-text{
-            padding : ${({ theme }) => `${theme.spacing(3)}px`};
-            color : ${({ theme }) => `${theme.palette.grey['500']}`};
-            display : flex;
-            align-items : center;
-        }
+        justify-content : center;
     }
 `;
 
@@ -92,7 +84,7 @@ const PortalWrapper = styled.div`
 `;
 
 
-type Props = {
+export type Props = {
     className?: string,
     dropZoneProps: DropzoneRootProps,
     dropZoneInputProps: DropzoneInputProps,
@@ -121,10 +113,6 @@ const Avatar: React.FC<Props> = ({
                     }} >
                     <AvatarImg alt='Avatar image' src={imgUrl || 'https://via.placeholder.com/200?text=200+x+200+image'} />
                 </AvatarWrapper>
-                <div className='support-text'>
-                    <GetAppIcon />
-                    <Typography variant='subtitle1' color='inherit'>DROP IMAGE HERE</Typography>
-                </div>
                 <Portal container={parent}>
                     <PortalWrapper bottom={pos.bottom} left={pos.left + 100}>
                         <label htmlFor="file-upload" className='upload-label'>

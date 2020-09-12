@@ -14,7 +14,6 @@ type Props = {
     showDialog: () => void,
     rooms: Room[],
     renderRoomListItem: (room: Room) => React.ReactElement,
-    currentRoomId?: string
 };
 
 type WrapperProps = {
@@ -91,7 +90,6 @@ export default ({
     showDialog,
     rooms,
     renderRoomListItem,
-    currentRoomId
 }: Props) => {
     const customtheme = useContext(CustomTheme);
     const [showInactive, setShowInactive] = useState(false);

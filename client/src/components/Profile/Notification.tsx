@@ -35,8 +35,14 @@ const Notification: React.FC<{
                         <Button variant='outlined' onClick={onPermissoinRequest}>
                             <NotificationsIcon />
                             Configure notification
-                            </Button>
+                        </Button>
                     )}
+                    notSupported={<div>
+                        <Typography className='permission-blocked'>
+                            <NotificationsOffIcon />
+                            Notification is not supported in this browser.
+                        </Typography>
+                    </div>}
                     fallback={<div>
                         <Typography className='permission-blocked'>
                             <NotificationsOffIcon />

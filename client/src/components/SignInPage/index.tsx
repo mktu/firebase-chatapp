@@ -46,8 +46,10 @@ const List = styled.ul`
 const SignInPage: React.FC<Props> = ({
     onSucceeded
 }) => {
-    const { handleGoogoleLogin, succeeded } = useSignInState();
+    const { handleGoogoleLogin,handleAnonymousLogin, succeeded } = useSignInState();
     if (succeeded) {
+        localStorage.setItem('lastContact', '');
+        localStorage.setItem('lastRoom', '');
         return onSucceeded();
     }
     return (
@@ -68,7 +70,7 @@ const SignInPage: React.FC<Props> = ({
                 </MobileSize>
                 <ButtonWrapper>
                     {
-                        // <Button onClick={handleAnonymousLogin} variant='contained' color='secondary'>SIGNUP WITH ANONYMOUS</Button>
+                        <Button onClick={handleAnonymousLogin} variant='contained' color='secondary'>SIGNUP WITH ANONYMOUS</Button>
                     }
                     <Button onClick={handleGoogoleLogin} variant='contained' color='secondary'>SIGNUP WITH GOOGLE</Button>
                 </ButtonWrapper>

@@ -14,7 +14,8 @@ import {
     requestPermission, 
     getToken, 
     getSavedToken, 
-    getPermission
+    getPermission,
+    isMessagingSupported
  } from '../services/notification';
 import { 
     updateRequest, 
@@ -101,6 +102,7 @@ export const defaultServices = {
     getToken,
     getSavedToken,
     getPermission,
+    isMessagingSupported,
     // auth
     logout,
     loginByGoogle,
@@ -148,6 +150,7 @@ export const createMock = (func: (name: string) => (...args: any[]) => void) => 
         getToken : func('getToken'),
         getSavedToken : func('getSavedToken'),
         getPermission : ()=>{func('getPermission')(); return 'default'},
+        isMessagingSupported : ()=>false,
         uploadProfileImage : func('uploadProfileImage'),
         logout : func('logout'),
         loginByGoogle : func('loginByGoogle'),

@@ -8,6 +8,7 @@ let requestPermission : (onSucceeded: Notifier, onFailed: ErrorHandler) =>void =
 let onTokenRefresh: (onRefresh: RawTokenTransfer) => void = () => { };
 let getToken: (onSucceeded: RawTokenTransfer, onFailed?: ErrorHandler) => void = () => { };
 let getPermission: () => NotificationPermission = ()=>'default';
+const isMessagingSupported = ()=> firebase.messaging.isSupported();
 
 if (!firebase.messaging.isSupported()) {
   console.log('FCM not supported')
@@ -112,5 +113,6 @@ export {
   requestPermission,
   saveToken,
   deleteToken,
-  getSavedToken
+  getSavedToken,
+  isMessagingSupported
 }

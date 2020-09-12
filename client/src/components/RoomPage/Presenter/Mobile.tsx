@@ -13,20 +13,19 @@ const Wrapper = styled.div`
     width : 100vw;
     display : flex;
     box-sizing: border-box;
-    
 `;
 
 const SidebarWrapper = styled.div`
     display : flex;
     box-sizing: border-box;
     width : ${({ open }: { open: boolean }) => open ? `100%` : `0`};
+    height : 100%;
     overflow : hidden;
     transition: all 0.1s ease-out;
 `;
 
 const RoomList = styled.div`
     width : 100%;
-    margin-right : 1rem;
     box-sizing: border-box;
     height : 100%;
     background-color : ${({ customtheme }: WrapperProps) => `${customtheme.primary.main}`};
@@ -43,7 +42,7 @@ const Sidebar = styled.div`
 
 const Chatroom = styled.div`
     box-sizing: border-box;
-    padding : 5px;
+    padding : ${({ open }: { open: boolean }) => open ? `5px` : `0`};
     height : ${({ open }: { open: boolean }) => open ? `100%` : `0`};
     width : ${({ open }: { open: boolean }) => open ? `100%` : `0`};
     overflow : hidden;

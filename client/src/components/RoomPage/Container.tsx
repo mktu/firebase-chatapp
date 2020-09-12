@@ -65,7 +65,7 @@ const Container: React.FC<Props> = ({
                 const lastContactId = localStorage.getItem("lastContact");
                 if (lastContactId) {
                     handleLoadContactRoom(lastContactId)
-                } else if (defaultContact) {
+                } else if (defaultContact && defaultContact.enable) {
                     handleLoadContactRoom(defaultContact.roomId)
                 }
             }
@@ -152,7 +152,6 @@ const Container: React.FC<Props> = ({
                         /> :
                         <RoomList
                             showDialog={showDialog}
-                            currentRoomId={currentRoomId}
                             renderRoomListItem={(room) => (
                                 <RoomListItem
                                     key={room.id}
