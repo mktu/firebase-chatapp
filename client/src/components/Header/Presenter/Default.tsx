@@ -32,8 +32,17 @@ const AppButton = styled(ButtonBase)`
     border-radius : 5px;
 `;
 
+const AppTitle = styled.div`
+    font-size : ${({ theme }) => `${theme.typography.h6.fontSize}`};
+    font-weight : ${({ theme }) => `${theme.typography.h6.fontWeight}`};
+    font-family : ${({ theme }) => `${theme.typography.h6.fontFamily}`};
+    display : block;
+    padding : ${({ theme }) => `${theme.spacing(0.5)}px`};
+    border-radius : 5px;    
+`
+
 export type Props = {
-    profileLoaded : boolean,
+    profileLoaded: boolean,
     handleLogout: () => void,
     onClickApp: () => void,
     searchBox: React.ReactElement,
@@ -50,10 +59,17 @@ function Presenter({
     return (
         <AppBar position="static">
             <Toolbar>
-                <AppButton onClick={onClickApp}>
-                    Chat App
-                </AppButton>
-                {searchBox}
+                {profileLoaded ? (
+                    <AppButton onClick={onClickApp}>
+                        Chat App
+                    </AppButton>
+                ) : (
+                    <AppTitle>
+                        Chat App
+                    </AppTitle>
+                )}
+
+                {profileLoaded && searchBox}
                 <div>
                     {profileLoaded && (
                         <LoginMenu>
