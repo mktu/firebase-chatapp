@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import CircularProgress from '@material-ui/core/CircularProgress';
-
+import { Spin1s200pxIcon } from '../Icons';
 
 const Wrapper = styled.div`
     display : flex;
@@ -18,8 +17,8 @@ const LoadingPage: React.FC<Props> = ({ message }) => {
     return (
         <Wrapper>
             <div>
-                <CircularProgress />
-                {message && message}
+                <Spin1s200pxIcon width='100'/>
+                <div>{message && message}</div>
             </div>
 
         </Wrapper>

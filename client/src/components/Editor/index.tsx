@@ -134,18 +134,43 @@ const ChatEditor: React.FC<{
                     handleKeyEvent('CtrlEnter')();
                     return 'handled';
                 }
+                if(command === 'left-key'){
+                    handleKeyEvent('LeftArrow')();
+                    return 'handled';
+                }
+                if(command === 'right-key'){
+                    handleKeyEvent('RightArrow')();
+                    return 'handled';
+                }
+                if(command === 'down-key'){
+                    handleKeyEvent('DownArrow')();
+                    return 'handled';
+                }
+                if(command === 'up-key'){
+                    handleKeyEvent('UpArrow')();
+                    return 'handled';
+                }
                 return 'not-handled';
             }}
             keyBindingFn={(e) => {
                 if (e.keyCode === 13 /* enter key */ && KeyBindingUtil.hasCommandModifier(e)) {
                     return 'ctrl-enter';
                 }
+                if (e.keyCode === 37 /* left key */ ) {
+                    return 'left-key';
+                }
+                if (e.keyCode === 39 /* left key */ ) {
+                    return 'right-key';
+                }
+                if (e.keyCode === 40 /* left key */ ) {
+                    return 'down-key';
+                }
+                if (e.keyCode === 38 /* left key */ ) {
+                    
+                    return 'up-key';
+                }
                 return getDefaultKeyBinding(e);
             }}
-            onDownArrow={handleKeyEvent('DownArrow')}
-            onUpArrow={handleKeyEvent('UpArrow')}
-            onRightArrow={handleKeyEvent('RightArrow')}
-            onLeftArrow={handleKeyEvent('LeftArrow')}
         />)
     };
 
