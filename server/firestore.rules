@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  function isLoggedIn() {
+    return request.auth.uid != null;
+  }
+  function hasEditProfilePermission(){
+    return isLoggedIn() && request.auth.uid == resource.data.uid;
+  }
+    match /rooms/{roomId} {
+    	allow read, write : if isLoggedIn();
+      match /messages/{messageId} {
+      	allow read, write : if isLoggedIn();
+      }
+      match /requests/{roomId} {
+      	allow read, write : if isLoggedIn();
+      }
+    }
+    match /profiles/{profileId}{
+    		allow read, create : if isLoggedIn();
+        allow update, delete : if hasEditProfilePermission();
+        match /contacts/{targetProfileId}{
+          allow read, write : if isLoggedIn();
+        }
+    }
+    match /tokens/{tokenId}{
+    		allow read, write : if isLoggedIn();
+    }
+  }
+}
