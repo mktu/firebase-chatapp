@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import { Route, Redirect, useHistory, useRouteMatch, useLocation, RouteProps } from "react-router-dom";
 import RoomPage from '../RoomPage';
 import RequestRoom from '../RequestRoom';
@@ -19,6 +19,34 @@ const Target: React.FC = () => {
     const currentRoomId = contactRoomId || roomId;
     const isContact = (roomMatch && roomMatch.url.includes('/rooms/contacts')) || false;
     const isRoomHome = roomHomeMatch?.isExact || false;
+
+    const handleLoadContactRoom = useCallback((roomId) => {
+        if(roomId){
+            history.replace(`/rooms/contacts/${roomId}`);
+        }
+        else {
+            history.replace(`/rooms/contacts`);
+        }
+    },[history]);
+
+    const handleLoadRoom = useCallback((roomId) => {
+        if(roomId){
+            history.replace(`/rooms/${roomId}`);
+        }
+        else{
+            history.replace(`/rooms`);
+        }
+        
+    },[history]);
+
+    const handleRemovedContact = useCallback((roomId)=>{
+        history.replace(`/rooms`);
+    },[history]);
+
+    const handleRequest = useCallback((roomId)=>{
+        history.replace(`/rooms/requests/${roomId}`);
+    },[history]);
+
     // contact or room
     // add Room page's props to room/contact section
     // currentRoomId = roomId/contactId
@@ -43,29 +71,10 @@ const Target: React.FC = () => {
                     />
                 } />
             ): undefined}
-            handleLoadRoom={(roomId) => {
-                if(roomId){
-                    history.replace(`/rooms/${roomId}`);
-                }
-                else{
-                    history.replace(`/rooms`);
-                }
-                
-            }}
-            handleLoadContactRoom={(roomId) => {
-                if(roomId){
-                    history.replace(`/rooms/contacts/${roomId}`);
-                }
-                else {
-                    history.replace(`/rooms/contacts`);
-                }
-            }}
-            handleRequest={(roomId)=>{
-                history.replace(`/rooms/requests/${roomId}`);
-            }}
-            handleRemovedContact={(roomId)=>{
-                history.replace(`/rooms`);
-            }}
+            handleLoadRoom={handleLoadRoom}
+            handleLoadContactRoom={handleLoadContactRoom}
+            handleRequest={handleRequest}
+            handleRemovedContact={handleRemovedContact}
             renderChatRoom={(room) => (
                 <ChatRoom key={room.id} show={currentRoomId === room.id} room={room} focusMessageId={messageId} onClose={() => {
                     history.replace(`/rooms`);

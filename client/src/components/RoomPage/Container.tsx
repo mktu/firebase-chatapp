@@ -63,14 +63,14 @@ const Container: React.FC<Props> = ({
         if (isContact) {
             if (!matchContact) {
                 const lastContactId = localStorage.getItem("lastContact");
-                if (lastContactId) {
+                if (lastContactId && Boolean(contacts.find(c=>c.roomId === lastContactId))) {
                     handleLoadContactRoom(lastContactId)
                 } else if (defaultContact && defaultContact.enable) {
                     handleLoadContactRoom(defaultContact.roomId)
                 }
             }
         }
-    }, [isContact, matchContact, defaultContact, handleLoadContactRoom])
+    }, [isContact, matchContact, defaultContact, handleLoadContactRoom, contacts])
     useEffect(() => {
         const hasRoom = Boolean(currentRoomId) && Boolean(rooms.find(r => r.id === currentRoomId));
 
@@ -126,7 +126,7 @@ const Container: React.FC<Props> = ({
                     <Sidebar selected={isContact ? 'contact' : 'room'} onSelect={(selected) => {
                         if (selected === 'contact') {
                             handleLoadContactRoom();
-                        } else {
+                } else {
                             handleLoadRoom();
                         }
                     }} />
